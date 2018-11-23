@@ -486,7 +486,7 @@ export class ValidaAdvpl {
         this.error++;
       }
     });
-    if (this.error + this.hint + this.warning + this.information > 0) {
+    if (this.error>0 || this.hint>0 || this.warning>0 || this.information>0) {
       console.log(`Foram encontrados no arquivo ${path}:`)
       if (this.error > 0) {
         console.log(`${this.error} Errors .`)
