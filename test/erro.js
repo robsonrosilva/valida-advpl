@@ -1,4 +1,4 @@
-let erro = require("./../lib/erro");
+let erro = require("../lib/erros");
 let mensagem = 'mensagem de teste';
 //teste de diagnostic
 let error = new erro.Erro(0,0,mensagem, erro.Severity.Warning);

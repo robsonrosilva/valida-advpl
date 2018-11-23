@@ -473,7 +473,6 @@ export class ValidaAdvpl {
     this.warning = 0;
     this.error = 0;
     objeto.aErros.forEach((erro: any) => {
-      console.log(erro.Severity);
       if (erro.severity === Severity.Hint) {
         this.hint++;
       }
