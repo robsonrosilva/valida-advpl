@@ -1,0 +1,15 @@
+{
+  "name": "analise-advpl",
+  "version": "1.0.0",
+  "description": "Extension of ADVPL code analysis.",
+  "main": "var/validaAdvpl.js",
+  "scripts": {
+    "compile": "tsc -p ./"
+  },
+  "keywords": [],
+  "author": "Robson Rogério Silva",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^10.12.9"
+  }
+}
