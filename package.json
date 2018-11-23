@@ -1,11 +1,11 @@
 {
   "name": "analise-advpl",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "Extension of ADVPL code analysis.",
   "main": "var/validaAdvpl.js",
   "scripts": {
     "compile": "tsc -p ./",
-    "publish": "npm run compile && npm publish"
+    "prepublish": "npm run compile"
   },
   "keywords": [],
   "author": "Robson Rogério Silva",
