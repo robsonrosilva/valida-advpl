@@ -1,7 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const erros_1 = require("./erros");
-class Include {
+import { Severity, Erro } from './erros';
+import { ValidaAdvpl } from './validaAdvpl';
+
+export class Include {
+    private includeExpressoes: any[];
+    private includesObsoletos: string[];
+
     constructor() {
         this.includesObsoletos = [];
         this.includesObsoletos.push("PROTHEUS.CH");
@@ -16,6 +19,7 @@ class Include {
         this.includesObsoletos.push("WINAPI.CH");
         this.includesObsoletos.push("FWCOMMAND.CH");
         this.includesObsoletos.push("FWCSS.CH");
+
         this.includeExpressoes = [];
         //AP5MAIL.CH
         this.includeExpressoes.push({
@@ -34,6 +38,7 @@ class Include {
             includes: []
         });
         //APVISIO.CH
+
         //APWEB.CH
         this.includeExpressoes.push({
             expressoes: [
@@ -89,12 +94,18 @@ class Include {
             includes: []
         });
         //AVPRINT.CH
+
         //AXSDEF.CH
+
         //BIRTDATASET.CH
+
         //COLORS.CH - DENTRO DO PROTHEUS.CH
         //COMMON.CH
+
         //CONSTANT.CH
+
         //DBFCDXAX.CH
+
         //TOPCONN.CH
         this.includeExpressoes.push({
             expressoes: [/TCQUERY+(\ |\t)/],
@@ -415,71 +426,102 @@ class Include {
             includes: ["STDWIN.CH"]
         });
     }
-    valida(objetoValidacao, conteudoFile) {
+    public valida(objetoValidacao: ValidaAdvpl, conteudoFile: String) {
         //Monta array com includes no fonte
-        let includesFonte = objetoValidacao.includes.map((x) => x.include);
-        let includesAnalise = this.includeExpressoes.map((x) => x.include);
-        if (!objetoValidacao.includes.indexOf((x) => x.include === "TOTVS.CH")) {
-            objetoValidacao.aErros.push(new erros_1.Erro(0, 0, 'Missing TOTVS.CH !', erros_1.Severity.Warning));
+        let includesFonte = objetoValidacao.includes.map((x: any) => x.include);
+        let includesAnalise = this.includeExpressoes.map((x: any) => x.include);
+
+        if (!objetoValidacao.includes.indexOf((x: any) => x.include === "TOTVS.CH")) {
+            objetoValidacao.aErros.push(new Erro(0, 0,
+                'Missing TOTVS.CH !',
+                Severity.Warning)
+            );
         }
+
         //Busca includes duplicados
-        objetoValidacao.includes.forEach((include) => {
+        objetoValidacao.includes.forEach((include: any) => {
             //Verifica se o include � obsoleto
-            if (this.includesObsoletos.indexOf(include.include) !== -1) {
-                objetoValidacao.aErros.push(new erros_1.Erro(include.linha, include.linha, 'The Include '
+            if (
+                this.includesObsoletos.indexOf(include.include) !== -1
+            ) {
+                objetoValidacao.aErros.push(new Erro(include.linha, include.linha,
+                    'The Include '
                     + include.include +
-                    ' is obsolete, it has been replaced by TOTVS.CH!', erros_1.Severity.Warning));
+                     ' is obsolete, it has been replaced by TOTVS.CH!',
+                    Severity.Warning)
+                );
             }
+
             //Verifica se h� o mesmo include em uma linha diferente do mesmo fonte
-            if (objetoValidacao.includes.findIndex(function (x) {
-                return x.include === include.include && x.linha !== include.linha;
-            }) !== -1) {
-                objetoValidacao.aErros.push(new erros_1.Erro(include.linha, include.linha, 'The Include '
+            if (
+                objetoValidacao.includes.findIndex(
+                    function (x: any) {
+                        return x.include === include.include && x.linha !== include.linha;
+                    }
+                ) !== -1
+            ) {
+                objetoValidacao.aErros.push(new Erro(include.linha,include.linha,
+                    'The Include '
                     + include.include +
-                    ' is in duplicity!', erros_1.Severity.Warning));
+                    ' is in duplicity!',
+                    Severity.Warning)
+                );
             }
         });
+
         //valida necessidade de includes
         let linhas = conteudoFile.split("\n");
         for (var key in linhas) {
             //seta linha atual
             let linha = ' ' + linhas[key];
+
             this.includeExpressoes.forEach(element => {
-                element.expressoes.forEach((expressao) => {
+                element.expressoes.forEach((expressao: RegExp) => {
                     if (linha.search(expressao) !== -1) {
                         element.precisa = true;
                         //se n�o estiver na lista de includes 
-                        if (includesFonte.indexOf(element.include) === -1) {
-                            objetoValidacao.aErros.push(new erros_1.Erro(parseInt(key), parseInt(key), 'Import missing include ' + element.include + '!', erros_1.Severity.Error));
+                        if (
+                            includesFonte.indexOf(element.include) === -1
+                        ) {
+                            objetoValidacao.aErros.push(new Erro(parseInt(key), parseInt(key),
+                                'Import missing include ' + element.include + '!',
+                                Severity.Error)
+                            );
                         }
                     }
                 });
             });
+
         }
+
         //Verifica se o include � desnecess�rio
-        objetoValidacao.includes.forEach((include) => {
+        objetoValidacao.includes.forEach((include: any) => {
             //se o include � analisado
             let includeAnalise = this.includeExpressoes[includesAnalise.indexOf(include.include)];
             if (includeAnalise) {
                 if (!includeAnalise.precisa) {
-                    objetoValidacao.aErros.push(new erros_1.Erro(include.linha, include.linha, 'Include ' + include.include + ' not necessary!', erros_1.Severity.Warning));
+                    objetoValidacao.aErros.push(new Erro(include.linha, include.linha,
+                        'Include ' + include.include + ' not necessary!',
+                        Severity.Warning)
+                    );
                 }
                 //Verifica se h� algum include que est� contido nesse INCLUDE
-                includeAnalise.includes.forEach((includeContido) => {
+                includeAnalise.includes.forEach((includeContido: string) => {
                     let includeAnaliseContido = objetoValidacao.includes[includesFonte.indexOf(includeContido)];
                     if (includeAnaliseContido) {
-                        objetoValidacao.aErros.push(new erros_1.Erro(includeAnaliseContido.linha, includeAnaliseContido.linha, 'The Include ' +
+                        objetoValidacao.aErros.push(new Erro(includeAnaliseContido.linha,includeAnaliseContido.linha,
+                            'The Include ' +
                             includeAnaliseContido.include +
                             ' unnecessary, is contained in the include '
-                            + include.include + '!', erros_1.Severity.Warning));
+                            + include.include + '!',
+                            Severity.Warning)
+                        );
                     }
                 });
             }
         });
     }
 }
-exports.Include = Include;
-function localize(id, message) {
-    return message;
+function localize(id:string, message: string) {
+  return message;
 }
-//# sourceMappingURL=include.js.map
