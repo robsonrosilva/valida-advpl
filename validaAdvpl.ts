@@ -486,8 +486,20 @@ export class ValidaAdvpl {
         this.error++;
       }
     });
-    if (this.error > 0) {
-      console.log(`Foram encontrados ${this.error} erros no arquivo ${path}.`);
+    if (this.error + this.hint + this.warning + this.information > 0) {
+      console.log(`Foram encontrados no arquivo ${path}:`)
+      if (this.error > 0) {
+        console.log(`${this.error} Errors .`)
+      }
+      if (this.warning > 0) {
+        console.log(`${this.warning} Warnings .`)
+      }
+      if (this.information > 0) {
+        console.log(`${this.information} Informations .`)
+      }
+      if (this.hint > 0) {
+        console.log(`${this.hint} Hints .`)
+      }
     }
   }
 }
