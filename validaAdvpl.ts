@@ -1,9 +1,8 @@
 import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
-import * as nls from "vscode-nls";
-const localize = nls.loadMessageBundle();
-
+// load modules
+let i18n = require("i18n");
 export class ValidaAdvpl {
   public comentFontPad: any;
   public error: number;
@@ -15,8 +14,15 @@ export class ValidaAdvpl {
   public aErros: any[];
   public ownerDb: string[];
   public empresas: string[];
-
-  constructor(comentFontePad) {
+  constructor(comentFontePad, local) {
+    i18n.configure({
+      locales: ["enu", "ptb"],
+      directory: __dirname + "/locales"
+    });
+    if (!local) {
+      local = "ptb";
+    }
+    i18n.setLocale(local);
     this.aErros = [];
     this.includes = [];
     this.error = 0;
@@ -237,10 +243,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.queryNoEmbedded",
-                "Use of Query IMPROPER without Embedded SQL.! Use: BeginSQL ... EndSQL."
-              ),
+              i18n.__("validaAdvpl.queryNoEmbedded"),
               Severity.Warning
             )
           );
@@ -252,10 +255,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.deleteFrom",
-                "Use not allowed use of DELETE FROM!"
-              ),
+              i18n.__("validaAdvpl.deleteFrom"),
               Severity.Warning
             )
           );
@@ -265,10 +265,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.msgBox",
-                "This feature has been deprecated in Protheus 12, use MessageBox()!"
-              ),
+              i18n.__("validaAdvpl.msgBox"),
               Severity.Information
             )
           );
@@ -282,10 +279,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.folMes",
-                "This parameter has been deprecated in the Protheus 12!"
-              ),
+              i18n.__("validaAdvpl.folMes"),
               Severity.Information
             )
           );
@@ -306,10 +300,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(nFim),
-              localize(
-                "validaAdvpl.conflictMerge",
-                "There are merge conflicts, evaluate before continuing!"
-              ),
+              i18n.__("validaAdvpl.conflictMerge"),
               Severity.Error
             )
           );
@@ -322,10 +313,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.selectAll",
-                'Use not allowed use of SELECT with asterisk "*".!'
-              ),
+              i18n.__("validaAdvpl.selectAll"),
               Severity.Warning
             )
           );
@@ -338,10 +326,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.crlf",
-                "It is recommended to use the expression CRLF."
-              ),
+              i18n.__("validaAdvpl.crlf"),
               Severity.Warning
             )
           );
@@ -367,12 +352,9 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                localize(
-                  "validaAdvpl.noSchema",
-                  "Use not allowed use of SHEMA "
-                ) +
+                i18n.__("validaAdvpl.noSchema") +
                   banco +
-                  localize("validaAdvpl.inQuery", " in Query."),
+                  i18n.__("validaAdvpl.inQuery"),
                 Severity.Error
               )
             );
@@ -401,10 +383,7 @@ export class ValidaAdvpl {
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    localize(
-                      "validaAdvpl.tableFixed",
-                      "NOT ALLOWED Table in Query."
-                    ),
+                    i18n.__("validaAdvpl.tableFixed"),
                     Severity.Error
                   )
                 );
@@ -420,10 +399,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              localize(
-                "validaAdvpl.conout",
-                "Use not allowed use of Conout. => Using the Default Log API (FWLogMsg)."
-              ),
+              i18n.__("validaAdvpl.conout"),
               Severity.Warning
             )
           );
@@ -453,10 +429,8 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                localize(
-                  "validaAdvpl.bestAnalitc",
-                  "To improve the analysis of this query put in different lines the clauses"
-                ) + " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
+                i18n.__("validaAdvpl.bestAnalitc") +
+                  " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
             );
@@ -477,15 +451,7 @@ export class ValidaAdvpl {
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-        new Erro(
-          0,
-          0,
-          localize(
-            "validaAdvpl.padComment",
-            "Check patterns of font comments!! => Use autocomplete docFuncao."
-          ),
-          Severity.Information
-        )
+        new Erro(0, 0, i18n.__("validaAdvpl.padComment"), Severity.Information)
       );
     }
 
@@ -501,10 +467,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(funcao[1]),
             parseInt(funcao[1]),
-            localize(
-              "validaAdvpl.functionNoCommented",
-              "Function, Class, Method or WebService not commented!"
-            ),
+            i18n.__("validaAdvpl.functionNoCommented"),
             Severity.Warning
           )
         );
@@ -522,10 +485,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(comentario[1]),
             parseInt(comentario[1]),
-            localize(
-              "validaAdvpl.CommentNoFunction",
-              "Function comment without function!"
-            ),
+            i18n.__("validaAdvpl.CommentNoFunction"),
             Severity.Warning
           )
         );
@@ -560,10 +520,7 @@ export class ValidaAdvpl {
       this.warning > 0 ||
       this.information > 0
     ) {
-      console.log(
-        localize("validaAdvpl.foundFile", `\tFound in file ${0}:`),
-        path
-      );
+      console.log(`\t${i18n.__("validaAdvpl.foundFile")} ${path}:`);
       if (this.error > 0) {
         console.log(`\t\t${this.error} Errors .`);
       }

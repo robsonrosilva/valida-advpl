@@ -5,7 +5,8 @@
   "main": "var/validaAdvpl.js",
   "scripts": {
     "compile": "tsc -p ./",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "test": "npm run compile && mocha \"./test/validaadvpl.js\""
   },
   "keywords": [],
   "author": "Robson Rogério Silva",
@@ -14,7 +15,7 @@
     "@types/node": "^10.12.9",
     "asserts": "^4.0.2",
     "file-system": "^2.2.2",
-    "mocha": "^5.2.0",
-    "vscode-nls": "^4.0.0"
+    "i18n": "^0.8.3",
+    "mocha": "^5.2.0"
   }
 }

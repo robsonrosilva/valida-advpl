@@ -1,5 +1,5 @@
-import * as nls from "vscode-nls";
-let localize = nls.loadMessageBundle();
+// load modules
+let i18n = require("i18n");
 import { Severity, Erro } from "./erros";
 import { ValidaAdvpl } from "./validaAdvpl";
 
@@ -438,7 +438,7 @@ export class Include {
         new Erro(
           0,
           0,
-          localize("src.Includes.faltaTOTVS", "Missing TOTVS.CH !"),
+          i18n.__("includes.faltaTOTVS", "Missing TOTVS.CH !"),
           Severity.Warning
         )
       );
@@ -452,10 +452,10 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            localize("src.Includes.oInclude", "The Include ") +
+            i18n.__("includes.oInclude", "The Include ") +
               include.include +
-              localize(
-                "src.Includes.SubstTOTVS",
+              i18n.__(
+                "includes.SubstTOTVS",
                 " is obsolete, it has been replaced by TOTVS.CH!"
               ),
             Severity.Warning
@@ -473,9 +473,9 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            localize("src.Includes.oInclude", "The Include ") +
+            i18n.__("includes.oInclude", "The Include ") +
               include.include +
-              localize("src.Includes.emDuplicidade", " is in duplicity!"),
+              i18n.__("includes.emDuplicidade", " is in duplicity!"),
             Severity.Warning
           )
         );
@@ -498,8 +498,8 @@ export class Include {
                 new Erro(
                   parseInt(key),
                   parseInt(key),
-                  localize(
-                    "src.Includes.faltaInclude",
+                  i18n.__(
+                    "includes.faltaInclude",
                     "Import missing include "
                   ) +
                     element.include +
@@ -527,7 +527,7 @@ export class Include {
               include.linha,
               "Include " +
                 include.include +
-                localize("src.Includes.desnecessario", " not necessary!"),
+                i18n.__("includes.desnecessario", " not necessary!"),
               Severity.Warning
             )
           );
@@ -541,10 +541,10 @@ export class Include {
               new Erro(
                 includeAnaliseContido.linha,
                 includeAnaliseContido.linha,
-                localize("src.Includes.oInclude", "The Include ") +
+                i18n.__("includes.oInclude", "The Include ") +
                   includeAnaliseContido.include +
-                  localize(
-                    "src.Includes.desnecessarioContido",
+                  i18n.__(
+                    "includes.desnecessarioContido",
                     " unnecessary, is contained in the include "
                   ) +
                   include.include +

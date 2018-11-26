@@ -8,6 +8,8 @@ let objeto = new validaAdvpl.ValidaAdvpl([]);
 objeto.ownerDb = ['PROTHEUS'];
 objeto.empresas= ['01'];
 
+objeto.validacao(conteudo,"COM ERRO");
+
 describe("Valida arquivo com erros", function () {
 	this.timeout(2000000);
 	describe("Confere erros encontrados", function () {
