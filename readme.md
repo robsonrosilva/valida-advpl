@@ -2,11 +2,6 @@ analise-advpl
 
 Criação de modulo para validação de fontes ADVPL.
 
-[![NPM version][npm-image]][npm-url]
-[![Dependency Status][dependency-image]][dependency-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
-
 ## Install
 ```sh
 npm install analise-advpl --save
