@@ -1,6 +1,8 @@
 import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
+import * as nls from "vscode-nls";
+const localize = nls.loadMessageBundle();
 
 export class ValidaAdvpl {
   public comentFontPad: any;
@@ -235,7 +237,10 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              "Use of Query IMPROPER without Embedded SQL.! \n Use: BeginSQL ... EndSQL.",
+              localize(
+                "validaAdvpl.queryNoEmbedded",
+                "Use of Query IMPROPER without Embedded SQL.! Use: BeginSQL ... EndSQL."
+              ),
               Severity.Warning
             )
           );
@@ -247,15 +252,23 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              "Use not allowed use of DELETE FROM!",
+              localize(
+                "validaAdvpl.deleteFrom",
+                "Use not allowed use of DELETE FROM!"
+              ),
               Severity.Warning
             )
           );
         }
         if (linhaClean.search(/MSGBOX\(/) !== -1) {
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(key),
-              "This feature has been deprecated in Protheus 12, use MessageBox()!",
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              localize(
+                "validaAdvpl.msgBox",
+                "This feature has been deprecated in Protheus 12, use MessageBox()!"
+              ),
               Severity.Information
             )
           );
@@ -266,8 +279,13 @@ export class ValidaAdvpl {
           ) !== -1
         ) {
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(key),
-              "This parameter has been deprecated in the Protheus 12!",
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              localize(
+                "validaAdvpl.folMes",
+                "This parameter has been deprecated in the Protheus 12!"
+              ),
               Severity.Information
             )
           );
@@ -285,8 +303,13 @@ export class ValidaAdvpl {
             }
           }
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(nFim), 
-              "There are merge conflicts, evaluate before continuing!",
+            new Erro(
+              parseInt(key),
+              parseInt(nFim),
+              localize(
+                "validaAdvpl.conflictMerge",
+                "There are merge conflicts, evaluate before continuing!"
+              ),
               Severity.Error
             )
           );
@@ -296,8 +319,13 @@ export class ValidaAdvpl {
           linha.search("\\ \\*\\ ") !== -1
         ) {
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(key),
-              'Use not allowed use of SELECT with asterisk \n "*".!',
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              localize(
+                "validaAdvpl.selectAll",
+                'Use not allowed use of SELECT with asterisk "*".!'
+              ),
               Severity.Warning
             )
           );
@@ -307,8 +335,13 @@ export class ValidaAdvpl {
           linha.search("CHR\\(10\\)") !== -1
         ) {
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(key),
-              "It is recommended to use the expression CRLF.",
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              localize(
+                "validaAdvpl.crlf",
+                "It is recommended to use the expression CRLF."
+              ),
               Severity.Warning
             )
           );
@@ -331,8 +364,15 @@ export class ValidaAdvpl {
         this.ownerDb.forEach(banco => {
           if (cSelect && FromQuery && linha.search(banco) !== -1) {
             objeto.aErros.push(
-                new Erro(parseInt(key), parseInt(key),
-                "Use not allowed use of SHEMA " + banco + " in Query.",
+              new Erro(
+                parseInt(key),
+                parseInt(key),
+                localize(
+                  "validaAdvpl.noSchema",
+                  "Use not allowed use of SHEMA "
+                ) +
+                  banco +
+                  localize("validaAdvpl.inQuery", " in Query."),
                 Severity.Error
               )
             );
@@ -358,8 +398,13 @@ export class ValidaAdvpl {
                 palavra.length === 6
               ) {
                 objeto.aErros.push(
-                    new Erro(parseInt(key), parseInt(key),
-                    "NOT ALLOWED Table in Query.",
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    localize(
+                      "validaAdvpl.tableFixed",
+                      "NOT ALLOWED Table in Query."
+                    ),
                     Severity.Error
                   )
                 );
@@ -372,8 +417,13 @@ export class ValidaAdvpl {
         }
         if (linhaClean.search(/CONOUT\(/) !== -1) {
           objeto.aErros.push(
-              new Erro(parseInt(key), parseInt(key),
-              "Use not allowed use of Conout. => Using the Default Log API (FWLogMsg).",
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              localize(
+                "validaAdvpl.conout",
+                "Use not allowed use of Conout. => Using the Default Log API (FWLogMsg)."
+              ),
               Severity.Warning
             )
           );
@@ -400,9 +450,13 @@ export class ValidaAdvpl {
 
           if (addErro) {
             objeto.aErros.push(
-                new Erro(parseInt(key), parseInt(key),
-                "To improve the analysis of this query put in different lines the clauses" +
-                  " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
+              new Erro(
+                parseInt(key),
+                parseInt(key),
+                localize(
+                  "validaAdvpl.bestAnalitc",
+                  "To improve the analysis of this query put in different lines the clauses"
+                ) + " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
             );
@@ -423,8 +477,13 @@ export class ValidaAdvpl {
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-          new Erro(0, 0,
-          "Check patterns of font comments!! => Use autocomplete docFuncao.",
+        new Erro(
+          0,
+          0,
+          localize(
+            "validaAdvpl.padComment",
+            "Check patterns of font comments!! => Use autocomplete docFuncao."
+          ),
           Severity.Information
         )
       );
@@ -439,8 +498,13 @@ export class ValidaAdvpl {
 
       if (!achou) {
         objeto.aErros.push(
-            new Erro(parseInt(funcao[1]), parseInt(funcao[1]),
-            "Function, Class, Method or WebService not commented!",
+          new Erro(
+            parseInt(funcao[1]),
+            parseInt(funcao[1]),
+            localize(
+              "validaAdvpl.functionNoCommented",
+              "Function, Class, Method or WebService not commented!"
+            ),
             Severity.Warning
           )
         );
@@ -455,9 +519,13 @@ export class ValidaAdvpl {
 
       if (!achou) {
         objeto.aErros.push(
-          
-            new Erro(parseInt(comentario[1]), parseInt(comentario[1]),
-            "Function comment without function!",
+          new Erro(
+            parseInt(comentario[1]),
+            parseInt(comentario[1]),
+            localize(
+              "validaAdvpl.CommentNoFunction",
+              "Function comment without function!"
+            ),
             Severity.Warning
           )
         );
@@ -486,19 +554,27 @@ export class ValidaAdvpl {
         this.error++;
       }
     });
-    if (this.error>0 || this.hint>0 || this.warning>0 || this.information>0) {
-      console.log(`\tForam encontrados no arquivo ${path}:`)
+    if (
+      this.error > 0 ||
+      this.hint > 0 ||
+      this.warning > 0 ||
+      this.information > 0
+    ) {
+      console.log(
+        localize("validaAdvpl.foundFile", `\tFound in file ${0}:`),
+        path
+      );
       if (this.error > 0) {
-        console.log(`\t\t${this.error} Errors .`)
+        console.log(`\t\t${this.error} Errors .`);
       }
       if (this.warning > 0) {
-        console.log(`\t\t${this.warning} Warnings .`)
+        console.log(`\t\t${this.warning} Warnings .`);
       }
       if (this.information > 0) {
-        console.log(`\t\t${this.information} Informations .`)
+        console.log(`\t\t${this.information} Informations .`);
       }
       if (this.hint > 0) {
-        console.log(`\t\t${this.hint} Hints .`)
+        console.log(`\t\t${this.hint} Hints .`);
       }
     }
   }

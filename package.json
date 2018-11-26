@@ -12,6 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^10.12.9",
-    "file-system": "^2.2.2"
+    "asserts": "^4.0.2",
+    "file-system": "^2.2.2",
+    "mocha": "^5.2.0",
+    "vscode-nls": "^4.0.0"
   }
 }
