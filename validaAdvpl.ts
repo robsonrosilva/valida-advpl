@@ -12,14 +12,9 @@ export class ValidaAdvpl {
   public aErros: any[];
   public ownerDb: string[];
   public empresas: string[];
-  private i18n = require("i18n");
+  private local;
   constructor(comentFontePad, local) {
-    let locales = ["en", "pt-br"];
-    this.i18n.configure({
-      locales: locales,
-      directory: __dirname + "/locales"
-    });
-    this.i18n.setLocale(locales.indexOf(local) + 1 ? local : "en");
+    this.local = local;
     this.aErros = [];
     this.includes = [];
     this.error = 0;
@@ -240,7 +235,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.queryNoEmbedded"),
+              traduz("validaAdvpl.queryNoEmbedded",this.local),
               Severity.Warning
             )
           );
@@ -252,7 +247,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.deleteFrom"),
+              traduz("validaAdvpl.deleteFrom",this.local),
               Severity.Warning
             )
           );
@@ -262,7 +257,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.msgBox"),
+              traduz("validaAdvpl.msgBox",this.local),
               Severity.Information
             )
           );
@@ -276,7 +271,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.folMes"),
+              traduz("validaAdvpl.folMes",this.local),
               Severity.Information
             )
           );
@@ -297,7 +292,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(nFim),
-              this.i18n.__("validaAdvpl.conflictMerge"),
+              traduz("validaAdvpl.conflictMerge",this.local),
               Severity.Error
             )
           );
@@ -310,7 +305,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.selectAll"),
+              traduz("validaAdvpl.selectAll",this.local),
               Severity.Warning
             )
           );
@@ -323,7 +318,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.crlf"),
+              traduz("validaAdvpl.crlf",this.local),
               Severity.Warning
             )
           );
@@ -349,9 +344,9 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                this.i18n.__("validaAdvpl.noSchema") +
+                traduz("validaAdvpl.noSchema",this.local) +
                   banco +
-                  this.i18n.__("validaAdvpl.inQuery"),
+                  traduz("validaAdvpl.inQuery",this.local),
                 Severity.Error
               )
             );
@@ -380,7 +375,7 @@ export class ValidaAdvpl {
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    this.i18n.__("validaAdvpl.tableFixed"),
+                    traduz("validaAdvpl.tableFixed",this.local),
                     Severity.Error
                   )
                 );
@@ -396,7 +391,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              this.i18n.__("validaAdvpl.conout"),
+              traduz("validaAdvpl.conout",this.local),
               Severity.Warning
             )
           );
@@ -426,7 +421,7 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                this.i18n.__("validaAdvpl.bestAnalitc") +
+                traduz("validaAdvpl.bestAnalitc",this.local) +
                   " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
@@ -448,7 +443,7 @@ export class ValidaAdvpl {
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-        new Erro(0, 0, this.i18n.__("validaAdvpl.padComment"), Severity.Information)
+        new Erro(0, 0, traduz("validaAdvpl.padComment",this.local), Severity.Information)
       );
     }
 
@@ -464,7 +459,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(funcao[1]),
             parseInt(funcao[1]),
-            this.i18n.__("validaAdvpl.functionNoCommented"),
+            traduz("validaAdvpl.functionNoCommented",this.local),
             Severity.Warning
           )
         );
@@ -482,7 +477,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(comentario[1]),
             parseInt(comentario[1]),
-            this.i18n.__("validaAdvpl.CommentNoFunction"),
+            traduz("validaAdvpl.CommentNoFunction",this.local),
             Severity.Warning
           )
         );
@@ -490,7 +485,7 @@ export class ValidaAdvpl {
     });
 
     //Validador de includes
-    let oInclude = new Include(objeto.i18n);
+    let oInclude = new Include(objeto.local);
     oInclude.valida(objeto, conteudoSComentario);
     //Conta os erros por tipo e totaliza no objeto
     this.hint = 0;
@@ -517,7 +512,7 @@ export class ValidaAdvpl {
       this.warning > 0 ||
       this.information > 0
     ) {
-      console.log(`\t${this.i18n.__("validaAdvpl.foundFile")} ${path}:`);
+      console.log(`\t${traduz("validaAdvpl.foundFile",this.local)} ${path}:`);
       if (this.error > 0) {
         console.log(`\t\t${this.error} Errors .`);
       }
@@ -532,4 +527,15 @@ export class ValidaAdvpl {
       }
     }
   }
+}
+
+function traduz(key,local) {
+  let locales = ["en", "pt-br"];
+  let i18n = require("i18n");
+  i18n.configure({
+    locales: locales,
+    directory: __dirname + "/locales"
+  });
+  i18n.setLocale(locales.indexOf(local) + 1 ? local : "en");
+  return i18n.__(key);
 }

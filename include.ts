@@ -4,9 +4,9 @@ import { ValidaAdvpl } from "./validaAdvpl";
 export class Include {
   private includeExpressoes: any[];
   private includesObsoletos: string[];
-  protected i18n;
-  constructor(i18n) {
-    this.i18n = i18n;
+  protected local;
+  constructor(local) {
+    this.local = local;
     this.includesObsoletos = [];
     this.includesObsoletos.push("PROTHEUS.CH");
     this.includesObsoletos.push("DIALOG.CH");
@@ -437,7 +437,7 @@ export class Include {
         new Erro(
           0,
           0,
-          this.i18n.__("includes.faltaTOTVS", "Missing TOTVS.CH !"),
+          traduz("includes.faltaTOTVS", this.local),
           Severity.Warning
         )
       );
@@ -451,11 +451,10 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            this.i18n.__("includes.oInclude", "The Include ") +
+            traduz("includes.oInclude", this.local) +
               include.include +
-              this.i18n.__(
-                "includes.SubstTOTVS",
-                " is obsolete, it has been replaced by TOTVS.CH!"
+              traduz(
+                "includes.SubstTOTVS", this.local
               ),
             Severity.Warning
           )
@@ -472,9 +471,9 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            this.i18n.__("includes.oInclude", "The Include ") +
+            traduz("includes.oInclude", this.local) +
               include.include +
-              this.i18n.__("includes.emDuplicidade", " is in duplicity!"),
+              traduz("includes.emDuplicidade", this.local),
             Severity.Warning
           )
         );
@@ -497,9 +496,8 @@ export class Include {
                 new Erro(
                   parseInt(key),
                   parseInt(key),
-                  this.i18n.__(
-                    "includes.faltaInclude",
-                    "Import missing include "
+                  traduz(
+                    "includes.faltaInclude", this.local
                   ) +
                     element.include +
                     "!",
@@ -526,7 +524,7 @@ export class Include {
               include.linha,
               "Include " +
                 include.include +
-                this.i18n.__("includes.desnecessario", " not necessary!"),
+                traduz("includes.desnecessario", this.local),
               Severity.Warning
             )
           );
@@ -540,11 +538,10 @@ export class Include {
               new Erro(
                 includeAnaliseContido.linha,
                 includeAnaliseContido.linha,
-                this.i18n.__("includes.oInclude", "The Include ") +
+                traduz("includes.oInclude", this.local) +
                   includeAnaliseContido.include +
-                  this.i18n.__(
-                    "includes.desnecessarioContido",
-                    " unnecessary, is contained in the include "
+                  traduz(
+                    "includes.desnecessarioContido", this.local
                   ) +
                   include.include +
                   "!",
@@ -556,4 +553,15 @@ export class Include {
       }
     });
   }
+}
+
+function traduz(key,local) {
+  let locales = ["en", "pt-br"];
+  let i18n = require("i18n");
+  i18n.configure({
+    locales: locales,
+    directory: __dirname + "/locales"
+  });
+  i18n.setLocale(locales.indexOf(local) + 1 ? local : "en");
+  return i18n.__(key);
 }
