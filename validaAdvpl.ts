@@ -1,8 +1,6 @@
 import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
-// load modules
-let i18n = require("i18n");
 export class ValidaAdvpl {
   public comentFontPad: any;
   public error: number;
@@ -14,15 +12,16 @@ export class ValidaAdvpl {
   public aErros: any[];
   public ownerDb: string[];
   public empresas: string[];
+  private i18n = require("i18n");
   constructor(comentFontePad, local) {
-    i18n.configure({
+    this.i18n.configure({
       locales: ["enu", "ptb"],
       directory: __dirname + "/locales"
     });
     if (!local) {
       local = "ptb";
     }
-    i18n.setLocale(local);
+    this.i18n.setLocale(local);
     this.aErros = [];
     this.includes = [];
     this.error = 0;
@@ -243,7 +242,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.queryNoEmbedded"),
+              this.i18n.__("validaAdvpl.queryNoEmbedded"),
               Severity.Warning
             )
           );
@@ -255,7 +254,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.deleteFrom"),
+              this.i18n.__("validaAdvpl.deleteFrom"),
               Severity.Warning
             )
           );
@@ -265,7 +264,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.msgBox"),
+              this.i18n.__("validaAdvpl.msgBox"),
               Severity.Information
             )
           );
@@ -279,7 +278,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.folMes"),
+              this.i18n.__("validaAdvpl.folMes"),
               Severity.Information
             )
           );
@@ -300,7 +299,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(nFim),
-              i18n.__("validaAdvpl.conflictMerge"),
+              this.i18n.__("validaAdvpl.conflictMerge"),
               Severity.Error
             )
           );
@@ -313,7 +312,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.selectAll"),
+              this.i18n.__("validaAdvpl.selectAll"),
               Severity.Warning
             )
           );
@@ -326,7 +325,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.crlf"),
+              this.i18n.__("validaAdvpl.crlf"),
               Severity.Warning
             )
           );
@@ -352,9 +351,9 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                i18n.__("validaAdvpl.noSchema") +
+                this.i18n.__("validaAdvpl.noSchema") +
                   banco +
-                  i18n.__("validaAdvpl.inQuery"),
+                  this.i18n.__("validaAdvpl.inQuery"),
                 Severity.Error
               )
             );
@@ -383,7 +382,7 @@ export class ValidaAdvpl {
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    i18n.__("validaAdvpl.tableFixed"),
+                    this.i18n.__("validaAdvpl.tableFixed"),
                     Severity.Error
                   )
                 );
@@ -399,7 +398,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              i18n.__("validaAdvpl.conout"),
+              this.i18n.__("validaAdvpl.conout"),
               Severity.Warning
             )
           );
@@ -429,7 +428,7 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                i18n.__("validaAdvpl.bestAnalitc") +
+                this.i18n.__("validaAdvpl.bestAnalitc") +
                   " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
@@ -451,7 +450,7 @@ export class ValidaAdvpl {
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-        new Erro(0, 0, i18n.__("validaAdvpl.padComment"), Severity.Information)
+        new Erro(0, 0, this.i18n.__("validaAdvpl.padComment"), Severity.Information)
       );
     }
 
@@ -467,7 +466,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(funcao[1]),
             parseInt(funcao[1]),
-            i18n.__("validaAdvpl.functionNoCommented"),
+            this.i18n.__("validaAdvpl.functionNoCommented"),
             Severity.Warning
           )
         );
@@ -485,7 +484,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(comentario[1]),
             parseInt(comentario[1]),
-            i18n.__("validaAdvpl.CommentNoFunction"),
+            this.i18n.__("validaAdvpl.CommentNoFunction"),
             Severity.Warning
           )
         );
@@ -520,7 +519,7 @@ export class ValidaAdvpl {
       this.warning > 0 ||
       this.information > 0
     ) {
-      console.log(`\t${i18n.__("validaAdvpl.foundFile")} ${path}:`);
+      console.log(`\t${this.i18n.__("validaAdvpl.foundFile")} ${path}:`);
       if (this.error > 0) {
         console.log(`\t\t${this.error} Errors .`);
       }

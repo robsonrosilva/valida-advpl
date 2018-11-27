@@ -1,11 +1,10 @@
-// load modules
-let i18n = require("i18n");
 import { Severity, Erro } from "./erros";
 import { ValidaAdvpl } from "./validaAdvpl";
 
 export class Include {
   private includeExpressoes: any[];
   private includesObsoletos: string[];
+  private i18n = require("i18n");
 
   constructor() {
     this.includesObsoletos = [];
@@ -438,7 +437,7 @@ export class Include {
         new Erro(
           0,
           0,
-          i18n.__("includes.faltaTOTVS", "Missing TOTVS.CH !"),
+          this.i18n.__("includes.faltaTOTVS", "Missing TOTVS.CH !"),
           Severity.Warning
         )
       );
@@ -452,9 +451,9 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            i18n.__("includes.oInclude", "The Include ") +
+            this.i18n.__("includes.oInclude", "The Include ") +
               include.include +
-              i18n.__(
+              this.i18n.__(
                 "includes.SubstTOTVS",
                 " is obsolete, it has been replaced by TOTVS.CH!"
               ),
@@ -473,9 +472,9 @@ export class Include {
           new Erro(
             include.linha,
             include.linha,
-            i18n.__("includes.oInclude", "The Include ") +
+            this.i18n.__("includes.oInclude", "The Include ") +
               include.include +
-              i18n.__("includes.emDuplicidade", " is in duplicity!"),
+              this.i18n.__("includes.emDuplicidade", " is in duplicity!"),
             Severity.Warning
           )
         );
@@ -498,7 +497,7 @@ export class Include {
                 new Erro(
                   parseInt(key),
                   parseInt(key),
-                  i18n.__(
+                  this.i18n.__(
                     "includes.faltaInclude",
                     "Import missing include "
                   ) +
@@ -527,7 +526,7 @@ export class Include {
               include.linha,
               "Include " +
                 include.include +
-                i18n.__("includes.desnecessario", " not necessary!"),
+                this.i18n.__("includes.desnecessario", " not necessary!"),
               Severity.Warning
             )
           );
@@ -541,9 +540,9 @@ export class Include {
               new Erro(
                 includeAnaliseContido.linha,
                 includeAnaliseContido.linha,
-                i18n.__("includes.oInclude", "The Include ") +
+                this.i18n.__("includes.oInclude", "The Include ") +
                   includeAnaliseContido.include +
-                  i18n.__(
+                  this.i18n.__(
                     "includes.desnecessarioContido",
                     " unnecessary, is contained in the include "
                   ) +
