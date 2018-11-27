@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Extension of ADVPL code analysis.",
   "main": "var/validaAdvpl.js",
   "scripts": {

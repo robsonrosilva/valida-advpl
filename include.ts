@@ -4,9 +4,9 @@ import { ValidaAdvpl } from "./validaAdvpl";
 export class Include {
   private includeExpressoes: any[];
   private includesObsoletos: string[];
-  private i18n = require("i18n");
-
-  constructor() {
+  protected i18n;
+  constructor(i18n) {
+    this.i18n = i18n;
     this.includesObsoletos = [];
     this.includesObsoletos.push("PROTHEUS.CH");
     this.includesObsoletos.push("DIALOG.CH");

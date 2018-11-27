@@ -14,14 +14,12 @@ export class ValidaAdvpl {
   public empresas: string[];
   private i18n = require("i18n");
   constructor(comentFontePad, local) {
+    let locales = ["en", "pt-br"];
     this.i18n.configure({
-      locales: ["enu", "ptb"],
+      locales: locales,
       directory: __dirname + "/locales"
     });
-    if (!local) {
-      local = "ptb";
-    }
-    this.i18n.setLocale(local);
+    this.i18n.setLocale(locales.indexOf(local) + 1 ? local : "en");
     this.aErros = [];
     this.includes = [];
     this.error = 0;
@@ -492,7 +490,7 @@ export class ValidaAdvpl {
     });
 
     //Validador de includes
-    let oInclude = new Include();
+    let oInclude = new Include(objeto.i18n);
     oInclude.valida(objeto, conteudoSComentario);
     //Conta os erros por tipo e totaliza no objeto
     this.hint = 0;
