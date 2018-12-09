@@ -134,6 +134,17 @@ export class ValidaAdvpl {
             }
           }
         }
+
+        //Remove espaços ou tabulações seguidas
+        linhaClean.replace(/\t/g, " ");
+        let conteudos = linhaClean.split(" ");
+        linhaClean = "";
+        for (const key in conteudos) {
+          if (conteudos[key]) {
+            linhaClean += conteudos[key] + " ";
+          }
+        }
+
         conteudoSComentario = conteudoSComentario + linhaClean + "\n";
 
         //verifica se é função e adiciona no array
