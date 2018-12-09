@@ -12,6 +12,7 @@ export class ValidaAdvpl {
   public aErros: any[];
   public ownerDb: string[];
   public empresas: string[];
+  public fonte: Fonte;
   private local;
   constructor(comentFontePad, local) {
     this.local = local;
@@ -31,7 +32,7 @@ export class ValidaAdvpl {
   public validacao(texto: String, path: String) {
     this.aErros = [];
     this.includes = [];
-    let fonte = new Fonte(path);
+    this.fonte = new Fonte(path);
     let objeto = this;
     let conteudoSComentario = "";
     let linhas = texto.split("\n");
@@ -157,14 +158,14 @@ export class ValidaAdvpl {
           funcoes.push([nomeFuncao, key]);
           //verifica o TIPO
           if (linhaClean.search(/(USER)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1) {
-            fonte.addFunction(
+            this.fonte.addFunction(
               Tipos["User Function"],
               nomeFuncao,
               parseInt(key)
             );
           } else if (linhaClean.split(" ")[0].split("\t")[0] === "FUNCTION") {
             //verifica se a primeira palavra é FUNCTION
-            fonte.addFunction(Tipos["Function"], nomeFuncao, parseInt(key));
+            this.fonte.addFunction(Tipos["Function"], nomeFuncao, parseInt(key));
           }
         }
         //Verifica se é CLASSE ou WEBSERVICE
@@ -188,7 +189,7 @@ export class ValidaAdvpl {
             key
           ]);
           if (linhaClean.split(" ")[0].split("\t")[0] === "CLASS") {
-            fonte.addFunction(
+            this.fonte.addFunction(
               Tipos["Class"],
               linhaClean
                 .trim()
