@@ -74,10 +74,7 @@ export class Include {
         /(\ |\t|\(|\,)+BYREF/,
         /(\ |\t|\(|\,)+WSSTRUCT/,
         /(\ |\t|\(|\,)+WSSERVICE/,
-        /(\ |\t|\(|\,)+WSCLIENT/,
-        /(\ |\t|\(|\,)+WSMETHOD/,
-        /(\ |\t|\(|\,)+_WSPARMS_/,
-        /(\ |\t|\(|\,)+WSDATA/
+        /(\ |\t|\(|\,)+WSCLIENT/
       ],
       include: "APWEBSRV.CH",
       precisa: false,
@@ -145,6 +142,17 @@ export class Include {
         /DEFINE+(\ |\t)+CELL+(\ |\t)+HEADER+(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/
       ],
       include: "REPORT.CH",
+      precisa: false,
+      includes: []
+    });
+    //RESTFUL.CH
+    this.includeExpressoes.push({
+      expressoes: [
+        /(\ |\t|\(|\,)+WSRESTFUL/,
+        /(\ |\t|\(|\,)+WADL/,
+        /(\ |\t|\(|\,)+WADLMETHOD/
+      ],
+      include: "RESTFUL.CH",
       precisa: false,
       includes: []
     });
