@@ -1,8 +1,8 @@
 {
   "name": "analise-advpl",
-  "version": "2.0.10",
+  "version": "2.0.12",
   "description": "Extension of ADVPL code analysis.",
-  "main": "var/validaAdvpl.js",
+  "main": "mocha \"./test/validaadvpl.js\"",
   "scripts": {
     "compile": "tsc -p ./",
     "prepublish": "npm run compile",

@@ -1,0 +1,251 @@
+/*//#########################################################################################
+Projeto : POUPEX
+Modulo  : SIGACOM
+Fonte   : PXCOMW01
+Objetivo: WebService REST de Cotações.
+*///#########################################################################################
+
+#INCLUDE 'TOTVS.CH'
+#INCLUDE "RESTFUL.CH"
+#INCLUDE "AARRAY.CH"
+#INCLUDE "JSON.CH"
+
+WSRESTFUL PXCOMW01 DESCRIPTION "Serviço Rest de cotações"
+
+	WSMETHOD GET DESCRIPTION "Exemplo de retorno de cotacao" WSSYNTAX "/cotacao/{hash}"
+	WSMETHOD POST DESCRIPTION "Exemplo de atualização de cotacao" WSSYNTAX "/cotacao/{hash}"
+
+END WSRESTFUL
+
+/*/{Protheus.doc} GET
+
+   Método de busca de dados de cotação.
+
+   @author  Robson Rogério Silva
+   @since   03-01-2019
+/*/
+
+WSMETHOD GET WSSERVICE PXCOMW01
+    Local oCotacao	:= Array(#)
+    Local oFornece, oItem, oEmpresa, oProduto, oPagamento, oEmpresaEntrega
+    Local cHash, aAreaSM0 , cUnidMed
+	Local ccAlias	:= GetNextAlias()
+    Local cDescric  := ""
+
+	ConOut( "Processou....")
+    If Len(::aURLParms) > 0
+		cHash	:= ::aURLParms[1]
+    Else
+        SetRestFault(404,"A página solicitada não foi encontrada!")
+        Return .F.
+    EndIf
+
+    //Inicializa itens
+    oCotacao[#"itens"]                  := {}
+    oCotacao[#"valorTotal"]             := 0
+    oCotacao[#"valorFrete"]             := 0
+    oCotacao[#"valorDespesas"]          := 0
+    oCotacao[#"valorDescontos"]         := 0
+
+	// define o tipo de retorno do método
+	::SetContentType("application/json;charset=ISO-8859-1")
+
+	BeginSql Alias ccAlias
+		Select 
+			R_E_C_N_O_ RECN
+		FROM 
+			%table:SC8%
+		WHERE D_E_L_E_T_ = ' '
+		AND C8_XHASH = %exp:cHash%
+		AND C8_NUMPED = ' '
+	EndSql
+
+    While ! (ccAlias)->(Eof()) 
+		SC8->(DbGoTo((ccAlias)->RECN))
+
+		SA2->(DbSetOrder(1))
+		SA2->(DbSeek(xFilial()+SC8->C8_FORNECE+SC8->C8_LOJA))
+
+		oFornece 		:= Array(#)
+		oEmpresa 		:= Array(#)
+		oEmpresaEntrega := Array(#)
+
+		oCotacao[#"numero"]                 := SC8->C8_NUM
+		oCotacao[#"emissao"]                := SC8->C8_EMISSAO
+		oCotacao[#"condicaoPagamento"]      := AllTrim(SC8->C8_COND)
+		oCotacao[#"frete"]                  := If(AllTrim(SC8->C8_TPFRETE) == "F", "FOB", "CIF")
+		oCotacao[#"valorFrete"]             := oCotacao[#"valorFrete"] + SC8->C8_VALFRE
+		oCotacao[#"valorDespesas"]          := oCotacao[#"valorDespesas"] + SC8->C8_DESPESA
+		oCotacao[#"valorDescontos"]         := oCotacao[#"valorDescontos"] + SC8->C8_VLDESC
+		oCotacao[#"contato"]                := AllTrim(SC8->C8_CONTATO)
+		oCotacao[#"prazo"]	                := SC8->C8_PRAZO
+		oCotacao[#"validade"]               := SC8->C8_VALIDA
+
+		oEmpresa[#"codigo"]                 := SM0->M0_CODIGO
+		oEmpresa[#"nomeEmpresa"]            := AllTrim(SM0->M0_NOMECOM)
+		oEmpresa[#"codigoFilial"]           := SM0->M0_CODFIL
+		oEmpresa[#"nomeFilial"]             := Alltrim(FwFilialName(cEmpAnt,SM0->M0_CODFIL))
+		oCotacao[#"empresa"]                := oEmpresa
+
+		aAreaSM0 := SM0->(GetArea())
+		SM0->(DbSetOrder(1))
+		SM0->(DbSeek(cEmpAnt + SC8->C8_FILENT))
+		oEmpresaEntrega[#"codigo"]          := SM0->M0_CODIGO
+		oEmpresaEntrega[#"nomeEmpresa"]     := AllTrim(SM0->M0_NOMECOM)
+		oEmpresaEntrega[#"codigoFilial"]    := SM0->M0_CODFIL
+		oEmpresaEntrega[#"nomeFilial"]      := Alltrim(FwFilialName(cEmpAnt,SM0->M0_CODFIL))
+		oEmpresaEntrega[#"cidade"]      	:= Alltrim(SM0->M0_CIDENT) + " / " + Alltrim(SM0->M0_ESTENT)
+		oEmpresaEntrega[#"endereco"]      	:= Alltrim(SM0->M0_ENDENT) + " " + Alltrim(SM0->M0_BAIRENT) + " " + Alltrim(SM0->M0_COMPENT)
+		oCotacao[#"empresaEntrega"]         := oEmpresaEntrega
+		SM0->(RestArea(aAreaSM0))
+
+		oFornece[#"codigo"]                 := SA2->A2_COD
+		oFornece[#"loja"]                   := SA2->A2_LOJA
+		oFornece[#"razaoSocial"]            := AllTrim(SA2->A2_NOME) + If(FieldPos("A2_XOBS") > 0, "  " + Alltrim(SA2->A2_XOBS),"")
+		oFornece[#"nomeFantasia"]           := AllTrim(SA2->A2_NREDUZ)
+		oFornece[#"cgc"]                    := AllTrim(SA2->A2_CGC)
+		oFornece[#"contato"]                := AllTrim(SA2->A2_CONTATO)
+		oFornece[#"email"]                  := AllTrim(SA2->A2_EMAIL)
+		oCotacao[#"fornecedor"]             := oFornece
+
+        cDescric := AllTrim(Posicione("SB5",1,xFilial("SB5") + SC8->C8_PRODUTO , "SB5->B5_CEME"))
+        if empty(cDescric)
+            cDescric := AllTrim(Posicione("SB1",1,xFilial("SB1") + SC8->C8_PRODUTO , "SB1->B1_DESC"))
+        EndIf
+
+		cUnidMed							:= Posicione("SAH",1,xFilial("SAH") + SC8->C8_UM , "SAH->AH_UMRES")
+
+		oProduto := Array(#)
+		oProduto[#"codigo"]                 := SC8->C8_PRODUTO
+		oProduto[#"descricao"]              := cDescric
+		oProduto[#"unidadeMedida"]          := AllTrim(cUnidMed)
+
+		oItem := Array(#)
+		oItem[#'produto']                   := oProduto
+		oItem[#"item"]                      := SC8->C8_ITEM
+		oItem[#"quantidade"]                := SC8->C8_QUANT
+        oItem[#"quantidadeMaxima"]          := SC8->C8_QUANT
+		oItem[#"precoUnitario"]             := SC8->C8_PRECO
+		oItem[#"total"]                     := SC8->C8_TOTAL
+		oItem[#"garantia"]                	:= if(FieldPos("C8_XGARANT") > 0,SC8->C8_XGARANT,0)
+		oItem[#"observacao"]                := AllTrim(SC8->C8_OBS)
+		oCotacao[#"valorTotal"]             += SC8->C8_TOTAL
+		aAdd(oCotacao[#"itens"], oItem)
+
+        (ccAlias)->(DbSkip())
+    Enddo
+	(ccAlias)->(DbCloseArea())
+
+    oCotacao[#"valorMercadorias"] := oCotacao[#"valorTotal"]
+    oCotacao[#"valorTotal"] += oCotacao[#"valorFrete"]
+    oCotacao[#"valorTotal"] += oCotacao[#"valorDespesas"]
+    oCotacao[#"valorTotal"] -= oCotacao[#"valorDescontos"]
+
+    oCotacao[#"condicoesPagamento"] := {}
+    SE4->(Dbgotop())
+    While SE4->(! Eof())
+        If SE4->E4_MSBLQL != "1"
+            oPagamento := Array(#)
+            oPagamento[#"codigo"]    := SE4->E4_CODIGO
+            oPagamento[#"descricao"] := SE4->E4_DESCRI
+            aAdd(oCotacao[#"condicoesPagamento"], oPagamento)
+        EndIf
+        SE4->(DbSkip())
+    EndDo
+
+    ::SetResponse(JsonMinify(ToJson(oCotacao)))
+Return .T.
+
+
+/*/{Protheus.doc} POST
+   Método de atualização de cotação.
+
+   @author  Robson Rogério Silva
+   @since   03-01-2019
+/*/
+
+WSMETHOD POST WSSERVICE PXCOMW01
+    Local oCotacao
+    Local oFornece, oItem, oProduto
+    Local cHash
+    Local nFrete, nDesc, nDesp
+    Local nI
+	Local cValidade
+	Local ccAlias	:= GetNextAlias()
+    Private cBody 	:= ::GetContent()
+    If Len(::aURLParms) > 0
+		cHash	:= ::aURLParms[1]
+    Else
+        SetRestFault(404,"A página solicitada não foi encontrada!")
+        Return .F.
+    EndIf
+	
+    oCotacao := FromJson(cBody)
+
+	// define o tipo de retorno do método
+	::SetContentType("application/json;charset=ISO-8859-1")
+
+	BeginSql Alias ccAlias
+		Select 
+			R_E_C_N_O_ RECN
+		FROM 
+			%table:SC8%
+		WHERE D_E_L_E_T_ = ' '
+		AND C8_XHASH = %exp:cHash%
+		AND C8_NUMPED = ' '
+	EndSql
+
+    While ! (ccAlias)->(Eof()) 
+		SC8->(DbGoTo((ccAlias)->RECN))
+        //Se a cotação aberta lista ela
+        If Empty(SC8->C8_NUMPED) .AND. cHash == rTrim(SC8->C8_XHASH)
+            RecLock("SC8")
+                SC8->C8_CONTATO := oCotacao[#"contato"]
+                SC8->C8_COND    := oCotacao[#"condicaoPagamento"]
+                SC8->C8_TPFRETE := oCotacao[#"frete"]
+                SC8->C8_PRAZO   := oCotacao[#"prazo"]
+
+                nFrete  := 0
+                nDesp   := 0
+                nDesc   := 0
+                For nI := 1 To Len(oCotacao[#"itens"])
+                    oItem := oCotacao[#"itens"][nI]
+                    If oItem[#"item"] == SC8->C8_ITEM
+                        SC8->C8_QUANT   := oItem[#"quantidade"]
+                        SC8->C8_PRECO   := oItem[#"precoUnitario"]
+                        SC8->C8_TOTAL   := oItem[#"total"]
+                        SC8->C8_OBS     := oItem[#"observacao"]
+						if FieldPos("C8_XGARANT") > 0
+                        	SC8->C8_XGARANT := oItem[#"garantia"]
+						EndIf
+						cValidade := oCotacao[#"validade"]
+						If ! Empty(cValidade)
+                        	SC8->C8_VALIDA  := sTod(StrTran(cValidade,"-",""))
+						EndIf
+                    EndIf
+                    SC8->C8_TOTFRE  := oCotacao[#"valorFrete"]
+
+                    //Rateia valores
+                    If nI == Len(oCotacao[#"itens"])
+                        SC8->C8_VALFRE  := oCotacao[#"valorFrete"] - nFrete
+                        SC8->C8_DESPESA := oCotacao[#"valorDespesas"] - nDesp
+                        SC8->C8_VLDESC  := oCotacao[#"valorDescontos"] - nDesc
+                    Else
+                        SC8->C8_VALFRE  := oCotacao[#"valorFrete"] / Len(oCotacao[#"itens"])
+                        SC8->C8_DESPESA := oCotacao[#"valorDespesas"] / Len(oCotacao[#"itens"])
+                        SC8->C8_VLDESC  := oCotacao[#"valorDescontos"] / Len(oCotacao[#"itens"])
+
+                        nFrete += SC8->C8_VALFRE
+                        nDesp  += SC8->C8_DESPESA
+                        nDesc  += SC8->C8_VLDESC
+                    EndIf
+                Next nI
+            MsUnlock()
+        EndIf
+
+        (ccAlias)->(DbSkip())
+    Enddo
+	(ccAlias)->(DbCloseArea())
+
+    ::SetResponse('Dados recebidos')
+Return .T.

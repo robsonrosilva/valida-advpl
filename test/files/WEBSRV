@@ -1,0 +1,60 @@
+#INCLUDE "TOTVS.CH"
+#INCLUDE 'APWEBSRV.CH'
+
+/*/{Protheus.doc} PXGPEW03
+
+   Web Service de retorno dos meses de fechamento da folha no PROTHEUS.
+
+   @author  Robson Rogério Silva
+   @return  Array de lista de meses
+   @table   Tabela
+   @since   25/08/2017
+/*/
+
+WSSERVICE PXGPEW03 DESCRIPTION "Web Service de retorno dos meses de fechamento da folha no PROTHEUS. <b>Para uso exclusivo da Poupex</b>" NAMESPACE "http://www.totvs.com/protheus/integracoes/PXGPEW03"
+    
+    WSData 		ListaMeses 		AS ARRAY OF STRUCT01
+    WSData 		Matricula  		AS STRING OPTIONAL
+
+    WSMethod    GetMeses		DESCRIPTION 'Retorna os meses já fechados no PROTHEUS'
+
+ENDWSSERVICE
+
+WSMETHOD GetMeses WSRECEIVE Matricula WSSEND ListaMeses WSSERVICE PXGPEW03
+    Local ccAlias  := GetNextAlias()
+    Local dInicial := STOD("20170501")
+    Local cRandom  := cValToChar(Randomize( 0, 9999999 ))
+    Local dFinal   
+    ::ListaMeses   := {}
+
+    U_WsLog("PXGPEW03.prw","Iniciando GetMeses ...", cRandom)
+
+    If ! Empty(::Matricula)
+        dInicial := FirstDay(Posicione("SRA",13,::Matricula, "SRA->RA_ADMISSA"))
+    EndIf
+
+    BeginSql Alias ccAlias
+        Select Max(SUBSTR(RCC_CHAVE,1,8)) DT 
+		From %table:RCC%
+        WHERE D_E_L_E_T_ = ' ' AND RCC_CODIGO = 'U010'
+    EndSql
+
+    (ccAlias)->(DbGoTop())
+    If (ccAlias)->(Eof())
+        cErro := "Năo foi possível obter a data de abertura da folha!"
+        SetSoapFault(cErro,'',SOAPFAULT_RECEIVER)
+        U_WsLog("PXGPEW03.prw","Finalizando GetMeses ..." + cErro, cRandom)
+        Return .F.
+    Else
+        dFinal := sTod((ccAlias)->(DT) + "01")
+        While dInicial <= dFinal
+            aAdd(::ListaMeses,WsClassNew("STRUCT01"))
+            ::ListaMeses[Len(::ListaMeses)]:Mes     := Month(dInicial)//Adiciona ano e mes
+            ::ListaMeses[Len(::ListaMeses)]:Ano     := Year(dInicial)//Adiciona ano e mes
+            ::ListaMeses[Len(::ListaMeses)]:AnoMes  := SubStr(dTos(dInicial),1,6)//Adiciona ano e mes
+            dInicial := MonthSum(dInicial,1)
+        EndDo
+    EndIf
+
+    U_WsLog("PXGPEW03.prw","Finalizando GetMeses ... SUCESSO!", cRandom)
+Return .T.//O retorno indica se foi feito o processamento com sucesso ou năo

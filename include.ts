@@ -73,7 +73,7 @@ export class Include {
         /(\ |\t|\(|\,)+SOAPFAULT_RECEIVER/,
         /(\ |\t|\(|\,)+BYREF/,
         /(\ |\t|\(|\,)+WSSTRUCT/,
-        /(\ |\t|\(|\,)+WSSERVICE/,
+        /[^WSMETHOD]+(\ |\t|\(|\,)+WSSERVICE/g,
         /(\ |\t|\(|\,)+WSCLIENT/
       ],
       include: "APWEBSRV.CH",
