@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Extension of ADVPL code analysis.",
   "main": "mocha \"./test/validaadvpl.js\"",
   "scripts": {
@@ -12,8 +12,9 @@
   "author": "Robson Rogério Silva",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^10.12.9",
+    "@types/node": "^10.14.4",
     "asserts": "^4.0.2",
+    "chai": "^4.2.0",
     "file-system": "^2.2.2",
     "i18n": "^0.8.3",
     "mocha": "^5.2.0"

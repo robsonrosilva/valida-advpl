@@ -461,9 +461,7 @@ export class Include {
             include.linha,
             traduz("includes.oInclude", this.local) +
               include.include +
-              traduz(
-                "includes.SubstTOTVS", this.local
-              ),
+              traduz("includes.SubstTOTVS", this.local),
             Severity.Warning
           )
         );
@@ -490,32 +488,45 @@ export class Include {
 
     //valida necessidade de includes
     let linhas = conteudoFile.split("\n");
-    for (var key in linhas) {
-      //seta linha atual
-      let linha = " " + linhas[key];
+    let listaAnalise = [];
 
-      this.includeExpressoes.forEach(element => {
-        element.expressoes.forEach((expressao: RegExp) => {
-          if (linha.search(expressao) !== -1) {
-            element.precisa = true;
-            //se não estiver na lista de includes
-            if (includesFonte.indexOf(element.include) === -1) {
-              objetoValidacao.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz(
-                    "includes.faltaInclude", this.local
-                  ) +
-                    element.include +
-                    "!",
-                  Severity.Error
-                )
-              );
+    // verifica se alguma expressão foi utilizada no fonte todo
+    this.includeExpressoes.forEach(element => {
+      for(var expressao of element.expressoes) {
+        if (conteudoFile.search(expressao) !== -1) {
+          listaAnalise.push(element);
+          break;
+        }
+      };
+    });
+
+    //Se houver algo para analisar entra no fonte
+    if (listaAnalise.length > 0) {
+      for (var key in linhas) {
+        //seta linha atual
+        let linha = " " + linhas[key];
+
+        listaAnalise.forEach(element => {
+          element.expressoes.forEach((expressao: RegExp) => {
+            if (linha.search(expressao) !== -1) {
+              element.precisa = true;
+              //se não estiver na lista de includes
+              if (includesFonte.indexOf(element.include) === -1) {
+                objetoValidacao.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz("includes.faltaInclude", this.local) +
+                      element.include +
+                      "!",
+                    Severity.Error
+                  )
+                );
+              }
             }
-          }
+          });
         });
-      });
+      }
     }
 
     //Verifica se o include é desnecessário
@@ -548,9 +559,7 @@ export class Include {
                 includeAnaliseContido.linha,
                 traduz("includes.oInclude", this.local) +
                   includeAnaliseContido.include +
-                  traduz(
-                    "includes.desnecessarioContido", this.local
-                  ) +
+                  traduz("includes.desnecessarioContido", this.local) +
                   include.include +
                   "!",
                 Severity.Warning
@@ -563,7 +572,7 @@ export class Include {
   }
 }
 
-function traduz(key,local) {
+function traduz(key, local) {
   let locales = ["en", "pt-br"];
   let i18n = require("i18n");
   i18n.configure({
