@@ -452,7 +452,8 @@ export class Include {
     }
 
     //Busca includes duplicados
-    objetoValidacao.includes.forEach((include: any) => {
+    for (let i = 0, il = objetoValidacao.includes.length; i < il; i++) {
+      let include: any = objetoValidacao.includes[i];
       //Verifica se o include é obsoleto
       if (this.includesObsoletos.indexOf(include.include) !== -1) {
         objetoValidacao.aErros.push(
@@ -484,21 +485,23 @@ export class Include {
           )
         );
       }
-    });
+    }
 
     //valida necessidade de includes
     let linhas = conteudoFile.split("\n");
     let listaAnalise = [];
 
     // verifica se alguma expressão foi utilizada no fonte todo
-    this.includeExpressoes.forEach(element => {
-      for(var expressao of element.expressoes) {
+    for (let i = 0, il = this.includeExpressoes.length; i < il; i++) {
+      let element = this.includeExpressoes[i];
+      for (let i2 = 0, il2 = element.expressoes.length; i2 < il2; i2++) {
+        let expressao: RegExp = element.expressoes[i2];
         if (conteudoFile.search(expressao) !== -1) {
           listaAnalise.push(element);
           break;
         }
-      };
-    });
+      }
+    }
 
     //Se houver algo para analisar entra no fonte
     if (listaAnalise.length > 0) {
@@ -506,8 +509,10 @@ export class Include {
         //seta linha atual
         let linha = " " + linhas[key];
 
-        listaAnalise.forEach(element => {
-          element.expressoes.forEach((expressao: RegExp) => {
+        for (let i = 0, il = listaAnalise.length; i < il; i++) {
+          let element = listaAnalise[i];
+          for (let i2 = 0, il2 = element.expressoes.length; i2 < il2; i2++) {
+            let expressao: RegExp = element.expressoes[i2];
             if (linha.search(expressao) !== -1) {
               element.precisa = true;
               //se não estiver na lista de includes
@@ -524,13 +529,14 @@ export class Include {
                 );
               }
             }
-          });
-        });
+          }
+        }
       }
     }
 
     //Verifica se o include é desnecessário
-    objetoValidacao.includes.forEach((include: any) => {
+    for (let i2 = 0, il2 = objetoValidacao.includes.length; i2 < il2; i2++) {
+      let include: any = objetoValidacao.includes[i2];
       //se o include é analisado
       let includeAnalise = this.includeExpressoes[
         includesAnalise.indexOf(include.include)
@@ -549,7 +555,8 @@ export class Include {
           );
         }
         //Verifica se há algum include que está contido nesse INCLUDE
-        includeAnalise.includes.forEach((includeContido: string) => {
+        for (let i = 0, il = includeAnalise.includes.length; i < il; i++) {
+          let includeContido: string = includeAnalise.includes[i];
           let includeAnaliseContido =
             objetoValidacao.includes[includesFonte.indexOf(includeContido)];
           if (includeAnaliseContido) {
@@ -566,9 +573,9 @@ export class Include {
               )
             );
           }
-        });
+        }
       }
-    });
+    }
   }
 }
 
