@@ -1,6 +1,7 @@
 import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
+import { Uri } from "vscode";
 export class ValidaAdvpl {
   public comentFontPad: any;
   public error: number;
@@ -14,7 +15,7 @@ export class ValidaAdvpl {
   public empresas: string[];
   public fonte: Fonte;
   private local;
-  constructor(comentFontePad, local) {
+  constructor(comentFontePad: string[], local: string) {
     this.local = local;
     this.aErros = [];
     this.includes = [];
@@ -29,8 +30,8 @@ export class ValidaAdvpl {
     this.empresas = [];
   }
 
-  public validacao(texto: String, path: String): Promise<undefined> {
-    let objeto = this;
+  public validacao(texto: String, path: Uri): Promise<undefined> {
+    let objeto: ValidaAdvpl = this;
     return new Promise(function(success, error) {
       objeto.aErros = [];
       objeto.includes = [];
