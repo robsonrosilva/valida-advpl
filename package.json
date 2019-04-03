@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Extension of ADVPL code analysis.",
   "main": "mocha \"./test/validaadvpl.js\"",
   "scripts": {
