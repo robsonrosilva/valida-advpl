@@ -30,10 +30,11 @@ export class ValidaAdvpl {
   }
 
   public validacao(texto: String, path: String) {
-    this.aErros = [];
-    this.includes = [];
-    this.fonte = new Fonte(path);
     let objeto = this;
+    return new Promise(function(success,error){
+    objeto.aErros = [];
+    objeto.includes = [];
+    objeto.fonte = new Fonte(path);
     let conteudoSComentario = "";
     let linhas = texto.split("\n");
     //Pega as linhas do documento ativo e separa o array por linha
@@ -169,14 +170,14 @@ export class ValidaAdvpl {
           funcoes.push([nomeFuncao, key]);
           //verifica o TIPO
           if (linhaClean.search(/(USER)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1) {
-            this.fonte.addFunction(
+            objeto.fonte.addFunction(
               Tipos["User Function"],
               nomeFuncao,
               parseInt(key)
             );
           } else if (linhaClean.split(" ")[0].split("\t")[0] === "FUNCTION") {
             //verifica se a primeira palavra é FUNCTION
-            this.fonte.addFunction(Tipos["Function"], nomeFuncao, parseInt(key));
+            objeto.fonte.addFunction(Tipos["Function"], nomeFuncao, parseInt(key));
           }
         }
         //Verifica se é CLASSE ou WEBSERVICE
@@ -200,7 +201,7 @@ export class ValidaAdvpl {
             key
           ]);
           if (linhaClean.split(" ")[0].split("\t")[0] === "CLASS") {
-            this.fonte.addFunction(
+            objeto.fonte.addFunction(
               Tipos["Class"],
               linhaClean
                 .trim()
@@ -247,7 +248,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.queryNoEmbedded", this.local),
+              traduz("validaAdvpl.queryNoEmbedded", objeto.local),
               Severity.Warning
             )
           );
@@ -259,7 +260,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.deleteFrom", this.local),
+              traduz("validaAdvpl.deleteFrom", objeto.local),
               Severity.Warning
             )
           );
@@ -269,7 +270,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.msgBox", this.local),
+              traduz("validaAdvpl.msgBox", objeto.local),
               Severity.Information
             )
           );
@@ -283,7 +284,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.folMes", this.local),
+              traduz("validaAdvpl.folMes", objeto.local),
               Severity.Information
             )
           );
@@ -304,7 +305,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(nFim),
-              traduz("validaAdvpl.conflictMerge", this.local),
+              traduz("validaAdvpl.conflictMerge", objeto.local),
               Severity.Error
             )
           );
@@ -317,7 +318,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.selectAll", this.local),
+              traduz("validaAdvpl.selectAll", objeto.local),
               Severity.Warning
             )
           );
@@ -330,7 +331,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.crlf", this.local),
+              traduz("validaAdvpl.crlf", objeto.local),
               Severity.Warning
             )
           );
@@ -350,15 +351,15 @@ export class ValidaAdvpl {
           cSelect = false;
         }
         //Implementação para aceitar vários bancos de dados
-        this.ownerDb.forEach(banco => {
+        objeto.ownerDb.forEach(banco => {
           if (cSelect && FromQuery && linha.search(banco) !== -1) {
             objeto.aErros.push(
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                traduz("validaAdvpl.noSchema", this.local) +
+                traduz("validaAdvpl.noSchema", objeto.local) +
                 banco +
-                traduz("validaAdvpl.inQuery", this.local),
+                traduz("validaAdvpl.inQuery", objeto.local),
                 Severity.Error
               )
             );
@@ -370,7 +371,7 @@ export class ValidaAdvpl {
           linha.search("exp:cTable") === -1
         ) {
           //procura códigos de empresas nas queryes
-          this.empresas.forEach(empresa => {
+          objeto.empresas.forEach(empresa => {
             //para melhorar a análise vou quebrar a string por espaços
             //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
             //e o código da empresa chumbado
@@ -387,7 +388,7 @@ export class ValidaAdvpl {
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    traduz("validaAdvpl.tableFixed", this.local),
+                    traduz("validaAdvpl.tableFixed", objeto.local),
                     Severity.Error
                   )
                 );
@@ -403,7 +404,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.conout", this.local),
+              traduz("validaAdvpl.conout", objeto.local),
               Severity.Warning
             )
           );
@@ -433,7 +434,7 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                traduz("validaAdvpl.bestAnalitc", this.local) +
+                traduz("validaAdvpl.bestAnalitc", objeto.local) +
                 " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
@@ -455,7 +456,7 @@ export class ValidaAdvpl {
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-        new Erro(0, 0, traduz("validaAdvpl.padComment", this.local), Severity.Information)
+        new Erro(0, 0, traduz("validaAdvpl.padComment", objeto.local), Severity.Information)
       );
     }
 
@@ -471,7 +472,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(funcao[1]),
             parseInt(funcao[1]),
-            traduz("validaAdvpl.functionNoCommented", this.local),
+            traduz("validaAdvpl.functionNoCommented", objeto.local),
             Severity.Warning
           )
         );
@@ -489,7 +490,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(comentario[1]),
             parseInt(comentario[1]),
-            traduz("validaAdvpl.CommentNoFunction", this.local),
+            traduz("validaAdvpl.CommentNoFunction", objeto.local),
             Severity.Warning
           )
         );
@@ -500,44 +501,47 @@ export class ValidaAdvpl {
     let oInclude = new Include(objeto.local);
     oInclude.valida(objeto, conteudoSComentario);
     //Conta os erros por tipo e totaliza no objeto
-    this.hint = 0;
-    this.information = 0;
-    this.warning = 0;
-    this.error = 0;
+    objeto.hint = 0;
+    objeto.information = 0;
+    objeto.warning = 0;
+    objeto.error = 0;
     objeto.aErros.forEach((erro: any) => {
       if (erro.severity === Severity.Hint) {
-        this.hint++;
+        objeto.hint++;
       }
       if (erro.severity === Severity.Information) {
-        this.information++;
+        objeto.information++;
       }
       if (erro.severity === Severity.Warning) {
-        this.warning++;
+        objeto.warning++;
       }
       if (erro.severity === Severity.Error) {
-        this.error++;
+        objeto.error++;
       }
     });
     if (
-      this.error > 0 ||
-      this.hint > 0 ||
-      this.warning > 0 ||
-      this.information > 0
+      objeto.error > 0 ||
+      objeto.hint > 0 ||
+      objeto.warning > 0 ||
+      objeto.information > 0
     ) {
-      console.log(`\t${traduz("validaAdvpl.foundFile", this.local)} ${path}:`);
-      if (this.error > 0) {
-        console.log(`\t\t${this.error} Errors .`);
+      console.log(`\t${traduz("validaAdvpl.foundFile", objeto.local)} ${path}:`);
+      if (objeto.error > 0) {
+        console.log(`\t\t${objeto.error} Errors .`);
       }
-      if (this.warning > 0) {
-        console.log(`\t\t${this.warning} Warnings .`);
+      if (objeto.warning > 0) {
+        console.log(`\t\t${objeto.warning} Warnings .`);
       }
-      if (this.information > 0) {
-        console.log(`\t\t${this.information} Informations .`);
+      if (objeto.information > 0) {
+        console.log(`\t\t${objeto.information} Informations .`);
       }
-      if (this.hint > 0) {
-        console.log(`\t\t${this.hint} Hints .`);
+      if (objeto.hint > 0) {
+        console.log(`\t\t${objeto.hint} Hints .`);
       }
     }
+    success();
+  }
+  )
   }
 }
 
