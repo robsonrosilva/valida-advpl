@@ -1,12 +1,13 @@
+import { Uri } from "vscode";
 export enum Tipos{
     "Function",
     "User Function",
     "Class"  
 }
 export class Fonte {
-    public fonte : String;
+    public fonte : Uri;
     public funcoes : Funcao[];
-    constructor (fonte: String){
+    constructor (fonte?: Uri){
         this.fonte = fonte;
         this.funcoes = [];
     }

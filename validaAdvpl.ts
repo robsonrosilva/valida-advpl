@@ -1,6 +1,7 @@
 import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
+import { Uri } from "vscode";
 export class ValidaAdvpl {
   public comentFontPad: any;
   public error: number;
@@ -14,7 +15,7 @@ export class ValidaAdvpl {
   public empresas: string[];
   public fonte: Fonte;
   private local;
-  constructor(comentFontePad, local) {
+  constructor(comentFontePad: string[], local: string) {
     this.local = local;
     this.aErros = [];
     this.includes = [];
@@ -29,29 +30,29 @@ export class ValidaAdvpl {
     this.empresas = [];
   }
 
-  public validacao(texto: String, path: String) {
-    this.aErros = [];
-    this.includes = [];
-    this.fonte = new Fonte(path);
-    let objeto = this;
-    let conteudoSComentario = "";
-    let linhas = texto.split("\n");
+  public validacao(texto: String, path: Uri) {
+    let objeto: ValidaAdvpl = this;
+
+    objeto.aErros = [];
+    objeto.includes = [];
+    objeto.fonte = new Fonte(path);
+    let conteudoSComentario: string = "";
+    let linhas: String[] = texto.split("\n");
     //Pega as linhas do documento ativo e separa o array por linha
 
-    let comentFuncoes = new Array();
-    let funcoes = new Array();
-    let prepareEnvionment = new Array();
-    let cBeginSql = false;
-    let FromQuery = false;
-    let JoinQuery = false;
-    let cSelect = false;
-    let ProtheusDoc = false;
-    let emComentario = false;
+    let comentFuncoes: any[] = new Array();
+    let funcoes: any[] = new Array();
+    let cBeginSql: boolean = false;
+    let FromQuery: boolean = false;
+    let JoinQuery: boolean = false;
+    let cSelect: boolean = false;
+    let ProtheusDoc: boolean = false;
+    let emComentario: boolean = false;
     //Percorre todas as linhas
     for (var key in linhas) {
       //seta linha atual em caixa alta
-      let linha = linhas[key].toLocaleUpperCase();
-      let linhaClean = "";
+      let linha: String = linhas[key].toLocaleUpperCase();
+      let linhaClean: String = "";
       //se estiver no PotheusDoc vê se está fechando
       if (ProtheusDoc && linha.search("\\/\\*\\/") !== -1) {
         ProtheusDoc = false;
@@ -76,8 +77,8 @@ export class ValidaAdvpl {
       }
 
       //verifica se a linha está toda comentada
-      let posComentLinha = linha.search(/\/\//);
-      let posComentBloco = linha.search(/\/\*/);
+      let posComentLinha: number = linha.search(/\/\//);
+      let posComentBloco: number = linha.search(/\/\*/);
       posComentBloco = posComentBloco === -1 ? 999999 : posComentBloco;
       posComentLinha = posComentLinha === -1 ? 999999 : posComentLinha;
       if (!emComentario && posComentLinha < posComentBloco) {
@@ -119,17 +120,17 @@ export class ValidaAdvpl {
             linhaClean.search(/\"+.+\"/) !== -1 ||
             linhaClean.search(/\'+.+\'/) !== -1
           ) {
-            let colunaDupla = linhaClean.search(/\"+.+\"/);
-            let colunaSimples = linhaClean.search(/\'+.+\'/);
+            let colunaDupla: number = linhaClean.search(/\"+.+\"/);
+            let colunaSimples: number = linhaClean.search(/\'+.+\'/);
             //se a primeira for a dupla
             if (
               colunaDupla !== -1 &&
               (colunaDupla < colunaSimples || colunaSimples === -1)
             ) {
-              let quebra = linhaClean.split('"');
+              let quebra: string[] = linhaClean.split('"');
               linhaClean = linhaClean.replace('"' + quebra[1] + '"', "");
             } else {
-              let quebra = linhaClean.split("'");
+              let quebra: string[] = linhaClean.split("'");
               linhaClean = linhaClean.replace("'" + quebra[1] + "'", "");
             }
           }
@@ -137,7 +138,7 @@ export class ValidaAdvpl {
 
         //Remove espaços ou tabulações seguidas
         linhaClean.replace(/\t/g, " ");
-        let conteudos = linhaClean.split(" ");
+        let conteudos: string[] = linhaClean.split(" ");
         linhaClean = "";
         for (const key in conteudos) {
           if (conteudos[key]) {
@@ -160,7 +161,7 @@ export class ValidaAdvpl {
           FromQuery = false;
           JoinQuery = false;
           cSelect = false;
-          let nomeFuncao = linhaClean
+          let nomeFuncao: string = linhaClean
             .replace("\t", " ")
             .trim()
             .split(" ")[2]
@@ -169,14 +170,18 @@ export class ValidaAdvpl {
           funcoes.push([nomeFuncao, key]);
           //verifica o TIPO
           if (linhaClean.search(/(USER)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1) {
-            this.fonte.addFunction(
+            objeto.fonte.addFunction(
               Tipos["User Function"],
               nomeFuncao,
               parseInt(key)
             );
           } else if (linhaClean.split(" ")[0].split("\t")[0] === "FUNCTION") {
             //verifica se a primeira palavra é FUNCTION
-            this.fonte.addFunction(Tipos["Function"], nomeFuncao, parseInt(key));
+            objeto.fonte.addFunction(
+              Tipos["Function"],
+              nomeFuncao,
+              parseInt(key)
+            );
           }
         }
         //Verifica se é CLASSE ou WEBSERVICE
@@ -200,7 +205,7 @@ export class ValidaAdvpl {
             key
           ]);
           if (linhaClean.split(" ")[0].split("\t")[0] === "CLASS") {
-            this.fonte.addFunction(
+            objeto.fonte.addFunction(
               Tipos["Class"],
               linhaClean
                 .trim()
@@ -226,9 +231,6 @@ export class ValidaAdvpl {
         if (linhaClean.search(/BEGINSQL+(\ |\t)+ALIAS/) !== -1) {
           cBeginSql = true;
         }
-        if (linhaClean.search(/PREPARE+(\ |\t)+ENVIRONMENT+(\ |\t)/) !== -1) {
-          prepareEnvionment.push(parseInt(key));
-        }
         if (
           linha.match(/(\ |\t|\'|\"|)+SELECT+(\ |\t)/) ||
           linha.match(/(\ |\t|\'|\"|)+DELETE+(\ |\t)/) ||
@@ -247,7 +249,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.queryNoEmbedded", this.local),
+              traduz("validaAdvpl.queryNoEmbedded", objeto.local),
               Severity.Warning
             )
           );
@@ -259,7 +261,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.deleteFrom", this.local),
+              traduz("validaAdvpl.deleteFrom", objeto.local),
               Severity.Warning
             )
           );
@@ -269,7 +271,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.msgBox", this.local),
+              traduz("validaAdvpl.msgBox", objeto.local),
               Severity.Information
             )
           );
@@ -283,14 +285,14 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.folMes", this.local),
+              traduz("validaAdvpl.folMes", objeto.local),
               Severity.Information
             )
           );
         }
         if (linha.search("\\<\\<\\<\\<\\<\\<\\<\\ HEAD") !== -1) {
           //Verifica linha onde terminou o conflito
-          let nFim = key;
+          let nFim: string = key;
           for (var key2 in linhas) {
             if (
               linhas[key2].search("\\>\\>\\>\\>\\>\\>\\>") !== -1 &&
@@ -304,7 +306,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(nFim),
-              traduz("validaAdvpl.conflictMerge", this.local),
+              traduz("validaAdvpl.conflictMerge", objeto.local),
               Severity.Error
             )
           );
@@ -317,7 +319,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.selectAll", this.local),
+              traduz("validaAdvpl.selectAll", objeto.local),
               Severity.Warning
             )
           );
@@ -330,7 +332,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.crlf", this.local),
+              traduz("validaAdvpl.crlf", objeto.local),
               Severity.Warning
             )
           );
@@ -350,15 +352,15 @@ export class ValidaAdvpl {
           cSelect = false;
         }
         //Implementação para aceitar vários bancos de dados
-        this.ownerDb.forEach(banco => {
+        objeto.ownerDb.forEach(banco => {
           if (cSelect && FromQuery && linha.search(banco) !== -1) {
             objeto.aErros.push(
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                traduz("validaAdvpl.noSchema", this.local) +
-                banco +
-                traduz("validaAdvpl.inQuery", this.local),
+                traduz("validaAdvpl.noSchema", objeto.local) +
+                  banco +
+                  traduz("validaAdvpl.inQuery", objeto.local),
                 Severity.Error
               )
             );
@@ -370,11 +372,11 @@ export class ValidaAdvpl {
           linha.search("exp:cTable") === -1
         ) {
           //procura códigos de empresas nas queryes
-          this.empresas.forEach(empresa => {
+          objeto.empresas.forEach(empresa => {
             //para melhorar a análise vou quebrar a string por espaços
             //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
             //e o código da empresa chumbado
-            let palavras = linha
+            let palavras: string[] = linha
               .replace(/\r/g, "")
               .replace(/\t/g, "")
               .split(" ");
@@ -387,7 +389,7 @@ export class ValidaAdvpl {
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    traduz("validaAdvpl.tableFixed", this.local),
+                    traduz("validaAdvpl.tableFixed", objeto.local),
                     Severity.Error
                   )
                 );
@@ -403,7 +405,7 @@ export class ValidaAdvpl {
             new Erro(
               parseInt(key),
               parseInt(key),
-              traduz("validaAdvpl.conout", this.local),
+              traduz("validaAdvpl.conout", objeto.local),
               Severity.Warning
             )
           );
@@ -420,8 +422,8 @@ export class ValidaAdvpl {
           linha.search(/(\ |\t)+TCSQLEXEC+\(/) === -1
         ) {
           //verifica o caracter anterior tem que ser ou ESPACO ou ' ou " ou nada
-          let itens1 = ["FROM", "ON", "WHERE"];
-          let addErro = false;
+          let itens1: string[] = ["FROM", "ON", "WHERE"];
+          let addErro: boolean = false;
           itens1.forEach(item => {
             addErro = addErro || linha.search("\\'" + item) !== -1;
             addErro = addErro || linha.search('\\"' + item) !== -1;
@@ -433,8 +435,8 @@ export class ValidaAdvpl {
               new Erro(
                 parseInt(key),
                 parseInt(key),
-                traduz("validaAdvpl.bestAnalitc", this.local) +
-                " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
+                traduz("validaAdvpl.bestAnalitc", objeto.local) +
+                  " SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.",
                 Severity.Information
               )
             );
@@ -446,22 +448,27 @@ export class ValidaAdvpl {
     }
 
     //Validação de padrão de comentáris de fontes
-    let comentariosFonte = true;
+    let comentariosFonte: boolean = true;
     for (var _i = 0; _i < objeto.comentFontPad.length; _i++) {
-      let cExpressao = objeto.comentFontPad[_i] as string;
-      let linha = linhas[_i] as string;
+      let cExpressao: string = objeto.comentFontPad[_i] as string;
+      let linha: string = linhas[_i] as string;
       comentariosFonte = comentariosFonte && linha.search(cExpressao) !== -1;
     }
 
     if (!comentariosFonte) {
       objeto.aErros.push(
-        new Erro(0, 0, traduz("validaAdvpl.padComment", this.local), Severity.Information)
+        new Erro(
+          0,
+          0,
+          traduz("validaAdvpl.padComment", objeto.local),
+          Severity.Information
+        )
       );
     }
 
     //Validação funções sem comentários
     funcoes.forEach(funcao => {
-      let achou = false;
+      let achou: boolean = false;
       comentFuncoes.forEach(comentario => {
         achou = achou || comentario[0] === funcao[0];
       });
@@ -471,7 +478,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(funcao[1]),
             parseInt(funcao[1]),
-            traduz("validaAdvpl.functionNoCommented", this.local),
+            traduz("validaAdvpl.functionNoCommented", objeto.local),
             Severity.Warning
           )
         );
@@ -479,7 +486,7 @@ export class ValidaAdvpl {
     });
     //Validação comentários sem funções
     comentFuncoes.forEach(comentario => {
-      let achou = false;
+      let achou: boolean = false;
       funcoes.forEach(funcao => {
         achou = achou || comentario[0] === funcao[0];
       });
@@ -489,7 +496,7 @@ export class ValidaAdvpl {
           new Erro(
             parseInt(comentario[1]),
             parseInt(comentario[1]),
-            traduz("validaAdvpl.CommentNoFunction", this.local),
+            traduz("validaAdvpl.CommentNoFunction", objeto.local),
             Severity.Warning
           )
         );
@@ -497,52 +504,54 @@ export class ValidaAdvpl {
     });
 
     //Validador de includes
-    let oInclude = new Include(objeto.local);
+    let oInclude: Include = new Include(objeto.local);
     oInclude.valida(objeto, conteudoSComentario);
     //Conta os erros por tipo e totaliza no objeto
-    this.hint = 0;
-    this.information = 0;
-    this.warning = 0;
-    this.error = 0;
+    objeto.hint = 0;
+    objeto.information = 0;
+    objeto.warning = 0;
+    objeto.error = 0;
     objeto.aErros.forEach((erro: any) => {
       if (erro.severity === Severity.Hint) {
-        this.hint++;
+        objeto.hint++;
       }
       if (erro.severity === Severity.Information) {
-        this.information++;
+        objeto.information++;
       }
       if (erro.severity === Severity.Warning) {
-        this.warning++;
+        objeto.warning++;
       }
       if (erro.severity === Severity.Error) {
-        this.error++;
+        objeto.error++;
       }
     });
     if (
-      this.error > 0 ||
-      this.hint > 0 ||
-      this.warning > 0 ||
-      this.information > 0
+      objeto.error > 0 ||
+      objeto.hint > 0 ||
+      objeto.warning > 0 ||
+      objeto.information > 0
     ) {
-      console.log(`\t${traduz("validaAdvpl.foundFile", this.local)} ${path}:`);
-      if (this.error > 0) {
-        console.log(`\t\t${this.error} Errors .`);
+      console.log(
+        `\t${traduz("validaAdvpl.foundFile", objeto.local)} ${path}:`
+      );
+      if (objeto.error > 0) {
+        console.log(`\t\t${objeto.error} Errors .`);
       }
-      if (this.warning > 0) {
-        console.log(`\t\t${this.warning} Warnings .`);
+      if (objeto.warning > 0) {
+        console.log(`\t\t${objeto.warning} Warnings .`);
       }
-      if (this.information > 0) {
-        console.log(`\t\t${this.information} Informations .`);
+      if (objeto.information > 0) {
+        console.log(`\t\t${objeto.information} Informations .`);
       }
-      if (this.hint > 0) {
-        console.log(`\t\t${this.hint} Hints .`);
+      if (objeto.hint > 0) {
+        console.log(`\t\t${objeto.hint} Hints .`);
       }
     }
   }
 }
 
 function traduz(key, local) {
-  let locales = ["en", "pt-br"];
+  let locales: string[] = ["en", "pt-br"];
   let i18n = require("i18n");
   i18n.configure({
     locales: locales,
