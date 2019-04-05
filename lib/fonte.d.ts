@@ -7,7 +7,7 @@ export declare enum Tipos {
 export declare class Fonte {
     fonte: Uri;
     funcoes: Funcao[];
-    constructor(fonte: Uri);
+    constructor(fonte?: Uri);
     addFunction(tipo: Tipos, nome: string, linha: number): void;
 }
 export declare class Funcao {

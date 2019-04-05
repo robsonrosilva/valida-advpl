@@ -14,5 +14,5 @@ export declare class ValidaAdvpl {
     fonte: Fonte;
     private local;
     constructor(comentFontePad: string[], local: string);
-    validacao(texto: String, path: Uri): Promise<undefined>;
+    validacao(texto: String, path: Uri): Promise<ValidaAdvpl>;
 }

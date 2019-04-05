@@ -30,7 +30,7 @@ export class ValidaAdvpl {
     this.empresas = [];
   }
 
-  public validacao(texto: String, path: Uri): Promise<undefined> {
+  public validacao(texto: String, path: Uri): Promise<ValidaAdvpl> {
     let objeto: ValidaAdvpl = this;
     return new Promise(function(success, error) {
       objeto.aErros = [];
@@ -550,7 +550,7 @@ export class ValidaAdvpl {
           console.log(`\t\t${objeto.hint} Hints .`);
         }
       }
-      success();
+      success(objeto);
     });
   }
 }

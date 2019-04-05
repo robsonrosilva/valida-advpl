@@ -7,7 +7,7 @@ export enum Tipos{
 export class Fonte {
     public fonte : Uri;
     public funcoes : Funcao[];
-    constructor (fonte: Uri){
+    constructor (fonte?: Uri){
         this.fonte = fonte;
         this.funcoes = [];
     }
