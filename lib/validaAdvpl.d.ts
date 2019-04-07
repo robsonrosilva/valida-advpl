@@ -12,6 +12,7 @@ export declare class ValidaAdvpl {
     ownerDb: string[];
     empresas: string[];
     fonte: Fonte;
+    version: any;
     private local;
     constructor(comentFontePad: string[], local: string);
     validacao(texto: String, path: Uri): void;

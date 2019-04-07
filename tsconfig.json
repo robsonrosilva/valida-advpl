@@ -6,7 +6,9 @@
     "declaration": true,
     "lib": ["es6"],
     "sourceMap": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "exclude": ["node_modules", ".vscode-test", "lib"],
   "compileOnSave": true

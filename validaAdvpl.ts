@@ -2,6 +2,8 @@ import { Include } from "./include";
 import { Erro, Severity } from "./erros";
 import { Fonte, Tipos } from "./fonte";
 import { Uri } from "vscode";
+import {version} from './package.json';
+
 export class ValidaAdvpl {
   public comentFontPad: any;
   public error: number;
@@ -14,6 +16,7 @@ export class ValidaAdvpl {
   public ownerDb: string[];
   public empresas: string[];
   public fonte: Fonte;
+  public version;
   private local;
   constructor(comentFontePad: string[], local: string) {
     this.local = local;
@@ -28,6 +31,7 @@ export class ValidaAdvpl {
     this.comentFontPad = comentFontePad;
     this.ownerDb = [];
     this.empresas = [];
+    this.version = version;
   }
 
   public validacao(texto: String, path: Uri) {
