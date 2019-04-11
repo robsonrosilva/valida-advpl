@@ -18,7 +18,7 @@ export class ValidaAdvpl {
   public fonte: Fonte;
   public version;
   private local;
-  constructor(comentFontePad: string[], local: string) {
+  constructor(comentFontePad: string[], local: string, private log: boolean = true) {
     this.local = local;
     this.aErros = [];
     this.includes = [];
@@ -530,10 +530,12 @@ export class ValidaAdvpl {
       }
     });
     if (
-      objeto.error > 0 ||
-      objeto.hint > 0 ||
-      objeto.warning > 0 ||
+      objeto.error +
+      objeto.hint +
+      objeto.warning +
       objeto.information > 0
+      && 
+      this.log 
     ) {
       console.log(
         `\t${traduz("validaAdvpl.foundFile", objeto.local)} ${path}:`

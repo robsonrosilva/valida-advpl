@@ -1,6 +1,7 @@
 import { Fonte } from "./fonte";
 import { Uri } from "vscode";
 export declare class ValidaAdvpl {
+    private log;
     comentFontPad: any;
     error: number;
     warning: number;
@@ -14,6 +15,6 @@ export declare class ValidaAdvpl {
     fonte: Fonte;
     version: any;
     private local;
-    constructor(comentFontePad: string[], local: string);
+    constructor(comentFontePad: string[], local: string, log?: boolean);
     validacao(texto: String, path: Uri): void;
 }
