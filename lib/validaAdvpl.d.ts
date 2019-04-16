@@ -1,19 +1,18 @@
-import { Fonte } from "./fonte";
-import { Uri } from "vscode";
+import { Fonte } from './fonte';
+import { Uri } from 'vscode';
 export declare class ValidaAdvpl {
     private log;
-    comentFontPad: any;
+    comentFontPad: string[];
     error: number;
     warning: number;
     information: number;
     hint: number;
-    versao: string;
     includes: any[];
     aErros: any[];
     ownerDb: string[];
     empresas: string[];
     fonte: Fonte;
-    version: any;
+    version: string;
     private local;
     constructor(comentFontePad: string[], local: string, log?: boolean);
     validacao(texto: String, path: Uri): void;

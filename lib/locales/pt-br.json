@@ -15,7 +15,7 @@
   "validaAdvpl.padComment": "Verifique os padrões de comentários de fontes! => Use o autocomplete docFuncao.",
   "validaAdvpl.functionNoCommented": "Função, Classe, Método ou WebService não comentado!",
   "validaAdvpl.CommentNoFunction": "Comentário de função sem função!",
-  "validaAdvpl.foundFile" : "Erros encontrados no arquivo",
+  "validaAdvpl.foundFile": "Erros encontrados no arquivo",
   "includes.faltaTOTVS": "Falta o include TOTVS.CH !",
   "includes.oInclude": "O Include",
   "includes.SubstTOTVS": " é obsoleto, o mesmo foi substituído pelo TOTVS.CH!",

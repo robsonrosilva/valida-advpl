@@ -1,60 +1,981 @@
 #INCLUDE "TOTVS.CH"
-#INCLUDE 'APWEBSRV.CH'
+//#INCLUDE "APWEBSRV.CH"
 
-/*/{Protheus.doc} PXGPEW03
+/*/f/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+<Descricao> : WEBSERVICES E SEUS METODOS 
+<Autor> : 
+<Data> : 03/07/2014
+<Parametros> : Nenhum 
+<Retorno> : Vazio
+<Processo> : Especifico Integracao 
+<Tipo> (Menu,Trigger,Validacao,Ponto de Entrada,Genericas,Especificas ) : Generica
+<Obs> : WS Pre Nota Service
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+*/
 
-   Web Service de retorno dos meses de fechamento da folha no PROTHEUS.
+WsService PEX_PRE_NOTA_SERVICE Description "<b> WebService de Pre Nota Service . </b>" NameSpace "http://www..com.br/protheus/prenota"
 
-   @author  Robson Rogério Silva
-   @return  Array de lista de meses
-   @table   Tabela
-   @since   25/08/2017
+	WsData bExcluido			as Boolean
+
+	WsData ConsultaPreNotaListRet	as stConsultaPreNota 	// ConsultaPreNotaListRet -> Estrutura de resposta método CONSULTA
+	WsData ConsultaPreNotaListParam as stPreNotasConsulta	// ConsultaPreNotaListParam -> Estrutura de request método CONSULTA
+
+	// sPreNotaIn  -> estrutura de requisição dos métodos INCLUI e ALTERA
+	WsData sPreNotaIn			as stPreNota
+
+	// sPreNotaOut -> estrutura de resposta dos métodos INCLUI, ALTERA e CARREGARID
+	WsData sPreNotaOut		as stPreNota
+
+	// sChaveNota -> estrutura de requisição dos métodos CARREGARID e EXCLUI
+	WsData sChaveNota	   		as stChaveNota
+
+	WsMethod CarregarId		 	Description "Utilizado para detalhar uma Pré-Nota"
+	WsMethod Consulta  			Description "Consulta Lista de Pré-Notas"
+	WsMethod Inclui				Description "Inclui Pré-Nota"
+	WsMethod Altera	   			Description "Altera Pré-Nota"
+	WsMethod Exclui	   			Description "Exclui Pré-Nota"
+
+EndWsService
+
+// Estrutura de resposta do método CONSULTA
+WsStruct stConsultaPreNota
+	WsData sPaginacao	as stPaginas		// -> Estrutura no arquivo WsFuncAux.prw
+	WsData sPreNotaList as Array of stPreNota
+EndWsStruct
+
+// Cabeçalho da Pré-Nota para a estrutura de requisição dos métodos INCLUI, ALTERA e CONSULTA -> Estrutura de resposta dos métodos INCLUI, ALTERA e CARREGARID
+WsStruct stPreNota
+	WsData F1_FILIAL 		as String
+	WsData F1_DOC  		as String
+	WsData F1_SERIE 		as String
+	WsData F1_EMISSAO 	as Date
+	WsData F1_FORNECE 	as String
+	WsData F1_LOJA 		as String
+	WsData F1_TIPO 		as String
+	WsData F1_ESPECIE 	as String
+	WsData F1_EST 		as String
+	WsData F1_XSISORI 	as String OPTIONAL
+	WsData F1_XSISJUR 	as String OPTIONAL
+	WSData F1_XIDWEBS  	AS FLOAT  OPTIONAL
+
+	WsData sItens 		as Array of stItensPreNota
+EndWsStruct
+
+// Itens da Pré-Nota para a estrutura de requisição dos métodos INCLUI, ALTERA e CONSULTA -> Estrutura de resposta dos métodos INCLUI, ALTERA e CARREGARID
+WsStruct stItensPreNota
+	WsData D1_ITEM		as String OPTIONAL
+	WsData D1_COD  		as String
+	WsData D1_UM   		as String
+	WsData D1_QUANT 	as Float
+	WsData D1_VUNIT 	as Float
+	WsData D1_TOTAL 	as Float
+	WsData D1_CC   		as String OPTIONAL
+EndWsStruct
+
+// Cabeçalho da Pré-Nota para a estrutura de requisição dos métodos CARREGARID e EXCLUI
+WsStruct stChaveNota
+	WsData F1_FILIAL 	as String
+	WsData F1_DOC  		as String
+	WsData F1_SERIE 	as String
+	WsData F1_EMISSAO 	as Date
+	WsData F1_FORNECE 	as String
+	WsData F1_LOJA 		as String
+EndWsStruct
+
+WsStruct stPreNotasConsulta
+	WsData cPagina as String OPTIONAL
+	WsData F1_FILIAL as String OPTIONAL
+	WsData F1_DOC_DE as String OPTIONAL
+	WsData F1_DOC_ATE as String OPTIONAL
+	WsData F1_SERIE_DE as String OPTIONAL
+	WsData F1_SERIE_ATE as String OPTIONAL
+	WsData F1_ESPECIE_DE as String OPTIONAL
+	WsData F1_ESPECIE_ATE as String OPTIONAL
+	WsData F1_EMISSAO_DE as Date OPTIONAL
+	WsData F1_EMISSAO_ATE as Date OPTIONAL
+	WsData F1_FORNECE_DE as String OPTIONAL
+	WsData F1_FORNECE_ATE as String OPTIONAL
+	WsData F1_LOJA_DE as String OPTIONAL
+	WsData F1_LOJA_ATE as String OPTIONAL
+	WsData F1_TIPO_DE as String OPTIONAL
+	WsData F1_TIPO_ATE as String OPTIONAL
+	WsData F1_XSISORI as String OPTIONAL
+	WsData F1_XSISJUR as String OPTIONAL
+	WSData F1_XIDWEBS AS FLOAT  OPTIONAL
+EndWsStruct
+
+/*/{Protheus.doc} CarregarID
+
+   Carregar informações de uma Pré-Nota especifica
+
+   @author  
+   @example Exemplos
+   @param   ExpS1
+			ExpS1 = Estrutura de Cabeçalho da Pré-Nota a ser pesquisada
+   @return  sPreNotaOut - Estrutura com informações de uma Pré-Nota específica
+   @table   (Menu,Trigger,Validacao,Ponto de Entrada,Genericas,Especificas ) : G
+   @since   16/07/2014
 /*/
 
-WSSERVICE PXGPEW03 DESCRIPTION "Web Service de retorno dos meses de fechamento da folha no PROTHEUS. <b>Para uso exclusivo da Poupex</b>" NAMESPACE "http://www.totvs.com/protheus/integracoes/PXGPEW03"
-    
-    WSData 		ListaMeses 		AS ARRAY OF STRUCT01
-    WSData 		Matricula  		AS STRING OPTIONAL
+WsMethod CarregarId WsReceive sChaveNota WsSend sPreNotaOut WsService PEX_PRE_NOTA_SERVICE
+	
+	Local cQuery 		:= ""
+	Local cAlias 		:= GetNextAlias()
+	Local nPreNotaExist := 0
+	Local lOk 			:= .T.
+	Local i				:= 0
+	Local cMsgErro		:= ""
+	Local cRandom 		:= cValToChar(Randomize( 0, 9999999 ))
 
-    WSMethod    GetMeses		DESCRIPTION 'Retorna os meses já fechados no PROTHEUS'
+	U_WsLog("WSPreNotaService.prw","Iniciando CarregarId ...", cRandom)
 
-ENDWSSERVICE
+	if !Empty( ::sChaveNota:F1_FILIAL )
+		cFilAnt:= Padr(::sChaveNota:F1_FILIAL,Len(SF1->F1_FILIAL))
+	else
+		cFilAnt := xFilial("SF1")
+	endif
 
-WSMETHOD GetMeses WSRECEIVE Matricula WSSEND ListaMeses WSSERVICE PXGPEW03
-    Local ccAlias  := GetNextAlias()
-    Local dInicial := STOD("20170501")
-    Local cRandom  := cValToChar(Randomize( 0, 9999999 ))
-    Local dFinal   
-    ::ListaMeses   := {}
+	// Select apenas no SF1, pois não existe Pre-Nota sem no minimo 1 item -> validação A140TUDDEL e A140VZ
+	cQuery := "SELECT F1_FILIAL, F1_DOC, F1_SERIE, F1_EMISSAO, F1_FORNECE, F1_LOJA, F1_TIPO, F1_ESPECIE, F1_EST, F1_XSISORI, F1_XSISJUR, "
+	cQuery += "D1_ITEM, D1_COD, D1_UM, D1_QUANT, D1_VUNIT, D1_TOTAL, D1_CC "
+	cQuery += "FROM "+RetSQLName("SF1")+" SF1 "
+	cQuery	+= "INNER JOIN  " + RetSQLName("SD1") + " SD1 ON "
+	cQuery	+= "	SD1.D_E_L_E_T_ = ' ' "
+	cQuery	+= "	AND D1_FILIAL = F1_FILIAL "
+	cQuery	+= "	AND D1_DOC = F1_DOC "
+	cQuery	+= "	AND D1_SERIE = F1_SERIE "
+	cQuery	+= "	AND D1_FORNECE = F1_FORNECE "
+	cQuery	+= "	AND D1_LOJA = F1_LOJA "
+	cQuery += "WHERE SF1.D_E_L_E_T_ = ' ' "
+	cQuery += "AND F1_DOC = '"+::sChaveNota:F1_DOC+"' "
+	cQuery += "AND F1_FORNECE = '"+::sChaveNota:F1_FORNECE+"' "
+	cQuery += "AND F1_LOJA = '"+::sChaveNota:F1_LOJA+"' "
+	if !Empty( ::sChaveNota:F1_FILIAL )
+		cQuery += "AND F1_FILIAL = '"+::sChaveNota:F1_FILIAL+"' "
+	endif
+	if !Empty( ::sChaveNota:F1_SERIE )
+		cQuery += "AND F1_SERIE = '"+::sChaveNota:F1_SERIE+"' "
+	endif
+	if !Empty( ::sChaveNota:F1_EMISSAO )
+		cQuery += "AND F1_EMISSAO = '"+DtoS(::sChaveNota:F1_EMISSAO)+"' "
+	endif
 
-    U_WsLog("PXGPEW03.prw","Iniciando GetMeses ...", cRandom)
+	dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cAlias,.F.,.T.)
 
-    If ! Empty(::Matricula)
-        dInicial := FirstDay(Posicione("SRA",13,::Matricula, "SRA->RA_ADMISSA"))
-    EndIf
+	dbSelectArea( cAlias )
+	( cAlias )->( dbGoTop() )
+	dbEval( {|| nPreNotaExist++ })	// Conta quantos sao os registros retornados pelo Select.
 
-    BeginSql Alias ccAlias
-        Select Max(SUBSTR(RCC_CHAVE,1,8)) DT 
-		From %table:RCC%
-        WHERE D_E_L_E_T_ = ' ' AND RCC_CODIGO = 'U010'
-    EndSql
+	if nPreNotaExist > 0
 
-    (ccAlias)->(DbGoTop())
-    If (ccAlias)->(Eof())
-        cErro := "Năo foi possível obter a data de abertura da folha!"
-        SetSoapFault(cErro,'',SOAPFAULT_RECEIVER)
-        U_WsLog("PXGPEW03.prw","Finalizando GetMeses ..." + cErro, cRandom)
-        Return .F.
-    Else
-        dFinal := sTod((ccAlias)->(DT) + "01")
-        While dInicial <= dFinal
-            aAdd(::ListaMeses,WsClassNew("STRUCT01"))
-            ::ListaMeses[Len(::ListaMeses)]:Mes     := Month(dInicial)//Adiciona ano e mes
-            ::ListaMeses[Len(::ListaMeses)]:Ano     := Year(dInicial)//Adiciona ano e mes
-            ::ListaMeses[Len(::ListaMeses)]:AnoMes  := SubStr(dTos(dInicial),1,6)//Adiciona ano e mes
-            dInicial := MonthSum(dInicial,1)
-        EndDo
-    EndIf
+		( cAlias )->( dbGoTop() )
+		While (cAlias)->(!Eof())
+			::sPreNotaOut 			:= WsClassNew("stPreNota")
+			::sPreNotaOut:sItens		:= {}
+			::sPreNotaOut:F1_FILIAL 	:= U_f_Format( (cAlias)->F1_FILIAL )
+			::sPreNotaOut:F1_DOC		:= U_f_Format((cAlias)->F1_DOC)
+			::sPreNotaOut:F1_SERIE	:= U_f_Format((cAlias)->F1_SERIE)
+			::sPreNotaOut:F1_EMISSAO	:= StoD( (cAlias)->F1_EMISSAO )
+			::sPreNotaOut:F1_FORNECE	:= U_f_Format((cAlias)->F1_FORNECE)
+			::sPreNotaOut:F1_LOJA	:= U_f_Format( (cAlias)->F1_LOJA )
+			::sPreNotaOut:F1_TIPO	:= U_f_Format( (cAlias)->F1_TIPO )
+			::sPreNotaOut:F1_ESPECIE	:= U_f_Format((cAlias)->F1_ESPECIE)
+			::sPreNotaOut:F1_EST		:= U_f_Format( (cAlias)->F1_EST )
+			::sPreNotaOut:F1_XSISORI	:= U_f_Format( (cAlias)->F1_XSISORI )
+			::sPreNotaOut:F1_XSISJUR:= U_f_Format( (cAlias)->F1_XSISJUR )
 
-    U_WsLog("PXGPEW03.prw","Finalizando GetMeses ... SUCESSO!", cRandom)
-Return .T.//O retorno indica se foi feito o processamento com sucesso ou năo
+			While (cAlias)->(!Eof())
+				i++
+				AADD(::sPreNotaOut:sItens, WsClassNew("stItensPreNota"))
+				::sPreNotaOut:sItens[i]:D1_ITEM	:= U_f_Format( (cAlias)->D1_ITEM )
+				::sPreNotaOut:sItens[i]:D1_COD 	:= U_f_Format( (cAlias)->D1_COD )
+				::sPreNotaOut:sItens[i]:D1_UM 		:= U_f_Format( (cAlias)->D1_UM )
+				::sPreNotaOut:sItens[i]:D1_QUANT 	:= (cAlias)->D1_QUANT
+				::sPreNotaOut:sItens[i]:D1_VUNIT 	:= (cAlias)->D1_VUNIT
+				::sPreNotaOut:sItens[i]:D1_TOTAL 	:= (cAlias)->D1_TOTAL
+				::sPreNotaOut:sItens[i]:D1_CC 		:= U_f_Format( (cAlias)->D1_CC )
+
+				(cAlias)->(dbSkip())
+			EndDo
+		EndDo
+
+	else
+		cMsgErro := "NAO FOI ENCONTRADO REGISTRO COM OS PARAMETROS INFORMADOS: " + ;
+			"F1_FILIAL := '"+::sChaveNota:F1_FILIAL+"' " + ;
+			"F1_DOC := '"+::sChaveNota:F1_DOC+"' " + ;
+			"F1_SERIE := '"+::sChaveNota:F1_SERIE+"' " + ;
+			"F1_EMISSAO := '"+DtoS(::sChaveNota:F1_EMISSAO)+"' " + ;
+			"F1_FORNECE := '"+::sChaveNota:F1_FORNECE+"' " + ;
+			"F1_LOJA := '"+::sChaveNota:F1_LOJA+"'"
+
+		SetSoapFault("CarregarIdParam", U_WsRetFault("1",U_f_Format(cMsgErro)))
+		lOk := .F.
+	endif
+	(cAlias)->( dbCloseArea() )
+
+U_WsLog("WSPreNotaService.prw","Finalizando CarregarId ..." + cMsgErro, cRandom)
+Return lOk
+
+/*/{Protheus.doc} Consulta
+
+   Consulta Lista de Pré-Notas
+
+   @author  
+   @example Exemplos
+   @param   ExpC1, ExpC2, ExpC3, ExpC4, ExpC5, ExpC6, ExpC7, ExpD1, ExpD2, ExpC8, ExpC9, ExpC10, ExpC11, ExpC12, ExpC13, ExpC14
+			ExpC1 = Filial
+			ExpC2 = Número da Pré-Nota Inicial
+			ExpC3 = Número da Pré-Nota Final
+			ExpC4 = Série da Pré-Nota Inicial
+			ExpC5 = Série da Pré-Nota Final
+			ExpC6 = Espécie da Pré-Nota Inicial
+			ExpC7 = Espécie da Pré-Nota Final
+			ExpD1 = Data de Emissão Inicial
+			ExpD2 = Data de Emissão Final
+			ExpC8 = Fornecedor Inicial
+			ExpC9 = Fornecedor Final
+			ExpC10 = Loja do Fornecedor Inicial
+			ExpC11 = Loja do Fornecedor Final
+			ExpC12 = Tipo da Nota Inicial
+			ExpC13 = Tipo da Nota Final
+			ExpC14 = Pagina a ser consultada
+   @return  ConsultaList - Objeto tipo estrutura que contem Lista de Pré-Notas e informações de paginação
+   @table   (Menu,Trigger,Validacao,Ponto de Entrada,Genericas,Especificas ) : G
+   @since   03/07/2014
+/*/
+
+WsMethod Consulta Wsreceive ConsultaPreNotaListParam WsSend ConsultaPreNotaListRet WsService PEX_PRE_NOTA_SERVICE
+	
+	Local cAlias 		:= GetNextAlias()
+	Local nCountQry	:= 0
+	Local clMsgErro	:= ""
+	Local nI			:= 0
+	Local nX			:= 0
+	Local clChaveItens := ""
+	Local cPaginaDe	:= ""
+	Local cPaginaAte	:= ""
+	Local nItensPagina:=  0
+	Local nCountQry	:= 0
+	Local nTotalPg 	:= 0
+	Local llOk			:= .T.
+	Local clQuery		:= ""
+
+	Local clFilial	:= ::ConsultaPreNotaListParam:F1_FILIAL
+	Local clDocDe		:= ::ConsultaPreNotaListParam:F1_DOC_DE
+	Local clDocAte	:= ::ConsultaPreNotaListParam:F1_DOC_ATE
+	Local clSerieDe	:= ::ConsultaPreNotaListParam:F1_SERIE_DE
+	Local clSerieAte	:= ::ConsultaPreNotaListParam:F1_SERIE_ATE
+	Local clEspecieDe	:= ::ConsultaPreNotaListParam:F1_ESPECIE_DE
+	Local clEspecieAte:= ::ConsultaPreNotaListParam:F1_ESPECIE_ATE
+	Local dlEmissDe	:= ::ConsultaPreNotaListParam:F1_EMISSAO_DE
+	Local dlEmissAte	:= ::ConsultaPreNotaListParam:F1_EMISSAO_ATE
+	Local clFornecDe	:= ::ConsultaPreNotaListParam:F1_FORNECE_DE
+	Local clFornecAte	:= ::ConsultaPreNotaListParam:F1_FORNECE_ATE
+	Local clLojaDe	:= ::ConsultaPreNotaListParam:F1_LOJA_DE
+	Local clLojaAte	:= ::ConsultaPreNotaListParam:F1_LOJA_ATE
+	Local clTipoDe	:= ::ConsultaPreNotaListParam:F1_TIPO_DE
+	Local clTipoAte	:= ::ConsultaPreNotaListParam:F1_TIPO_ATE
+	Local clSisOri	:= ::ConsultaPreNotaListParam:F1_XSISORI
+	Local clSisJuri	:= ::ConsultaPreNotaListParam:F1_XSISJUR
+	Local cRandom 		:= cValToChar(Randomize( 0, 9999999 ))
+
+	U_WsLog("WSPreNotaService.prw","Iniciando Consulta ...", cRandom)
+
+	if !Empty( clFilial )
+		cFilAnt:= Padr(clFilial,Len(SF1->F1_FILIAL))
+	else
+		cFilAnt := xFilial("SF1")
+	endif
+
+	clQuery	:= "SELECT "
+	clQuery	+= " F1_FILIAL, F1_DOC, F1_SERIE, F1_EMISSAO, F1_FORNECE, F1_LOJA, F1_TIPO, F1_ESPECIE, F1_EST, F1_XSISORI, F1_XSISJUR, D1_ITEM, D1_COD, D1_UM, D1_QUANT, D1_VUNIT, D1_TOTAL, D1_CC "
+	clQuery	+= "FROM "+RetSQLName("SF1")+" SF1 "
+	clQuery	+= "INNER JOIN  " + RetSQLName("SD1") + " SD1 ON "
+	clQuery	+= "	SD1.D_E_L_E_T_ = ' ' "
+	clQuery	+= "	AND D1_FILIAL = F1_FILIAL "
+	clQuery	+= "	AND D1_DOC = F1_DOC "
+	clQuery	+= "	AND D1_SERIE = F1_SERIE "
+	clQuery	+= "	AND D1_FORNECE = F1_FORNECE "
+	clQuery	+= "	AND D1_LOJA = F1_LOJA "
+	clQuery	+= "WHERE SF1.D_E_L_E_T_ = ' ' "
+
+	if !Empty( clFilial )
+		clQuery	+= "AND F1_FILIAL = '" + clFilial + "' "
+	else
+		clFilial := " "
+	endif
+
+	if !Empty(clDocDe)
+		clQuery += "AND F1_DOC >= '"+clDocDe+"' "
+	else
+		clDocDe := " "
+	endif
+
+	if !Empty(clDocAte)
+		clQuery += "AND F1_DOC <= '"+clDocAte+"' "
+	elseif !Empty(clDocDe)
+		clQuery += "AND F1_DOC <= '"+clDocDe+"' "
+	else
+		clDocAte := " "
+	endif
+
+	if !Empty(clSerieDe)
+		clQuery += "AND F1_SERIE >= '"+clSerieDe+"' "
+	else
+		clSerieDe := " "
+	endif
+
+	if !Empty(clSerieAte)
+		clQuery += "AND F1_SERIE <= '"+clSerieAte+"' "
+	elseif !Empty(clSerieDe)
+		clQuery += "AND F1_SERIE <= '"+clSerieDe+"' "
+	else
+		clSerieAte := " "
+	endif
+
+	if !Empty(clEspecieDe)
+		clQuery += "AND F1_ESPECIE >= '"+clEspecieDe+"' "
+	else
+		clEspecieDe := " "
+	endif
+
+	if !Empty(clEspecieAte)
+		clQuery += "AND F1_ESPECIE <= '"+clEspecieAte+"' "
+	elseif !Empty(clEspecieDe)
+		clQuery += "AND F1_ESPECIE <= '"+clEspecieDe+"' "
+	else
+		clEspecieAte := " "
+	endif
+
+	if !Empty(dlEmissDe)
+		clQuery += "AND F1_EMISSAO >= '"+DtoS( dlEmissDe )+"' "
+	else
+		dlEmissDe := CToD("//")
+	endif
+
+	if !Empty(dlEmissAte)
+		clQuery += "AND F1_EMISSAO <= '"+DtoS( dlEmissAte )+"' "
+	elseif !Empty(dlEmissDe)
+		clQuery += "AND F1_EMISSAO <= '"+DtoS( dlEmissDe )+"' "
+	else
+		dlEmissAte := CToD("//")
+	endif
+
+	if !Empty(clFornecDe)
+		clQuery += "AND F1_FORNECE >= '"+clFornecDe+"' "
+	else
+		clFornecDe := " "
+	endif
+
+	if !Empty(clFornecAte)
+		clQuery += "AND F1_FORNECE <= '"+clFornecAte+"' "
+	elseif !Empty(clFornecDe)
+		clQuery += "AND F1_FORNECE <= '"+clFornecDe+"' "
+	else
+		clFornecAte := " "
+	endif
+
+	if !Empty(clLojaDe)
+		clQuery += "AND F1_LOJA >= '"+clLojaDe+"' "
+	else
+		clLojaDe := " "
+	endif
+
+	if !Empty(clLojaAte)
+		clQuery += "AND F1_LOJA <= '"+clLojaAte+"' "
+	elseif !Empty(clLojaDe)
+		clQuery += "AND F1_LOJA <= '"+clLojaDe+"' "
+	else
+		clLojaAte := " "
+	endif
+
+	if !Empty(clTipoDe)
+		clQuery += "AND F1_TIPO >= '"+clTipoDe+"' "
+	else
+		clTipoDe := " "
+	endif
+
+	if !Empty(clTipoAte)
+		clQuery += "AND F1_TIPO <= '"+clTipoAte+"' "
+	elseif !Empty(clTipoDe)
+		clQuery += "AND F1_TIPO <= '"+clTipoDe+"' "
+	else
+		clTipoAte := " "
+	endif
+
+	if !Empty( clSisOri )
+		clQuery	+= "AND F1_XSISORI = '" + clSisOri + "' "
+	else
+		clSisOri := " "
+	endif
+
+	if !Empty( clSisJuri )
+		clQuery	+= "AND F1_XSISJUR = '" + clSisJuri + "' "
+	else
+		clSisJuri := " "
+	endif
+
+
+	cAlias	:= U_WSInfoPagina( clQuery,"F1_FILIAL, F1_DOC, F1_SERIE, F1_EMISSAO, F1_FORNECE, F1_LOJA", @::ConsultaPreNotaListParam:cPagina, @nTotalPg, @nItensPagina, @nCountQry )
+
+	if nCountQry > 0
+
+		// Informações de Paginação -> em caso de Sucesso
+		::ConsultaPreNotaListRet:sPaginacao	:= WsClassNew("stPaginas")
+		::ConsultaPreNotaListRet:sPaginacao:_nTamPagina		:= nItensPagina
+		::ConsultaPreNotaListRet:sPaginacao:_nPagina			:= Val(::ConsultaPreNotaListParam:cPagina)
+		::ConsultaPreNotaListRet:sPaginacao:_nTotPaginas		:= nTotalPg
+		::ConsultaPreNotaListRet:sPaginacao:_nQtdRegistros	:= nCountQry
+
+		::ConsultaPreNotaListRet:sPreNotaList	:= {}
+
+		( cAlias )->( dbGoTop() )
+		While ( cAlias )->( !Eof() )
+
+			nI++
+			nX := 0
+			AADD(::ConsultaPreNotaListRet:sPreNotaList, WsClassNew("stPreNota"))
+
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_FILIAL	:= U_f_Format( ( cAlias )->F1_FILIAL )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_DOC		:= U_f_Format( ( cAlias )->F1_DOC )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_SERIE	:= U_f_Format( ( cAlias )->F1_SERIE )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_EMISSAO	:= StoD( ( cAlias )->F1_EMISSAO )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_FORNECE	:= U_f_Format( ( cAlias )->F1_FORNECE )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_LOJA	:= U_f_Format( ( cAlias )->F1_LOJA )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_TIPO	:= U_f_Format( ( cAlias )->F1_TIPO )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_ESPECIE	:= U_f_Format( ( cAlias )->F1_ESPECIE )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_EST		:= U_f_Format( ( cAlias )->F1_EST )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_XSISORI	:= U_f_Format( ( cAlias )->F1_XSISORI )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:F1_XSISJUR	:= U_f_Format( ( cAlias )->F1_XSISJUR )
+
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens		:= {}
+
+			clChaveItens := ( cAlias )->( F1_FILIAL+F1_DOC+F1_SERIE+F1_EMISSAO+F1_FORNECE+F1_LOJA )
+
+			While	( cAlias )->( !Eof() );
+				.And. ( cAlias )->( F1_FILIAL+F1_DOC+F1_SERIE+F1_EMISSAO+F1_FORNECE+F1_LOJA ) == clChaveItens
+
+			nX++
+			AADD(::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens, WsClassNew("stItensPreNota"))
+
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_ITEM	:= U_f_Format( ( cAlias )->D1_ITEM )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_COD		:= U_f_Format( ( cAlias )->D1_COD )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_UM		:= U_f_Format( ( cAlias )->D1_UM )
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_QUANT	:= ( cAlias )->D1_QUANT
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_VUNIT	:= ( cAlias )->D1_VUNIT
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_TOTAL	:= ( cAlias )->D1_TOTAL
+			::ConsultaPreNotaListRet:sPreNotaList[nI]:sItens[nX]:D1_CC		:= U_f_Format( ( cAlias )->D1_CC )
+
+			( cAlias )->( dbSkip() )
+		EndDo
+
+	EndDo
+
+	// Se Array de ::ConsultaGrupoList:sGrupoList estiver vazio, é porque o intervalo de produtos não existe na coluna RowNumber, logo não existe a página
+	If Empty(::ConsultaPreNotaListRet:sPreNotaList)
+		llOk := .F.
+		clMsgErro := "EXISTEM SOMENTE '"+cValToChar(nTotalPg)+"' PAGINA(S) COM OS PARAMETROS INFORMADOS!!!"
+		SetSoapFault("ConsultaPreNotaListParam", U_WsRetFault( "1", U_f_Format( clMsgErro ) ) )
+	endif
+
+else
+
+	llOk := .F.
+	clMsgErro	:= "Não foi encontrado registros com os parâmetros abaixo: " +;
+		"Filial: '"			+ clFilial + "' " +;
+		"Nota De: '"			+ clDocDe + "' " +;
+		"Nota Ate: '"			+ clDocAte + "' " +;
+		"Serie De: '"			+ clSerieDe + "' " +;
+		"Serie Ate: '"			+ clSerieAte + "' " +;
+		"Especie De: '"		+ clEspecieDe+ "' " +;
+		"Especie Ate: '"		+ clEspecieAte+ "' " +;
+		"Emissao De: '"		+ DtoC( dlEmissDe ) + "' " +;
+		"Emissao Ate: '"		+ DtoC( dlEmissAte ) + "' " +;
+		"Fornecedor De: '"	+ clFornecDe + "' " +;
+		"Fornecedor Ate: '"	+ clFornecAte + "' " +;
+		"Loja De: '"			+ clLojaDe + "' "+;
+		"Loja Ate: '"			+ clLojaAte + "' "+;
+		"Tipo De: '"			+ clTipoDe + "' "+;
+		"Tipo Ate: '"			+ clTipoDe + "' "+;
+		"Origem: '"			+ clSisOri + "' "+;
+		"Num Origem: '"		+ clSisJuri + "' "
+
+	SetSoapFault("ConsultaPreNotaListParam", U_WsRetFault( "1", U_f_Format( clMsgErro ) ) )
+
+endif
+( cAlias )->( dbCloseArea() )
+
+
+U_WsLog("WSPreNotaService.prw","Finalizando Consulta ..." + clMsgErro, cRandom)
+Return llOk
+
+/*/{Protheus.doc} Inclui
+
+   Inclusão de Pré-Nota
+
+   @author  
+   @example Exemplos
+   @param   ExpS1
+			ExpS1 = Estrutura de Inclusão de Pré-Nota
+   @return  sPreNotaOut - Estrutura com informações da inclusão de Pré-Nota
+   @table   (Menu,Trigger,Validacao,Ponto de Entrada,Genericas,Especificas ) : G
+   @since   16/07/2014
+/*/
+
+WsMethod Inclui WsReceive sPreNotaIn WsSend sPreNotaOut WsService PEX_PRE_NOTA_SERVICE
+		
+	Local _aArea
+	Local _aAreaSF1 	:= {}
+	Local _aAreaSD1	:= {}
+	Local cSequencia
+	Local lOk			:= .T.
+	Local _aCabec 	:= {}
+	Local _aItens 	:= {}
+	Local _aReg	 	:= {}
+	Local cFilBak
+	Local cMsgErro	:= ""
+	Local clDoc		:= ""
+	Local clSerie		:= ""
+	Local clEmissao	:= ""
+	Local cRandom 		:= cValToChar(Randomize( 0, 9999999 ))
+
+	Private lMsErroAuto 		:= .F.
+
+	U_WsLog("WSPreNotaService.prw","Iniciando Inclui ...", cRandom)
+
+	if !Empty( ::sPreNotaIn:F1_FILIAL )
+		cFilAnt:= Padr(::sPreNotaIn:F1_FILIAL,Len(SF1->F1_FILIAL))
+	else
+		cFilAnt := xFilial("SF1")
+	endif
+
+	//Grava Variáveis que estavam na declaração
+	_aArea 		:= GetArea()
+	cSequencia 	:= Replicate("0", TamSX3("D1_ITEM")[1])
+	cFilBak		:= cFilAnt     // Variavel pública, utilizada na gravação dos campos _FILIAL
+
+
+	dbSelectArea("SF1")
+	SF1->( dbSetOrder(1) )
+
+	dbSelectArea("SD1")
+	SD1->( dbSetOrder(1) )
+
+	_aAreaSF1 	:= SF1->( GetArea() )
+	_aAreaSD1	:= SD1->( GetArea() )
+
+	//-------------------------------------------
+	//- Tratamento das informacoes do cabecalho -
+	//-------------------------------------------
+
+	//ROBSON ROGÉRIO - Millenium - 30/09/2016
+	//Tratamento para títulos do SISJURI para evitar duplicar o Número
+	If AllTrim(::sPreNotaIn:F1_XSISORI) == "SISJURI" .AND. AllTrim(::sPreNotaIn:F1_DOC) == "RE0"
+		clDoc 		:= ::sPreNotaIn:F1_DOC + ::sPreNotaIn:F1_XSISJUR
+		clSerie 	:= "UNI"
+	Else
+		clDoc 		:= ::sPreNotaIn:F1_DOC
+		clSerie 	:= ::sPreNotaIn:F1_SERIE
+	EndIf
+	//Fim 30/09/2016
+
+	// Conceito de seek do APSDU, conteudo + espaços em branco até o tamanho do campo
+	aAdd(_aCabec, {"F1_FILIAL"	, cFilAnt														, Nil})
+	aAdd(_aCabec, {"F1_DOC"	  	, Padr(clDoc,		Len(SF1->F1_DOC))							, Nil})
+	aAdd(_aCabec, {"F1_SERIE" 	, Padr(clSerie,	Len(SF1->F1_SERIE)) 						, Nil})
+	aAdd(_aCabec, {"F1_EMISSAO" , ::sPreNotaIn:F1_EMISSAO 						   			, Nil})
+	aAdd(_aCabec, {"F1_FORNECE" , Padr(::sPreNotaIn:F1_FORNECE, Len(SF1->F1_FORNECE)) 	, Nil})
+	aAdd(_aCabec, {"F1_LOJA"  	, Padr(::sPreNotaIn:F1_LOJA,	Len(SF1->F1_LOJA)) 		, Nil})
+	aAdd(_aCabec, {"F1_TIPO"		, Padr(::sPreNotaIn:F1_TIPO,	Len(SF1->F1_TIPO)) 		, Nil})
+	aAdd(_aCabec, {"F1_ESPECIE"	, Padr(::sPreNotaIn:F1_ESPECIE,	Len(SF1->F1_ESPECIE))	, Nil})
+	aAdd(_aCabec, {"F1_EST"	  	, Padr(::sPreNotaIn:F1_EST,		Len(SF1->F1_EST)) 		, Nil})
+	aAdd(_aCabec, {"F1_XSISORI"	, Padr(::sPreNotaIn:F1_XSISORI,	Len(SF1->F1_XSISORI)) 	, Nil})
+	aAdd(_aCabec, {"F1_XSISJUR" , Padr(::sPreNotaIn:F1_XSISJUR,Len(SF1->F1_XSISJUR)) 	, Nil})
+
+
+	For i := 1 to Len(sPreNotaIn:sItens)
+
+		cSequencia := soma1(cSequencia)
+		_aReg := {}
+		// Tratamento para tabela compartilhada
+		aAdd(_aReg, {"D1_FILIAL", 	cFilAnt													, Nil})
+		aAdd(_aReg, {"D1_ITEM"	,	cSequencia													, Nil})
+		aAdd(_aReg, {"D1_COD"	,	Padr(sPreNotaIn:sItens[i]:D1_COD,Len(SD1->D1_COD))	, Nil})
+		aAdd(_aReg, {"D1_UM"		,	Padr(sPreNotaIn:sItens[i]:D1_UM,Len(SD1->D1_UM))		, Nil})
+		aAdd(_aReg, {"D1_QUANT"	,	sPreNotaIn:sItens[i]:D1_QUANT							, Nil})
+		aAdd(_aReg, {"D1_VUNIT"	,	sPreNotaIn:sItens[i]:D1_VUNIT							, Nil})
+		aAdd(_aReg, {"D1_TOTAL"	,	sPreNotaIn:sItens[i]:D1_TOTAL							, Nil})
+		aAdd(_aReg, {"D1_CC"		,	Padr(sPreNotaIn:sItens[i]:D1_CC,Len(SD1->D1_CC))		, Nil})
+
+		aAdd(_aItens,aClone(_aReg))
+	Next
+
+	// NomeAutoLog() -> retorna o ultimo arquivo .log gerado na pasta system
+	// MemoRead -> Lê o arquivo
+	BEGIN TRANSACTION
+		MSExecAuto({|x,y,z|Mata140(x,y,z)},_aCabec,_aItens,3)
+		if lMsErroAuto
+			cMsgErro := Alltrim(MemoRead(NomeAutoLog()))
+			MemoWrite(NomeAutoLog()," ")
+			DisarmTransaction()
+		endif
+	END TRANSACTION
+
+	if lMsErroAuto
+		SetSoapFault( "IncluiPreNotaParam",U_WsRetFault("2",U_f_Format(cMsgErro)))
+		lOk := .F.
+	Else
+		::sPreNotaOut				:= WsClassNew("stPreNota")    // Copia da estrutura "stPreNota" para utilizar as variaveis F1_ e sItens
+		::sPreNotaOut:sItens		:= {}
+
+		::sPreNotaOut:F1_FILIAL  	:= ::sPreNotaIn:F1_FILIAL
+		::sPreNotaOut:F1_DOC			:= ::sPreNotaIn:F1_DOC
+		::sPreNotaOut:F1_SERIE		:= ::sPreNotaIn:F1_SERIE
+		::sPreNotaOut:F1_EMISSAO 	:= ::sPreNotaIn:F1_EMISSAO
+		::sPreNotaOut:F1_FORNECE 	:= ::sPreNotaIn:F1_FORNECE
+		::sPreNotaOut:F1_LOJA		:= ::sPreNotaIn:F1_LOJA
+		::sPreNotaOut:F1_TIPO       := ::sPreNotaIn:F1_TIPO
+		::sPreNotaOut:F1_ESPECIE   	:= ::sPreNotaIn:F1_ESPECIE
+		::sPreNotaOut:F1_EST        := ::sPreNotaIn:F1_EST
+		::sPreNotaOut:F1_XSISORI   	:= ::sPreNotaIn:F1_XSISORI
+		::sPreNotaOut:F1_XSISJUR    := ::sPreNotaIn:F1_XSISJUR
+
+		cSequencia 	:= Replicate("0", TamSX3("D1_ITEM")[1])
+
+		For i := 1 to Len(sPreNotaIn:sItens)
+			cSequencia := soma1(cSequencia)
+			aAdd(::sPreNotaOut:sItens, WsClassNew("stItensPreNota")) // -> adiciono copia da estrutura de stItensPreNota ao Array e 'alimento' o próximo registro utilizando as variavéis da estrutura
+			::sPreNotaOut:sItens[i]:D1_ITEM 	:= cSequencia
+			::sPreNotaOut:sItens[i]:D1_COD  	:= sPreNotaIn:sItens[i]:D1_COD
+			::sPreNotaOut:sItens[i]:D1_UM		:= sPreNotaIn:sItens[i]:D1_UM
+			::sPreNotaOut:sItens[i]:D1_QUANT 	:= sPreNotaIn:sItens[i]:D1_QUANT
+			::sPreNotaOut:sItens[i]:D1_VUNIT   := sPreNotaIn:sItens[i]:D1_VUNIT
+			::sPreNotaOut:sItens[i]:D1_TOTAL   := sPreNotaIn:sItens[i]:D1_TOTAL
+			::sPreNotaOut:sItens[i]:D1_CC    	:= sPreNotaIn:sItens[i]:D1_CC
+		Next
+	endif
+
+	cFilAnt	:= cFilBak
+
+	RestArea(_aAreaSD1)
+	RestArea(_aAreaSF1)
+	RestArea(_aArea)
+
+U_WsLog("WSPreNotaService.prw","Finalizando Inclui ..." + cMsgErro, cRandom)
+Return lOk
+
+/*/{Protheus.doc} Altera
+
+   Alterar as informações de uma Pré-Nota específica
+
+   @author  
+   @example Exemplos
+   @param   xpS1
+			ExpS1 = Estrutura de Alteração de Pré-Nota
+   @return  sPreNotaOut - Estrutura com informações da alteração de Pré-Nota
+   @table   Altera - Alterar as informações de uma Pré-Nota específica
+   @since   03/07/2014
+/*/
+
+WsMethod Altera WsReceive sPreNotaIn WsSend sPreNotaOut WsService PEX_PRE_NOTA_SERVICE
+	
+	Local _aArea
+	Local _aAreaSF1
+	Local _aAreaSD1
+	Local _aAreaSB1
+	Local lOk			:= .T.
+	Local lOkItens	:= .T.
+	Local _aCabec 	:= {}
+	Local _aItens		:= {}
+	Local _aReg	 	:= {}
+	Local cFilBak
+	Local cMsgErro	:= ""
+	Local cMsgVldPrd	:= ""
+	Local cSeek		:= ""
+	Local cSequencia
+	Local i
+	Local clProduto	:= ""
+	Local nlTamB1COD
+	Local nlTamF1FIL
+	Local cRandom 		:= cValToChar(Randomize( 0, 9999999 ))
+	Private lMsErroAuto 		:= .F.
+	
+
+	U_WsLog("WSPreNotaService.prw","Iniciando Altera ...", cRandom)
+
+	if !Empty( ::sPreNotaIn:F1_FILIAL )
+		cFilAnt:= Padr(::sPreNotaIn:F1_FILIAL,Len(SF1->F1_FILIAL))
+	else
+		cFilAnt := xFilial("SF1")
+	endif
+
+	//Gravação de variáveis que estavam na declaração
+	_aArea 		:= GetArea()
+	_aAreaSF1 		:= SF1->(GetArea())
+	_aAreaSD1		:= SD1->(GetArea())
+	_aAreaSB1		:= SB1->(GetArea())
+	cFilBak		:= cFilAnt	// Variavel pública, utilizada na gravação dos campos _FILIAL pelo MSExecAuto
+	cSequencia 	:= Replicate("0", TamSX3("D1_ITEM")[1])
+	nlTamB1COD 	:= TamSX3("B1_COD")[1]
+	nlTamF1FIL 	:= TamSX3("F1_FILIAL")[1]
+
+	// Tratamento para tabela compartilhada
+	cFilAnt := Padr(::sPreNotaIn:F1_FILIAL,nlTamF1FIL)
+
+	SB1->( dbSetOrder(1) )
+
+	For i := 1 to Len(sPreNotaIn:sItens)
+
+		clProduto	:= Padr( AllTrim( sPreNotaIn:sItens[i]:D1_COD),nlTamB1COD )
+		cSeek		:= xFilial("SB1") + clProduto
+
+		if !Empty( clProduto ) .And. !SB1->( dbSeek(cSeek) )
+			cMsgVldPrd += "'" + cSeek + "'" + " / "
+			lOkItens := .F.
+		endif
+
+	next
+
+	if !lOkItens .And. !Empty( cMsgVldPrd )
+
+		cMsgErro := "Alguns itens enviados não existem no cadastro de produto. Segue: " + cMsgVldPrd
+		SetSoapFault( "AlteraPreNotaParam", U_WsRetFault("1",U_f_Format(cMsgErro)))
+		lOk := .F.
+
+	else
+
+		// Primeira ação -> Excluir Nota e Itens existentes
+		// Segunda ação -> Incluir Nota e Itens novamente
+
+		SF1->(DbSetOrder(1))
+
+		cSeek := cFilAnt + Padr(::sPreNotaIn:F1_DOC,Len(SF1->F1_DOC)) + Padr(::sPreNotaIn:F1_SERIE,Len(SF1->F1_SERIE)) +;
+			Padr(::sPreNotaIn:F1_FORNECE,Len(SF1->F1_FORNECE)) + Padr(::sPreNotaIn:F1_LOJA, Len(SF1->F1_LOJA))
+
+		BEGIN TRANSACTION
+
+			if SF1->(dbSeek(cSeek))
+
+				// Para executar o MSExecAuto, é necessário que o seek dos campos passados contemplem o mecanismo de busca do APSDU (tamanho dos campos com espaços em branco)
+				aAdd(_aCabec, {"F1_FILIAL"	, cFilAnt			 										 	, Nil})
+				aAdd(_aCabec, {"F1_DOC"	  	, Padr(::sPreNotaIn:F1_DOC,		Len(SF1->F1_DOC)) 	   	, Nil})
+				aAdd(_aCabec, {"F1_SERIE" 	, Padr(::sPreNotaIn:F1_SERIE,	Len(SF1->F1_SERIE))	 	, Nil})
+				aAdd(_aCabec, {"F1_EMISSAO" , ::sPreNotaIn:F1_EMISSAO									, Nil})
+				aAdd(_aCabec, {"F1_FORNECE" , Padr(::sPreNotaIn:F1_FORNECE,	Len(SF1->F1_FORNECE)) 	, Nil})
+				aAdd(_aCabec, {"F1_LOJA"  	, Padr(::sPreNotaIn:F1_LOJA, 	Len(SF1->F1_LOJA))	   	, Nil})
+
+				// NomeAutoLog() -> retorna o ultimo arquivo .log gerado na pasta system
+				// MemoRead -> Lê o arquivo
+
+				MSExecAuto({|x,y,z|Mata140(x,y,z)},_aCabec,_aItens,5)
+				if lMsErroAuto
+					cMsgErro := Alltrim(MemoRead(NomeAutoLog()))
+					MemoWrite(NomeAutoLog()," ")
+					SetSoapFault( "AlteraPreNotaParam",U_WsRetFault("2",U_f_Format(cMsgErro)))  // sem seek o execauto fazia a pesquisa dos conteudos do _aCabec, porem não mostrava a data emissão no log
+					lOk := .F.
+					DisarmTransaction()
+				endif
+			else
+				cMsgErro := "NAO FOI ENCONTRADO REGISTRO COM OS PARAMETROS INFORMADOS: " + ;
+					"F1_FILIAL := '" +::sPreNotaIn:F1_FILIAL +"' " +;
+					"F1_DOC := '" +::sPreNotaIn:F1_DOC +"' " +;
+					"F1_SERIE := '" +::sPreNotaIn:F1_SERIE +"' " +;
+					"F1_FORNECE := '" +::sPreNotaIn:F1_FORNECE +"' " +;
+					"F1_LOJA := '" +::sPreNotaIn:F1_LOJA +"' " +;
+					"F1_EMISSAO := '" + DtoS( ::sPreNotaIn:F1_EMISSAO ) + "'"
+
+				SetSoapFault( "AlteraPreNotaParam", U_WsRetFault("1",U_f_Format(cMsgErro)))
+				lOk := .F.
+				DisarmTransaction()
+			endif
+
+			// Se a exclusão for ok, faço a inclusão
+			if lOk
+				_aCabec 		:= {}
+
+				// Conceito de seek do APSDU, conteudo + espaços em branco até o tamanho do campo
+
+				aAdd(_aCabec, {"F1_DOC"	  	, Padr(::sPreNotaIn:F1_DOC,		Len(SF1->F1_DOC))			, Nil})
+				aAdd(_aCabec, {"F1_SERIE" 	, Padr(::sPreNotaIn:F1_SERIE,	Len(SF1->F1_SERIE)) 		, Nil})
+				aAdd(_aCabec, {"F1_EMISSAO" , ::sPreNotaIn:F1_EMISSAO			 				   		, Nil})
+				aAdd(_aCabec, {"F1_FORNECE" , Padr(::sPreNotaIn:F1_FORNECE, Len(SF1->F1_FORNECE)) 	, Nil})
+				aAdd(_aCabec, {"F1_LOJA"  	, Padr(::sPreNotaIn:F1_LOJA,	Len(SF1->F1_LOJA)) 		, Nil})
+				aAdd(_aCabec, {"F1_TIPO"		, Padr(::sPreNotaIn:F1_TIPO,	Len(SF1->F1_TIPO))		, Nil})
+				aAdd(_aCabec, {"F1_ESPECIE"	, Padr(::sPreNotaIn:F1_ESPECIE,	Len(SF1->F1_ESPECIE))	, Nil})
+				aAdd(_aCabec, {"F1_EST"	  	, Padr(::sPreNotaIn:F1_EST,		Len(SF1->F1_EST)) 		, Nil})
+				aAdd(_aCabec, {"F1_XSISORI"	, Padr(::sPreNotaIn:F1_XSISORI,	Len(SF1->F1_XSISORI))	, Nil})
+				aAdd(_aCabec, {"F1_XSISJUR" , Padr(::sPreNotaIn:F1_XSISJUR, Len(SF1->F1_XSISJUR))	, Nil})
+
+				SD1->(dbSetOrder(1))
+				For i := 1 to Len(sPreNotaIn:sItens)
+
+					clProduto := Padr(sPreNotaIn:sItens[i]:D1_COD,Len(SD1->D1_COD))
+					if !Empty( clProduto )
+
+						cSequencia := soma1(cSequencia)
+
+						// Tratamento para tabela compartilhada
+						aAdd(_aReg, {"D1_FILIAL", 	cFilAnt												, Nil})
+						aAdd(_aReg, {"D1_ITEM"	,	cSequencia												, Nil})
+						aAdd(_aReg, {"D1_COD"	,	clProduto												, Nil})
+						aAdd(_aReg, {"D1_UM"		,	Padr(sPreNotaIn:sItens[i]:D1_UM,Len(SD1->D1_UM))	, Nil})
+						aAdd(_aReg, {"D1_QUANT"	,	sPreNotaIn:sItens[i]:D1_QUANT						, Nil})
+						aAdd(_aReg, {"D1_VUNIT"	,	sPreNotaIn:sItens[i]:D1_VUNIT						, Nil})
+						aAdd(_aReg, {"D1_TOTAL"	,	sPreNotaIn:sItens[i]:D1_TOTAL						, Nil})
+						aAdd(_aReg, {"D1_CC"		,	Padr(sPreNotaIn:sItens[i]:D1_CC,Len(SD1->D1_CC))	, Nil})
+
+					endif
+
+					aAdd(_aItens,aClone(_aReg))
+				Next
+
+				// NomeAutoLog() -> retorna o ultimo arquivo .log gerado na pasta system
+				// MemoRead -> Lê o arquivo
+
+				MSExecAuto({|x,y,z|Mata140(x,y,z)},_aCabec,_aItens,3)
+				if lMsErroAuto
+					cMsgErro := Alltrim(MemoRead(NomeAutoLog()))
+					MemoWrite(NomeAutoLog()," ")
+					SetSoapFault( "AlteraPreNotaParam",U_WsRetFault("2",U_f_Format(cMsgErro)))
+					lOk := .F.
+					DisarmTransaction()
+				Else
+					::sPreNotaOut				:= WsClassNew("stPreNota")    // Copia da estrutura "stPreNota" para utilizar as variaveis F1_ e sItens
+					::sPreNotaOut:sItens		:= {}
+
+					::sPreNotaOut:F1_FILIAL  	:= ::sPreNotaIn:F1_FILIAL
+					::sPreNotaOut:F1_DOC			:= ::sPreNotaIn:F1_DOC
+					::sPreNotaOut:F1_SERIE		:= ::sPreNotaIn:F1_SERIE
+					::sPreNotaOut:F1_EMISSAO 	:= ::sPreNotaIn:F1_EMISSAO
+					::sPreNotaOut:F1_FORNECE 	:= ::sPreNotaIn:F1_FORNECE
+					::sPreNotaOut:F1_LOJA		:= ::sPreNotaIn:F1_LOJA
+					::sPreNotaOut:F1_TIPO       := ::sPreNotaIn:F1_TIPO
+					::sPreNotaOut:F1_ESPECIE   	:= ::sPreNotaIn:F1_ESPECIE
+					::sPreNotaOut:F1_EST        := ::sPreNotaIn:F1_EST
+					::sPreNotaOut:F1_XSISORI   	:= ::sPreNotaIn:F1_XSISORI
+					::sPreNotaOut:F1_XSISJUR    := ::sPreNotaIn:F1_XSISJUR
+
+					cSequencia 	:= Replicate("0", TamSX3("D1_ITEM")[1])
+
+					For i := 1 to Len(sPreNotaIn:sItens)
+						cSequencia := soma1(cSequencia)
+						aAdd(::sPreNotaOut:sItens, WsClassNew("stItensPreNota")) // -> adiciono copia da estrutura de stItensPreNota ao Array e 'alimento' o próximo registro utilizando as variavéis da estrutura
+						::sPreNotaOut:sItens[i]:D1_ITEM 	:= cSequencia
+						::sPreNotaOut:sItens[i]:D1_COD  	:= sPreNotaIn:sItens[i]:D1_COD
+						::sPreNotaOut:sItens[i]:D1_UM		:= sPreNotaIn:sItens[i]:D1_UM
+						::sPreNotaOut:sItens[i]:D1_QUANT 	:= sPreNotaIn:sItens[i]:D1_QUANT
+						::sPreNotaOut:sItens[i]:D1_VUNIT   := sPreNotaIn:sItens[i]:D1_VUNIT
+						::sPreNotaOut:sItens[i]:D1_TOTAL   := sPreNotaIn:sItens[i]:D1_TOTAL
+						::sPreNotaOut:sItens[i]:D1_CC   	:= sPreNotaIn:sItens[i]:D1_CC
+					Next
+				endif
+			endif
+
+		END TRANSACTION
+
+	endif
+
+	cFilAnt	:= cFilBak
+
+	RestArea(_aAreaSB1)
+	RestArea(_aAreaSD1)
+	RestArea(_aAreaSF1)
+	RestArea(_aArea)
+
+U_WsLog("WSPreNotaService.prw","Finalizando Altera ..." + cMsgErro, cRandom)
+Return lOk
+
+/*/{Protheus.doc} Exclui
+
+   Excluir uma Pré-Nota específica
+
+   @author  
+   @example Exemplos
+   @param   ExpS1
+			ExpS1 = Estrutura de Exclusão de Pré-Nota
+   @return  bExcluido - Retorno .T.
+   @table   Menu,Trigger,Validacao,Ponto de Entrada,Genericas,Especificas ) : G
+   @since   17/07/2014
+/*/
+
+WsMethod Exclui WsReceive sChaveNota WsSend bExcluido WsService PEX_PRE_NOTA_SERVICE
+	
+	Local _aArea
+	Local _aAreaSF1
+	Local lOk			:= .T.
+	Local _aCabec 		:= {}
+	Local _aItens		:= {}
+	Local cFilBak	// Variavel pública, utilizada na gravação dos campos _FILIAL pelo MSExecAuto
+	Local cMsgErro		:= ""
+	Local cSeek			:= ""
+	Local cRandom 		:= cValToChar(Randomize( 0, 9999999 ))
+	Private lMsErroAuto 		:= .F.
+
+	U_WsLog("WSPreNotaService.prw","Iniciando Exclui ...", cRandom)
+
+	if !Empty( ::sChaveNota:F1_FILIAL )
+		cFilAnt:= Padr(::sChaveNota:F1_FILIAL,Len(SF1->F1_FILIAL))
+	else
+		cFilAnt := xFilial("SF1")
+	endif
+
+	//Gravação de variáveis que estavam na declaração
+	_aArea 		:= GetArea()
+	_aAreaSF1 		:= SF1->(GetArea())
+	cFilBak		:= cFilAnt
+
+	SF1->(DbSetOrder(1))
+
+	cFilAnt := Padr(::sChaveNota:F1_FILIAL,Len(SF1->F1_FILIAL))
+
+	cSeek := cFilAnt + Padr(::sChaveNota:F1_DOC,Len(SF1->F1_DOC)) + Padr(::sChaveNota:F1_SERIE,Len(SF1->F1_SERIE)) +;
+		Padr(::sChaveNota:F1_FORNECE,Len(SF1->F1_FORNECE)) + Padr(::sChaveNota:F1_LOJA, Len(SF1->F1_LOJA))
+
+	if SF1->(dbSeek(cSeek))
+
+		// Para executar o MSExecAuto, é necessário que o seek dos campos passados contemplem o mecanismo de busca do APSDU (tamanho dos campos com espaços em branco)
+		aAdd(_aCabec, {"F1_FILIAL"	, cFilAnt			 										 	, Nil})
+		aAdd(_aCabec, {"F1_DOC"	  	, Padr(::sChaveNota:F1_DOC,		Len(SF1->F1_DOC)) 	   	, Nil})
+		aAdd(_aCabec, {"F1_SERIE" 	, Padr(::sChaveNota:F1_SERIE,	Len(SF1->F1_SERIE))	 	, Nil})
+		aAdd(_aCabec, {"F1_EMISSAO" , ::sChaveNota:F1_EMISSAO									, Nil})
+		aAdd(_aCabec, {"F1_FORNECE" , Padr(::sChaveNota:F1_FORNECE,	Len(SF1->F1_FORNECE)) 	, Nil})
+		aAdd(_aCabec, {"F1_LOJA"  	, Padr(::sChaveNota:F1_LOJA, 	Len(SF1->F1_LOJA))	   	, Nil})
+
+		// NomeAutoLog() -> retorna o ultimo arquivo .log gerado na pasta system
+		// MemoRead -> Lê o arquivo
+
+		BEGIN TRANSACTION
+			MSExecAuto({|x,y,z|Mata140(x,y,z)},_aCabec,_aItens,5)
+			if lMsErroAuto
+				cMsgErro := Alltrim(MemoRead(NomeAutoLog()))
+				MemoWrite(NomeAutoLog()," ")
+				DisarmTransaction()
+			endif
+		END TRANSACTION
+		if lMsErroAuto
+			SetSoapFault( "ExcluiPreNotaParam",U_WsRetFault("2",U_f_Format(cMsgErro)))  // sem seek o execauto fazia a pesquisa dos conteudos do _aCabec, porem não mostrava a data emissão no log
+			lOk := .F.
+		Else
+			::bExcluido :=  .T.
+		endif
+	else
+		cMsgErro := "NAO FOI ENCONTRADO REGISTRO COM OS PARAMETROS INFORMADOS: " + ;
+			"F1_FILIAL := '" +::sChaveNota:F1_FILIAL +"' " +;
+			"F1_DOC := '" +::sChaveNota:F1_DOC +"' " +;
+			"F1_SERIE := '" +::sChaveNota:F1_SERIE +"' " +;
+			"F1_FORNECE := '" +::sChaveNota:F1_FORNECE +"' " +;
+			"F1_LOJA := '" +::sChaveNota:F1_LOJA +"' " +;
+			"F1_EMISSAO := '" + DtoS( ::sChaveNota:F1_EMISSAO ) + "'"
+
+		SetSoapFault( "ExcluiPreNotaParam", U_WsRetFault("1",U_f_Format(cMsgErro)))
+		lOk := .F.
+	endif
+
+	cFilAnt	:= cFilBak
+
+	RestArea(_aAreaSF1)
+	RestArea(_aArea)
+
+U_WsLog("WSPreNotaService.prw","Finalizando Exclui ..." + cMsgErro, cRandom)
+Return lOk

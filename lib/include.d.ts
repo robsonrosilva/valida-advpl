@@ -1,4 +1,4 @@
-import { ValidaAdvpl } from "./validaAdvpl";
+import { ValidaAdvpl } from './validaAdvpl';
 export declare class Include {
     private includeExpressoes;
     private includesObsoletos;

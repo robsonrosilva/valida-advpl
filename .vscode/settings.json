@@ -1,3 +1,18 @@
 {
-    "files.encoding": "utf8"
+  "files.encoding": "utf8",
+  "git.autofetch": true,
+  "terminal.integrated.shell.windows": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "git.confirmSync": false,
+  "breadcrumbs.enabled": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDelete": false,
+  "editor.minimap.enabled": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.iconTheme": "vscode-icons",
+  "prettier.singleQuote": true,
+  "editor.formatOnSave": true,
+  "vsicons.projectDetection.autoReload": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

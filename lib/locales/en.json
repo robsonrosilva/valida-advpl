@@ -15,7 +15,7 @@
   "validaAdvpl.padComment": "Check patterns of font comments!! => Use autocomplete docFuncao.",
   "validaAdvpl.functionNoCommented": "Function, Class, Method or WebService not commented!",
   "validaAdvpl.CommentNoFunction": "Function comment without function!",
-  "validaAdvpl.foundFile" : "Found errors in file",
+  "validaAdvpl.foundFile": "Found errors in file",
   "includes.faltaTOTVS": "Missing TOTVS.CH !",
   "includes.oInclude": "The Include",
   "includes.SubstTOTVS": " is obsolete, it has been replaced by TOTVS.CH!",

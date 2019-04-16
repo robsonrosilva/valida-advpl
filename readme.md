@@ -3,11 +3,13 @@ analise-advpl
 Criação de modulo para validação de fontes ADVPL.
 
 ## Install
+
 ```sh
 npm install analise-advpl --save
 ```
 
 ## Test
+
 ```sh
 npm run test
 ```
@@ -15,16 +17,16 @@ npm run test
 ## Example usage in global scope
 
 ```js
-const fileSystem = require("file-system");
-let validaAdvpl = require("analise-advpl");
-let conteudo = fileSystem.readFileSync("c:\\arquivo.prw", "latin1");
+const fileSystem = require('file-system');
+let validaAdvpl = require('analise-advpl');
+let conteudo = fileSystem.readFileSync('c:\\arquivo.prw', 'latin1');
 
 //o primeiro parâmetro é o padrão de comentários e o segundo a localização de mensagens
-let objeto = new validaAdvpl.ValidaAdvpl([],'ptb');
+let objeto = new validaAdvpl.ValidaAdvpl([], 'ptb');
 //define o nome do banco de dados ou owner
 objeto.ownerDb = ['PROTHEUS'];
-//define os códigos de empresas que irá validar na queryes 
-objeto.empresas= ['01'];
+//define os códigos de empresas que irá validar na queryes
+objeto.empresas = ['01'];
 //efetua a validação do fonte
-objeto.validacao(conteudo,"COM ERRO");
+objeto.validacao(conteudo, 'COM ERRO');
 ```

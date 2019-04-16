@@ -1,8 +1,8 @@
-import { Uri } from "vscode";
+import { Uri } from 'vscode';
 export declare enum Tipos {
-    "Function" = 0,
-    "User Function" = 1,
-    "Class" = 2
+    'Function' = 0,
+    'User Function' = 1,
+    'Class' = 2
 }
 export declare class Fonte {
     fonte: Uri;
