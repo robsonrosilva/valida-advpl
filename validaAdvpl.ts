@@ -471,8 +471,9 @@ export class ValidaAdvpl {
             )
           );
         }
-        // Uso de Dicionários
+        // Uso de Dicionários Fora do BeginSql
         if (
+          !cBeginSql &&
           linhaClean.search(
             /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
           ) !== -1
