@@ -9,10 +9,12 @@ export declare class Fonte {
     funcoes: Funcao[];
     constructor(fonte?: Uri);
     addFunction(tipo: Tipos, nome: string, linha: number): void;
+    addVariavel(variavel: string): void;
 }
 export declare class Funcao {
     tipo: Tipos;
     nome: string;
     linha: number;
+    variaveisLocais: string[];
     constructor(tipo: Tipos, nome: string, linha: number);
 }

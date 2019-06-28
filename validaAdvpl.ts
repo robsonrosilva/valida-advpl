@@ -143,7 +143,8 @@ export class ValidaAdvpl {
         }
 
         //Remove espaços ou tabulações seguidas
-        linhaClean.replace(/\t/g, ' ');
+        linhaClean = linhaClean.replace(/\t/g, ' ');
+        linhaClean = linhaClean.replace(/\:\=/g, ' :=');
         let conteudos: string[] = linhaClean.split(' ');
         linhaClean = '';
         for (const key in conteudos) {
@@ -153,6 +154,7 @@ export class ValidaAdvpl {
         }
 
         conteudoSComentario = conteudoSComentario + linhaClean + '\n';
+        let firstWord: string = linhaClean.split(' ')[0].split('\t')[0];
 
         //verifica se é função e adiciona no array
         if (
@@ -181,7 +183,16 @@ export class ValidaAdvpl {
               nomeFuncao,
               parseInt(key)
             );
-          } else if (linhaClean.split(' ')[0].split('\t')[0] === 'FUNCTION') {
+          } else if (
+            linhaClean.search(/(STATIC)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1
+          ) {
+            //verifica se a primeira palavra é FUNCTION
+            objeto.fonte.addFunction(
+              Tipos['Static Function'],
+              nomeFuncao,
+              parseInt(key)
+            );
+          } else if (firstWord === 'FUNCTION') {
             //verifica se a primeira palavra é FUNCTION
             objeto.fonte.addFunction(
               Tipos['Function'],
@@ -193,7 +204,7 @@ export class ValidaAdvpl {
         //Verifica se é CLASSE ou WEBSERVICE
         if (
           linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
-          linhaClean.split(' ')[0].split('\t')[0] === 'CLASS' ||
+          firstWord === 'CLASS' ||
           linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
           linhaClean.search('WSSERVICE\\ ') !== -1
         ) {
@@ -210,7 +221,7 @@ export class ValidaAdvpl {
               .split('(')[0],
             key
           ]);
-          if (linhaClean.split(' ')[0].split('\t')[0] === 'CLASS') {
+          if (firstWord === 'CLASS') {
             objeto.fonte.addFunction(
               Tipos['Class'],
               linhaClean
@@ -220,7 +231,40 @@ export class ValidaAdvpl {
               parseInt(key)
             );
           }
+          if (firstWord.match(/METHOD/)) {
+            let palavras: string[] = linhaClean.split(/,| |\t|\(/);
+            let metodo: string = palavras[1];
+            let classe: string;
+            for (var i = 0; i < palavras.length; i++) {
+              let key2 = palavras[i];
+              if (key2 === 'WSSERVICE' || key2 === 'CLASS') {
+                classe = palavras[i + 1];
+                break;
+              }
+            }
+
+            objeto.fonte.addFunction(
+              Tipos['METHOD'],
+              classe + '|' + metodo,
+              parseInt(key)
+            );
+          }
         }
+        //Adiciona no objeto as variáveis locais
+        if (firstWord === 'LOCAL') {
+          //remove o LOCAL
+          let variaveis: string[] = linhaClean.split(/,| |\t|\r/);
+          for (var key2 of variaveis) {
+            if (key2 !== 'LOCAL' && key2 !== '') {
+              // se terminar as variáveis
+              if (key2.match(/\:\=/)) {
+                break;
+              }
+              objeto.fonte.addVariavel(key2);
+            }
+          }
+        }
+
         //Verifica se adicionou o include TOTVS.CH
         if (linha.search(/#INCLUDE/) !== -1) {
           //REMOVE as aspas a palavra #include e os espacos e tabulações
@@ -413,6 +457,48 @@ export class ValidaAdvpl {
               parseInt(key),
               traduz('validaAdvpl.conout', objeto.local),
               Severity.Warning
+            )
+          );
+        }
+        //  PUTSX1
+        if (linhaClean.search(/PUTSX1\(/) !== -1) {
+          objeto.aErros.push(
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              traduz('validaAdvpl.PutSX1', objeto.local),
+              Severity.Error
+            )
+          );
+        }
+        // Uso de Dicionários
+        if (
+          linhaClean.search(
+            /(,| |\t|\>||\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
+          ) !== -1
+        ) {
+          objeto.aErros.push(
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              traduz('validaAdvpl.Dictionary', objeto.local),
+              Severity.Error
+            )
+          );
+        }
+        if (
+          linhaClean.search(
+            /(,| |\t||\()+(MSFILE|MSFILE|DBCREATE|DBUSEAREA|CRIATRAB)+( \(|\t\(|\()/gim
+          ) !== -1 ||
+          linhaClean.search(/( |)+(MSCOPYFILE|MSERASE|COPY TO)+( |\t)/gim) !==
+            -1
+        ) {
+          objeto.aErros.push(
+            new Erro(
+              parseInt(key),
+              parseInt(key),
+              traduz('validaAdvpl.Isam', objeto.local),
+              Severity.Error
             )
           );
         }

@@ -9,7 +9,11 @@
       "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceFolder}\\test\\validaDebug.js",
-      "outFiles": ["${workspaceFolder}/**/*.js"]
+      "preLaunchTask": "npm: compile",
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "outFiles": ["${workspaceFolder}/lib/**/*.js"]
     }
   ]
 }

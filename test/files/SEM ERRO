@@ -6,16 +6,16 @@
 
 /*
 ------------------------------------------------------------------------------------------------------------
-Função: MMCOMR01
-Tipo: Relatório de Pedido de Compras
-Descrição: Relatório de Pedido de Compras - Termo da contratação
+Funï¿½ï¿½o: MMCOMR01
+Tipo: Relatï¿½rio de Pedido de Compras
+Descriï¿½ï¿½o: Relatï¿½rio de Pedido de Compras - Termo da contrataï¿½ï¿½o
 Uso: Micromed - Compras
-Parâmetros:
+Parï¿½metros:
 Retorno:
 ------------------------------------------------------------------------------------------------------------
-Atualizações:
-- 05/04/2013 - Luciano Camargo - Construção inicial do fonte
-- 13/07/2015 - Bruno Coelho - Ajustes de texto, solicitados pelo usuário
+Atualizaï¿½ï¿½es:
+- 05/04/2013 - Luciano Camargo - Construï¿½ï¿½o inicial do fonte
+- 13/07/2015 - Bruno Coelho - Ajustes de texto, solicitados pelo usuï¿½rio
 ------------------------------------------------------------------------------------------------------------
 */
 
@@ -41,8 +41,8 @@ User Function MMCOMR01
 	Private nPos		:= 0	// LINHA DE IMPRESSAO DO RELATORIO GRAFICO
 	Private CONTFL		:= 1	// CONTA PAGINA
 	Private oGeraRel
-	Private _aDados		:= {}	// Array que irá armazenar os dados a serem apresentados no relatório
-	Private	_nItePag	:= 36	// Quantidade de Itens por Página
+	Private _aDados		:= {}	// Array que irï¿½ armazenar os dados a serem apresentados no relatï¿½rio
+	Private	_nItePag	:= 36	// Quantidade de Itens por Pï¿½gina
 	Private _nLin       := 100
 	Private _eMailCOM   := GetMv("MM_EMAIL01") // eMail do Departamento de Compras
 	Private _eMailCP    := GetMv("MM_EMAIL02") // eMail do Departamento de Contas a Pagar
@@ -58,28 +58,28 @@ User Function MMCOMR01
 	//MV_PAR01 := SC7->C7_NUM
 
 	// Monta tela de interface com o usuario
-	DEFINE MSDIALOG oGeraRel TITLE "Relatório de Pedido de Compras" FROM 000, 000  TO 150, 400 COLORS 0, 16777215 PIXEL
-	@ 000, 002 GROUP oGroup1 TO 073, 198 PROMPT "Relatório de Pedido de Compras" OF oGeraRel COLOR 0, 16777215 PIXEL
+	DEFINE MSDIALOG oGeraRel TITLE "Relatï¿½rio de Pedido de Compras" FROM 000, 000  TO 150, 400 COLORS 0, 16777215 PIXEL
+	@ 000, 002 GROUP oGroup1 TO 073, 198 PROMPT "Relatï¿½rio de Pedido de Compras" OF oGeraRel COLOR 0, 16777215 PIXEL
 	DEFINE SBUTTON oSButton1 FROM 059, 135 TYPE 01 OF oGeraRel ENABLE ACTION GeraRel()
 	DEFINE SBUTTON oSButton2 FROM 059, 102 TYPE 05 OF oGeraRel ENABLE ACTION Pergunte(cPerg,.T.)
 	DEFINE SBUTTON oSButton3 FROM 059, 165 TYPE 02 OF oGeraRel ENABLE ACTION Close(oGeraRel)
-	@ 012, 010 SAY oSay1 PROMPT "Esse relatório tem por objetivo imprimir um Pedido de Compras." SIZE 179, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
-	@ 022, 010 SAY oSay2 PROMPT "Para informar a pedido desejado, basta clicar no botão de " SIZE 176, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
-	@ 032, 010 SAY oSay3 PROMPT "Parâmetros. Assim que concluir, basta clicar em OK." SIZE 179, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
+	@ 012, 010 SAY oSay1 PROMPT "Esse relatï¿½rio tem por objetivo imprimir um Pedido de Compras." SIZE 179, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
+	@ 022, 010 SAY oSay2 PROMPT "Para informar a pedido desejado, basta clicar no botï¿½o de " SIZE 176, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
+	@ 032, 010 SAY oSay3 PROMPT "Parï¿½metros. Assim que concluir, basta clicar em OK." SIZE 179, 010 OF oGeraRel COLORS 0, 16777215 PIXEL
 
 	ACTIVATE MSDIALOG oGeraRel CENTERED
 
 Return
 
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ GeraSX1    ¦ Autor ¦ Daniel F.Oliveira   ¦ Data ¦ 26/04/2010 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Cria Grupo de Perguntas para esse relatório                  ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ GeraSX1    ï¿½ Autor ï¿½ Daniel F.Oliveira   ï¿½ Data ï¿½ 26/04/2010 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Cria Grupo de Perguntas para esse relatï¿½rio                  ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function GeraSX1(cGrpPerg)
 	Local aHelpPor := {} //help da pergunta
 	_sAlias := Alias()
@@ -112,36 +112,36 @@ Static Function GeraSX1(cGrpPerg)
 Return
 
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ GeraRel    ¦ Autor ¦Luciano Camargo      ¦ Data ¦ 13/03/2012 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Chama a Processa do Relatorio                                ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ GeraRel    ï¿½ Autor ï¿½Luciano Camargo      ï¿½ Data ï¿½ 13/03/2012 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Chama a Processa do Relatorio                                ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function GeraRel()
-	// Criação do Objeto para Impressao Grafica
-	oPrint 	:= TMSPrinter():New("Relatório de pedido de compras")
+	// Criaï¿½ï¿½o do Objeto para Impressao Grafica
+	oPrint 	:= TMSPrinter():New("Relatï¿½rio de pedido de compras")
 	//oPrint:SetPortrait() // DEFINE IMPRESSAO RETRATO
 	oPrint:SetLandscape() // DEFINE IMPRESSAO PAISAGEM
 
-	// Chama a Função de Geração do Relatório
-	Processa({|| RunRelat() },"Gerando Relatório Gráfico...")
+	// Chama a Funï¿½ï¿½o de Geraï¿½ï¿½o do Relatï¿½rio
+	Processa({|| RunRelat() },"Gerando Relatï¿½rio Grï¿½fico...")
 
 	oPrint:Preview()  		// Visualiza impressao grafica antes de imprimir
 	Close(oGeraRel)
 Return
 
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ RunRelat   ¦ Autor ¦ Luciano Camargo     ¦ Data ¦ 13/03/2012 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Gera o Relatorio Gráfico                                     ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ RunRelat   ï¿½ Autor ï¿½ Luciano Camargo     ï¿½ Data ï¿½ 13/03/2012 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Gera o Relatorio Grï¿½fico                                     ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function RunRelat
 	Local	_cQry		:= ""
 	Local  TotLin       :=0
@@ -176,7 +176,7 @@ Static Function RunRelat
 	oArial16	:= TFont():New("Arial",16,16,,.F.,,,,.T.,.F.)
 	oArial16n	:= TFont():New("Arial",16,16,,.T.,,,,.T.,.F.)
 
-	//Cria consulta no Banco de Dados obedecendo aos parâmetros da rotina
+	//Cria consulta no Banco de Dados obedecendo aos parï¿½metros da rotina
 	_cQry := " SELECT * "
 	_cQry += "	FROM " + RETSQLNAME("SC7") + " AS C7 "
 	_cQry += "	WHERE  C7.C7_FILIAL = '" + xFilial("SC7") + "' "
@@ -223,16 +223,16 @@ Static Function RunRelat
 
 		aAdd(_aDados,	{StrZero(Val(TMP->C7_ITEM),4)	 						,;	// [01] - Item PC
 		Alltrim(TMP->C7_PRODUTO)					     						,;	// [02] - Produto
-		Alltrim(TMP->C7_DESCRI)					 	 						    ,;	// [03] - Descrição produto
+		Alltrim(TMP->C7_DESCRI)					 	 						    ,;	// [03] - Descriï¿½ï¿½o produto
 		Alltrim(TMP->C7_UM)						         						,;	// [04] - Unidade de medida
 		Alltrim(TMP->C7_OBS)		  					 						,;	// [05] - Observacao
-		Alltrim(POSICIONE("SB1",1,xFilial("SB1")+TMP->C7_PRODUTO,"B1_REFCOM"))	,;  // [06] - Referência Comercial
+		Alltrim(POSICIONE("SB1",1,xFilial("SB1")+TMP->C7_PRODUTO,"B1_REFCOM"))	,;  // [06] - Referï¿½ncia Comercial
 		Transform(TMP->C7_PRECO,"@E 999,999.99")         						,;	// [07] - Preco
 		Transform(TMP->C7_TOTAL,"@E 999,999.99")         						,;	// [08] - Total
 		Transform(TMP->C7_QUANT,"@E 9999.99")            						,;	// [09] - Quantidade
 		Transform(TMP->C7_VALIPI,"@E 9999.99")           						,;	// [10] - Valor IPI
 		Transform(TMP->(C7_TOTAL + C7_VALIPI),"@E 999,999.99")					,;// [11] - Total + IPI
-		AllTrim(TMP->C7_NATUREZ) + " - " + POSICIONE("SED",1,xFilial("SED")+ TMP->C7_NATUREZ,"ED_DESCRIC")})//[12] - Natureza - Descrição
+		AllTrim(TMP->C7_NATUREZ) + " - " + POSICIONE("SED",1,xFilial("SED")+ TMP->C7_NATUREZ,"ED_DESCRIC")})//[12] - Natureza - Descriï¿½ï¿½o
 
 
 		_nTotMerc 	+= TMP->C7_TOTAL
@@ -251,7 +251,7 @@ Static Function RunRelat
 	TMP->(DbCloseArea())
 
 	if Len(_aDados) == 0
-		MsgStop("Não foram encontrados registros que atendem aos parâmetros!!!","A T E N Ç Ã O !!!")
+		MsgStop("Nï¿½o foram encontrados registros que atendem aos parï¿½metros!!!","A T E N ï¿½ ï¿½ O !!!")
 		Return
 	endif
 
@@ -262,14 +262,14 @@ Static Function RunRelat
 
 		_cLinha := Substr( _aDados[_x][02]+"-"+_aDados[_x][03]+IIF( !Empty(_aDados[_x][05]),": ",""),1,85) // Codigo + descricao
 
-		// Imprime os Dados do Relatório
+		// Imprime os Dados do Relatï¿½rio
 		VerNewPag()
 		oPrint:Say(_nLin   ,0170,_aDados[_x][01],oArial08n)	// Item PC
 		oPrint:Say(_nLin   ,0270,_cLinha        ,oArial08n)	// Item PC
 		oPrint:Say(_nLin   ,2260,_aDados[_x][11],oArial08n)	// TOTAL + IPI
 		oPrint:Say(_nLin   ,1530,_aDados[_x][04],oArial08n)  // Unidade Medida
 		oPrint:Say(_nLin   ,1950,_aDados[_x][08],oArial08n)	// TOTAL
-		//oPrint:Say(_nLin   ,1350,_aDados[_x][06],oArial08n)	// Referência Comercial
+		//oPrint:Say(_nLin   ,1350,_aDados[_x][06],oArial08n)	// Referï¿½ncia Comercial
 		oPrint:Say(_nLin   ,1790,_aDados[_x][07],oArial08n)	// Valor Unitario
 		oPrint:Say(_nLin   ,1660,_aDados[_x][09],oArial08n)	// Quantidade
 		oPrint:Say(_nLin   ,2120,_aDados[_x][10],oArial08n)	// IPI
@@ -310,7 +310,7 @@ Static Function RunRelat
 	VerNewPag() ; oPrint:Say(_nLin  ,0170,"Valor Total com IPI: " + AllTrim(Transform(_nTotMerc + _nTotIPI,"@E 9999,999.99")),oArial08n)
 	VerNewPag() ; oPrint:Say(_nLin  ,0800,"Data de Entrega: " + Transform(STOD(_nDTent),"@D"),oArial08n); _nLin += 045
 	VerNewPag() ; oPrint:Say(_nLin  ,0170,"Descontos: " + AllTrim(Transform(_nValDesc,"@E 9999,999.99")),oArial08n)
-	VerNewPag() ; oPrint:Say(_nLin	,2010,"Condição Pagamento: ",oArial08) ; _nLin += 45
+	VerNewPag() ; oPrint:Say(_nLin	,2010,"Condiï¿½ï¿½o Pagamento: ",oArial08) ; _nLin += 45
 	VerNewPag() ; oPrint:Say(_nLin  ,0170,"Frete/Despesas: " + AllTrim(Transform(_nValFre,"@E 9999,999.99")),oArial08n)
 	VerNewPag() ; oPrint:Say(_nLin	,2010,"("+_nCond+") "+AllTrim(Posicione("SE4",1,xFilial("SE4")+_nCond,"E4_DESCRI")),oArial08n) 	; _nLin += 065
 
@@ -323,14 +323,14 @@ Static Function RunRelat
 	fRodape()
 Return
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ fCabecalho ¦ Autor ¦ Daniel F.Oliveira   ¦ Data ¦ 16/04/2010 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Monta o Cabecalho do Relatorio                               ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ fCabecalho ï¿½ Autor ï¿½ Daniel F.Oliveira   ï¿½ Data ï¿½ 16/04/2010 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Monta o Cabecalho do Relatorio                               ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function fCabecalho()
 	Local _cFileLogo
 
@@ -342,23 +342,23 @@ Static Function fCabecalho()
 	oPrint:SayBitmap(075,0145,_cFileLogo,0500,0150) //Tamanho da Imagem: 134 x 61
 
 	// EVENTO
-	oPrint:Say(_nLin,0700,"TERMO DE CONTRATAÇÃO DE FORNECIMENTO",oArial16n,100) ; _nLin := _nLin + 060
-	oPrint:Say(_nLin,0700,"DE PRODUTOS E SERVIÇOS - NR.: "+MV_PAR01,oArial16n,100) ; _nLin := _nLin + 020
+	oPrint:Say(_nLin,0700,"TERMO DE CONTRATAï¿½ï¿½O DE FORNECIMENTO",oArial16n,100) ; _nLin := _nLin + 060
+	oPrint:Say(_nLin,0700,"DE PRODUTOS E SERVIï¿½OS - NR.: "+MV_PAR01,oArial16n,100) ; _nLin := _nLin + 020
 
 	_nLin := _nLin + 090
 
 	// FORNECEDOR
-	oPrint:Say(_nLin,0170,"DA IDENTIFICAÇÃO DO FORNECEDOR",oArial10n,100)
+	oPrint:Say(_nLin,0170,"DA IDENTIFICAï¿½ï¿½O DO FORNECEDOR",oArial10n,100)
 
 	oPrint:Say(_nLin,1900,"Impresso em: "+DtoC(dDataBase),oArial08,100); _nLin += 60  // LPC 15/05/2014
 
 	oPrint:Box(_nLin,0145,_nLin+100,_ColFim) ; _nLin += 10
 
-	oPrint:Say(_nLin,0170,"Razão Social / Nome:",oArial08,100) ; _nLin += 30
+	oPrint:Say(_nLin,0170,"Razï¿½o Social / Nome:",oArial08,100) ; _nLin += 30
 	oPrint:Say(_nLin,0170,AllTrim(SA2->A2_NOME)+' ('+AllTrim(SA2->A2_COD)+'-'+IIF(SA2->(A2_NREDUZ<>A2_NOME),AllTrim(SA2->A2_NREDUZ)+")",""),oArial08n,100) ; _nLin += 60
 
 	oPrint:Box(_nLin,0145,_nLin+100,_ColFim) ; _nLin += 10
-	oPrint:Say(_nLin,0170,"Endereço:",oArial08,100)
+	oPrint:Say(_nLin,0170,"Endereï¿½o:",oArial08,100)
 	oPrint:Say(_nLin,1450,"Bairro / Cidade:",oArial08,100)
 	oPrint:Say(_nLin,2100,"UF:",oArial08,100)
 	oPrint:Say(_nLin,2200,"CEP:",oArial08,100) ; _nLin += 30
@@ -371,7 +371,7 @@ Static Function fCabecalho()
 	oPrint:Box(_nLin,0145,_nLin+100,_ColFim)
 	oPrint:Box(_nLin,1235,_nLin+200,1235) ; _nLin += 10
 	oPrint:Say(_nLin,0170,"CNPJ / CPF:",oArial08,100)
-	oPrint:Say(_nLin,1250,"Inscrição Estadual:",oArial08,100) ; _nLin += 30
+	oPrint:Say(_nLin,1250,"Inscriï¿½ï¿½o Estadual:",oArial08,100) ; _nLin += 30
 	oPrint:Say(_nLin,0170,AllTrim(Transform(SA2->A2_CGC,'@R 99.999.999/9999-99')),oArial08n,100)
 	oPrint:Say(_nLin,1250,AllTrim(Transform(SA2->A2_INSCR,'@R 99.999.999/999-99')),oArial08n,100) ; _nLin+= 60
 
@@ -414,14 +414,14 @@ Static Function fCabecalho()
 Return Nil
 
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ fRodape      ¦ Autor ¦ Luciano Camargo   ¦ Data ¦ 14/03/2012 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Monta o Rodape                                               ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ fRodape      ï¿½ Autor ï¿½ Luciano Camargo   ï¿½ Data ï¿½ 14/03/2012 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Monta o Rodape                                               ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function fCabProd()
 
 	// DO OBJETO CONTRATADO
@@ -442,7 +442,7 @@ Static Function fCabProd()
 
 	_nLin += 30
 	oPrint:Say(_nLin,0160,"ITEM",oArial08n,100)
-	oPrint:Say(_nLin,0270,"CÓDIGO / DESCRIÇÃO E OBS DO OBJETO CONTRATADO",oArial08n,100)
+	oPrint:Say(_nLin,0270,"Cï¿½DIGO / DESCRIï¿½ï¿½O E OBS DO OBJETO CONTRATADO",oArial08n,100)
 	//oPrint:Say(_nLin,1330,"C/CUSTO",oArial08n,100)
 	oPrint:Say(_nLin,1530,"UM",oArial08n,100)
 	oPrint:Say(_nLin,1675,"QTDE",oArial08n,100)
@@ -454,62 +454,62 @@ Static Function fCabProd()
 Return
 
 /*______________________________________________________________________________
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¦¦+--------------------------------------------------------------------------+¦¦
-¦¦¦Função     ¦ fRodape      ¦ Autor ¦ Luciano Camargo   ¦ Data ¦ 14/03/2012 ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦Descrição  ¦ Monta o Rodape                                               ¦¦¦
-¦¦+-----------+--------------------------------------------------------------+¦¦
-¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ fRodape      ï¿½ Autor ï¿½ Luciano Camargo   ï¿½ Data ï¿½ 14/03/2012 ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Monta o Rodape                                               ï¿½ï¿½ï¿½
+ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function fRodape()
 
 	// DO TERMO DA CONTRATACAO
 	_nLin += 10
 	VerNewPag()
-	oPrint:Say(_nLin,0170,"DO TERMO DA CONTRATAÇÃO",oArial10n,100)
+	oPrint:Say(_nLin,0170,"DO TERMO DA CONTRATAï¿½ï¿½O",oArial10n,100)
 	_nLin += 50
 	VerNewPag(_nLin+570) ; oPrint:Box(_nLin,0145,_nLin+650,_ColFim) ; _nLin += 10
-	VerNewPag() ; oPrint:Say(_nLin,0170,"1.	O presente Termo tem como objeto o fornecimento dos bens e/ou a prestação dos serviços, para a "+_cNmEmpr+", listados acima. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"2.	O serviço ora contratado será remunerado na data e pela quantia discriminada acima. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"3.	A assinatura no canhoto de recebimento da Nota Fiscal atesta as quantidades fornecidas, porem não implica em aprovação do fornecimento entregue, ficando o ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0195,"material sujeito ainda a inspeção de qualidade por parte da "+_cNmEmpr+". ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"4.	A "+_cNmEmpr+" tem o direito de não aceitar a entrega de qualquer bem e/ou serviço que: ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0200,"4.1.	Esteja fora das especificações de embalagem, peso, medidas técnicas e/ou de qualidade descritas acima. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0200,"4.2.	Apresente sinais evidentes de deterioração, desgaste, danificação ou incorreções. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0200,"4.3.	Seja entregue após o prazo de entrega definido acima. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0200,"4.4.	Que não esteja acompanhado da respectiva Nota Fiscal, emitida em nome da "+_cNmEmpr+" e que espelhe fielmente as condições expressas acima. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"5.	A "+_cNmEmpr+" se reserva ao direito de desconsiderar qualquer compra que não tenha sido solicitada através deste Termo e de seu anexo,devidamente preenchido e autorizado " ,oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"1.	O presente Termo tem como objeto o fornecimento dos bens e/ou a prestaï¿½ï¿½o dos serviï¿½os, para a "+_cNmEmpr+", listados acima. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"2.	O serviï¿½o ora contratado serï¿½ remunerado na data e pela quantia discriminada acima. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"3.	A assinatura no canhoto de recebimento da Nota Fiscal atesta as quantidades fornecidas, porem nï¿½o implica em aprovaï¿½ï¿½o do fornecimento entregue, ficando o ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0195,"material sujeito ainda a inspeï¿½ï¿½o de qualidade por parte da "+_cNmEmpr+". ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"4.	A "+_cNmEmpr+" tem o direito de nï¿½o aceitar a entrega de qualquer bem e/ou serviï¿½o que: ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0200,"4.1.	Esteja fora das especificaï¿½ï¿½es de embalagem, peso, medidas tï¿½cnicas e/ou de qualidade descritas acima. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0200,"4.2.	Apresente sinais evidentes de deterioraï¿½ï¿½o, desgaste, danificaï¿½ï¿½o ou incorreï¿½ï¿½es. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0200,"4.3.	Seja entregue apï¿½s o prazo de entrega definido acima. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0200,"4.4.	Que nï¿½o esteja acompanhado da respectiva Nota Fiscal, emitida em nome da "+_cNmEmpr+" e que espelhe fielmente as condiï¿½ï¿½es expressas acima. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"5.	A "+_cNmEmpr+" se reserva ao direito de desconsiderar qualquer compra que nï¿½o tenha sido solicitada atravï¿½s deste Termo e de seu anexo,devidamente preenchido e autorizado " ,oArial08,100); _nLin += 30
 	VerNewPag() ; oPrint:Say(_nLin,0170,"   pela "+_cNmEmpr+".",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"6.	A aceitação excepcional, por parte da "+_cNmEmpr+", de qualquer compra e/ou serviço que não atenda a alguma das clausulas acima, não implica em abdicação dos direitos  ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0195,"acordados pela aceitação do presente Termo. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"7.	A "+_cNmEmpr+" reserva-se ao direito de considerar sem efeito o presente Termo, portanto, nulas quaisquer obrigações comerciais e/ou financeiras dele decorrente, caso ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0195,"venha a ocorrer alguma das hipóteses acima discriminadas. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"8.	O Fornecedor retro - qualificado declara ter pleno conhecimento e concordância integral do presente Termo, comprometendo-se com o seu cumprimento. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"9.	A aceitação do presente se dará pela Contratada através de e-mail enviado a "+_cNmEmpr+" para o endereço eletrônico: "+_eMailCOM+", ou mediante ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0195,"assinatura deste e enviado, por correio, para a "+_cNmEmpr+", e com isso, surtindo para todos os efeitos legais e necessários a sua completa existência, eficácia e validade. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"10. Presume-se que as embalagens contëm as quantidades declaradas dado que esta aferição é responsabilidade primária do fornecedor. ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"11. Importante: O Fornecedor ao aceitar esse pedido, se compromete a fornecer os produtos ou serviços exatamente iguais ao expecificados pela "+_cNmEmpr+" sem qualquer ",oArial08,100); _nLin += 30
-	VerNewPag() ; oPrint:Say(_nLin,0170,"   alteração ou variação. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"6.	A aceitaï¿½ï¿½o excepcional, por parte da "+_cNmEmpr+", de qualquer compra e/ou serviï¿½o que nï¿½o atenda a alguma das clausulas acima, nï¿½o implica em abdicaï¿½ï¿½o dos direitos  ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0195,"acordados pela aceitaï¿½ï¿½o do presente Termo. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"7.	A "+_cNmEmpr+" reserva-se ao direito de considerar sem efeito o presente Termo, portanto, nulas quaisquer obrigaï¿½ï¿½es comerciais e/ou financeiras dele decorrente, caso ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0195,"venha a ocorrer alguma das hipï¿½teses acima discriminadas. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"8.	O Fornecedor retro - qualificado declara ter pleno conhecimento e concordï¿½ncia integral do presente Termo, comprometendo-se com o seu cumprimento. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"9.	A aceitaï¿½ï¿½o do presente se darï¿½ pela Contratada atravï¿½s de e-mail enviado a "+_cNmEmpr+" para o endereï¿½o eletrï¿½nico: "+_eMailCOM+", ou mediante ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0195,"assinatura deste e enviado, por correio, para a "+_cNmEmpr+", e com isso, surtindo para todos os efeitos legais e necessï¿½rios a sua completa existï¿½ncia, eficï¿½cia e validade. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"10. Presume-se que as embalagens contï¿½m as quantidades declaradas dado que esta aferiï¿½ï¿½o ï¿½ responsabilidade primï¿½ria do fornecedor. ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"11. Importante: O Fornecedor ao aceitar esse pedido, se compromete a fornecer os produtos ou serviï¿½os exatamente iguais ao expecificados pela "+_cNmEmpr+" sem qualquer ",oArial08,100); _nLin += 30
+	VerNewPag() ; oPrint:Say(_nLin,0170,"   alteraï¿½ï¿½o ou variaï¿½ï¿½o. ",oArial08,100); _nLin += 30
 
 	_nLin += 40
 	If MV_PAR02 = 1
 		// DADOS PARA EMISSAO DA NOTA FISCAL
-		VerNewPag() ; oPrint:Say(_nLin,0170,"DADOS PARA EMISSÃO DA NOTA FISCAL",oArial10n,100) ; _nLin += 50
+		VerNewPag() ; oPrint:Say(_nLin,0170,"DADOS PARA EMISSï¿½O DA NOTA FISCAL",oArial10n,100) ; _nLin += 50
 		VerNewPag(_nLin+100) ; oPrint:Box(_nLin,0145,_nLin+100,_ColFim)
 		oPrint:Box(_nLin,1435,_nLin+100,1435)
 		oPrint:Box(_nLin,1980,_nLin+100,1980) ; _nLin += 10
 
-		VerNewPag() ; oPrint:Say(_nLin,0170,"Razão Social / Nome:",oArial08,100)
+		VerNewPag() ; oPrint:Say(_nLin,0170,"Razï¿½o Social / Nome:",oArial08,100)
 		VerNewPag() ; oPrint:Say(_nLin,1450,"CNPJ / CPF:",oArial08,100)
-		VerNewPag() ; oPrint:Say(_nLin,2000,"Inscrição Estadual:",oArial08,100) ; _nLin += 30
+		VerNewPag() ; oPrint:Say(_nLin,2000,"Inscriï¿½ï¿½o Estadual:",oArial08,100) ; _nLin += 30
 
 		VerNewPag() ; oPrint:Say(_nLin,0170,AllTrim(SM0->M0_NOMECOM),oArial08n,100)
 		VerNewPag() ; oPrint:Say(_nLin,1450,AllTrim(Transform(SM0->M0_CGC,'@R 99.999.999/9999-99')),oArial08n,100)
 		VerNewPag() ; oPrint:Say(_nLin,2000,AllTrim(Transform(SM0->M0_INSC,'@R 99.999.999/999-99')),oArial08n,100); _nLin += 60
 
 		VerNewPag( _nLin+100 ) ; oPrint:Box(_nLin,0145,_nLin+100,_ColFim) ; _nLin += 10
-		VerNewPag() ; oPrint:Say(_nLin,0170,"Endereço:",oArial08,100)
+		VerNewPag() ; oPrint:Say(_nLin,0170,"Endereï¿½o:",oArial08,100)
 		VerNewPag() ; oPrint:Say(_nLin,1450,"Bairro / Cidade:",oArial08,100)
 		VerNewPag() ; oPrint:Say(_nLin,2100,"UF:",oArial08,100)
 		VerNewPag() ; oPrint:Say(_nLin,2200,"CEP:",oArial08,100) ; _nLin += 30
@@ -526,11 +526,11 @@ Static Function fRodape()
 		VerNewPag() ; oPrint:Say(_nLin,1250,AllTrim(SM0->M0_TEL),oArial08n,100) ; _nLin += 70
 
 		VerNewPag() ; oPrint:Say(_nLin,0170,"Obs. 1 - A Nota Fiscal deve conter obrigatoriamente: ",oArial08,100)
-		VerNewPag() ; oPrint:Say(_nLin,1135,"Obs. 2 - A Nota Fiscal que não tiver os dados acima listados estará sujeita a devolução. ",oArial08,100) ; _nLin += 30
-		VerNewPag() ; oPrint:Say(_nLin,0250,"1.1 - O número do PEDIDO DE COMPRAS.",oArial08,100)
-		VerNewPag() ; oPrint:Say(_nLin,1135,"Obs. 3 - A Nota Fiscal deverá ser entregue no endereço acima, no setor de Compras",oArial08,100) ; _nLin += 30
-		VerNewPag() ; oPrint:Say(_nLin,0250,"1.2 - Os dados bancários para pagamento.",oArial08,100)
-		VerNewPag() ; oPrint:Say(_nLin,1135,"e Suprimentos, ou enviada para o endereço eletrônico: "+_eMailNFE,oArial08,100) ; _nLin += 30
+		VerNewPag() ; oPrint:Say(_nLin,1135,"Obs. 2 - A Nota Fiscal que nï¿½o tiver os dados acima listados estarï¿½ sujeita a devoluï¿½ï¿½o. ",oArial08,100) ; _nLin += 30
+		VerNewPag() ; oPrint:Say(_nLin,0250,"1.1 - O nï¿½mero do PEDIDO DE COMPRAS.",oArial08,100)
+		VerNewPag() ; oPrint:Say(_nLin,1135,"Obs. 3 - A Nota Fiscal deverï¿½ ser entregue no endereï¿½o acima, no setor de Compras",oArial08,100) ; _nLin += 30
+		VerNewPag() ; oPrint:Say(_nLin,0250,"1.2 - Os dados bancï¿½rios para pagamento.",oArial08,100)
+		VerNewPag() ; oPrint:Say(_nLin,1135,"e Suprimentos, ou enviada para o endereï¿½o eletrï¿½nico: "+_eMailNFE,oArial08,100) ; _nLin += 30
 		VerNewPag() ; oPrint:Say(_nLin,0250,"1.3 - A forma de pagamento.",oArial08,100)
 		VerNewPag() ; oPrint:Say(_nLin,1135,+"conforme nosso manual de fornecedor.",oArial08,100) ; _nLin += 30
 		VerNewPag() ; oPrint:Say(_nLin,0250,"1.4 - A data de vencimento.",oArial08,100)
@@ -551,14 +551,14 @@ Static Function fRodape()
 	VerNewPag() ; oPrint:Say(_nLin,1500,AllTrim(Transform(SA2->A2_CGC,'@R 99.999.999/9999-99'))+" "+Substr(AllTrim(SA2->A2_NOME),1,40),oArial08n,100)
 
 	/*______________________________________________________________________________
-	¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-	¦¦+--------------------------------------------------------------------------+¦¦
-	¦¦¦Função     ¦ VerNewPag    ¦ Autor ¦ Luciano Camargo   ¦ Data ¦ 26/07/2012 ¦¦¦
-	¦¦+-----------+--------------------------------------------------------------+¦¦
-	¦¦¦Descrição  ¦ Verificar necessidade do salta de pagina
-	¦¦+-----------+--------------------------------------------------------------+¦¦
-	¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦
-	¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½+--------------------------------------------------------------------------+ï¿½ï¿½
+	ï¿½ï¿½ï¿½Funï¿½ï¿½o     ï¿½ VerNewPag    ï¿½ Autor ï¿½ Luciano Camargo   ï¿½ Data ï¿½ 26/07/2012 ï¿½ï¿½ï¿½
+	ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+	ï¿½ï¿½ï¿½Descriï¿½ï¿½o  ï¿½ Verificar necessidade do salta de pagina
+	ï¿½ï¿½+-----------+--------------------------------------------------------------+ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 Static Function VerNewPag( nBox )
 	Default nBox := 0
 
@@ -568,7 +568,7 @@ Static Function VerNewPag( nBox )
 		oPrint:EndPage()
 		_nLin  := 100
 		fCabecalho()
-		oPrint:Say(_nLin   ,0170,"(Continuação)",oArial09)
+		oPrint:Say(_nLin   ,0170,"(Continuaï¿½ï¿½o)",oArial09)
 		_nLin += 100
 		//fCabProd()
 	endif
