@@ -474,7 +474,7 @@ export class ValidaAdvpl {
         // Uso de Dicionários
         if (
           linhaClean.search(
-            /(,| |\t|\>||\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
+            /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
           ) !== -1
         ) {
           objeto.aErros.push(
