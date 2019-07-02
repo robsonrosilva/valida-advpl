@@ -30,3 +30,23 @@ objeto.empresas = ['01'];
 //efetua a validação do fonte
 objeto.validacao(conteudo, 'COM ERRO');
 ```
+
+```js
+let validaProjeto = require('../lib/validaProjeto');
+let objeto = new validaProjeto.validaProjeto([]);
+
+let comentario = [
+  '/*//#########################################################################################',
+  'Projeto\\ \\:',
+  'Modulo\\ \\ \\:',
+  'Fonte\\ \\ \\ \\:',
+  'Objetivo\\:'
+];
+
+//seta variáveis
+objeto.ownerDb = ['PROTHEUS'];
+objeto.empresas = ['01'];
+objeto.comentFontPad = comentario;
+
+objeto.validaProjeto('D:\\Protheus');
+```

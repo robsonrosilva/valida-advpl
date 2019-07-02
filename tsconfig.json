@@ -4,12 +4,17 @@
     "target": "es6",
     "outDir": "lib",
     "declaration": true,
-    "lib": ["es6"],
+    "lib": [
+      "es6"
+    ],
     "sourceMap": true,
     "rootDir": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "exclude": ["node_modules", ".vscode-test", "lib"],
+  "exclude": [
+    "node_modules",
+    "lib"
+  ],
   "compileOnSave": true
 }

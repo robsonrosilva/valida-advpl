@@ -25,5 +25,7 @@
   "includes.emDuplicidade": " is in duplicity!",
   "includes.faltaInclude": "Import missing include ",
   "includes.desnecessario": " not necessary!",
-  "includes.desnecessarioContido": " unnecessary, is contained in the include "
+  "includes.desnecessarioContido": " unnecessary, is contained in the include ",
+  "validaAdvpl.functionDuplicate": "This function is duplicated in the project!",
+  "validaAdvpl.fileDuplicate": "This file is duplicated in the project!"
 }

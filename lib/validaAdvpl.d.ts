@@ -1,5 +1,4 @@
 import { Fonte } from './fonte';
-import { Uri } from 'vscode';
 export declare class ValidaAdvpl {
     private log;
     comentFontPad: string[];
@@ -13,7 +12,8 @@ export declare class ValidaAdvpl {
     empresas: string[];
     fonte: Fonte;
     version: string;
+    conteudoFonte: string;
     private local;
     constructor(comentFontePad: string[], local: string, log?: boolean);
-    validacao(texto: String, path: Uri): void;
+    validacao(texto: string, path: string): Promise<ValidaAdvpl>;
 }

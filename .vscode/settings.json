@@ -14,5 +14,7 @@
   "vsicons.projectDetection.autoReload": true,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "totvsLanguageServer.welcomePage": false,
+  "totvsLanguageServer.askEncodingChange": true
 }
