@@ -1,3 +1,4 @@
+import { Erro } from './models/Erro';
 import { Fonte } from './fonte';
 export declare class ValidaAdvpl {
     private log;
@@ -7,7 +8,7 @@ export declare class ValidaAdvpl {
     information: number;
     hint: number;
     includes: any[];
-    aErros: any[];
+    aErros: Erro[];
     ownerDb: string[];
     empresas: string[];
     fonte: Fonte;

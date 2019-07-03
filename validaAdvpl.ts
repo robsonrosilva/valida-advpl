@@ -1,5 +1,5 @@
 import { Include } from './include';
-import { Erro, Severity } from './erros';
+import { Erro, Severity } from './models/Erro';
 import { Fonte, Tipos } from './fonte';
 import { version } from './package.json';
 
@@ -10,7 +10,7 @@ export class ValidaAdvpl {
   public information: number;
   public hint: number;
   public includes: any[];
-  public aErros: any[];
+  public aErros: Erro[];
   public ownerDb: string[];
   public empresas: string[];
   public fonte: Fonte;

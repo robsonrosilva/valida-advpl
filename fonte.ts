@@ -8,11 +8,9 @@ export enum Tipos {
 export class Fonte {
   public fonte: string;
   public funcoes: Funcao[];
-  public duplicado: boolean;
   constructor(fonte?: string) {
     this.fonte = fonte;
     this.funcoes = [];
-    this.duplicado = false;
   }
   public addFunction(tipo: Tipos, nome: string, linha: number) {
     this.funcoes.push(new Funcao(tipo, nome, linha));
@@ -25,14 +23,12 @@ export class Funcao {
   public tipo: Tipos;
   public nome: string;
   public linha: number;
-  public duplicada: boolean;
   //Armazena as variáveis locais não usadas
   public variaveisLocais: string[];
   constructor(tipo: Tipos, nome: string, linha: number) {
     this.tipo = tipo;
     this.nome = nome;
     this.linha = linha;
-    this.duplicada = false;
     this.variaveisLocais = [];
   }
 }

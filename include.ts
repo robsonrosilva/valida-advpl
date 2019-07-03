@@ -1,5 +1,5 @@
 import { IncludeModel } from './models/IncludeModel';
-import { Severity, Erro } from './erros';
+import { Severity, Erro } from './models/Erro';
 import { ValidaAdvpl } from './validaAdvpl';
 
 export class Include {
@@ -466,8 +466,8 @@ export class Include {
             include.linha,
             include.linha,
             traduz('includes.oInclude', this.local) +
-              include.include +
-              traduz('includes.SubstTOTVS', this.local),
+            include.include +
+            traduz('includes.SubstTOTVS', this.local),
             Severity.Warning
           )
         );
@@ -475,7 +475,7 @@ export class Include {
 
       //Verifica se há o mesmo include em uma linha diferente do mesmo fonte
       if (
-        objetoValidacao.includes.findIndex(function(x: any) {
+        objetoValidacao.includes.findIndex(function (x: any) {
           return x.include === include.include && x.linha !== include.linha;
         }) !== -1
       ) {
@@ -484,8 +484,8 @@ export class Include {
             include.linha,
             include.linha,
             traduz('includes.oInclude', this.local) +
-              include.include +
-              traduz('includes.emDuplicidade', this.local),
+            include.include +
+            traduz('includes.emDuplicidade', this.local),
             Severity.Warning
           )
         );
@@ -542,8 +542,8 @@ export class Include {
                     parseInt(key),
                     parseInt(key),
                     traduz('includes.faltaInclude', this.local) +
-                      element.include +
-                      '!',
+                    element.include +
+                    '!',
                     Severity.Error
                   )
                 );
@@ -574,10 +574,10 @@ export class Include {
                 includeAnaliseContido.linha,
                 includeAnaliseContido.linha,
                 traduz('includes.oInclude', this.local) +
-                  includeAnaliseContido.include +
-                  traduz('includes.desnecessarioContido', this.local) +
-                  include.include +
-                  '!',
+                includeAnaliseContido.include +
+                traduz('includes.desnecessarioContido', this.local) +
+                include.include +
+                '!',
                 Severity.Warning
               )
             );
@@ -589,8 +589,8 @@ export class Include {
               include.linha,
               include.linha,
               'Include ' +
-                include.include +
-                traduz('includes.desnecessario', this.local),
+              include.include +
+              traduz('includes.desnecessario', this.local),
               Severity.Warning
             )
           );

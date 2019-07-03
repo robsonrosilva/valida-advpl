@@ -15,9 +15,9 @@ objeto.ownerDb = ['PROTHEUS', 'PROTHEUS12'];
 objeto.empresas = ['01', '02'];
 objeto.comentFontPad = comentario;
 
-// objeto.validaProjeto('D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus')
-objeto.validaProjeto('C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF').then((validaPrj) => {
-    fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
-        mode: 0o755
-    });
-})
+objeto.validaProjeto('D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus')
+//objeto.validaProjeto('C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF').then((validaPrj) => {
+//    fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
+//        mode: 0o755
+//    });
+//})

@@ -9,8 +9,12 @@ export declare class ValidaProjeto {
     local: any;
     version: string;
     private advplExtensions;
-    protected listaDuplicados: any[];
+    protected listaDuplicados: {
+        files: any[];
+        functions: any[];
+    };
     constructor(comentFontePad: string[], local: string, log?: boolean);
     validaProjeto(pathProject: string): Promise<ValidaProjeto>;
     verificaDuplicados(): Promise<Duplicados>;
+    contaErros(): any;
 }
