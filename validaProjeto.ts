@@ -1,11 +1,12 @@
 import { Erro, Severity } from './erros';
 import { Duplicados } from './models/Duplicados';
-import { Fonte, Funcao } from './fonte';
+import { Fonte, Funcao, Tipos } from './fonte';
 import { ItemModel } from './models/ItemProject';
 import * as globby from 'globby';
 import * as fileSystem from 'fs';
 import { ValidaAdvpl } from './validaAdvpl';
 import { version } from './package.json';
+import { resolve } from 'dns';
 
 export class ValidaProjeto {
   public projeto: ItemModel[];
@@ -121,33 +122,35 @@ export class ValidaProjeto {
               }
             });
           });
+
+          if (this.log) {
+            console.log(`\t${erros} Errors`);
+            console.log(`\t${warnings} Warnings`);
+            console.log(`\t${information} Informations`);
+            console.log(`\t${hint} Hints`);
+
+            // calcula tempo gasto
+            let endTime: any = new Date();
+            let timeDiff = endTime - startTime; //in ms
+            // strip the ms
+            timeDiff /= 1000;
+
+            // get seconds
+            let seconds = Math.round(timeDiff);
+            console.log('Terminou! (' + seconds + ' segundos)');
+            resolve(this);
+          }
         });
-
-        if (this.log) {
-          console.log(`\t${erros} Errors`);
-          console.log(`\t${warnings} Warnings`);
-          console.log(`\t${information} Informations`);
-          console.log(`\t${hint} Hints`);
-
-          // calcula tempo gasto
-          let endTime: any = new Date();
-          let timeDiff = endTime - startTime; //in ms
-          // strip the ms
-          timeDiff /= 1000;
-
-          // get seconds
-          let seconds = Math.round(timeDiff);
-          console.log('Terminou! (' + seconds + ' segundos)');
-          resolve(this);
-        }
       });
     });
   }
 
   public verificaDuplicados(): Promise<Duplicados> {
-    return new Promise(() => {
+    return new Promise((resolve: Function) => {
       let listaFuncoes: string[] = [];
+      let funcoesDuplicadas: string[] = [];
       let listaArquivos: string[] = [];
+      let arquivosDuplicados: string[] = [];
 
       this.projeto.forEach((item: ItemModel) => {
         let fonte: Fonte = item.fonte;
@@ -157,25 +160,47 @@ export class ValidaProjeto {
         } catch { }
 
         fonte.funcoes.forEach((funcao: Funcao) => {
-          let functionName: string = (funcao.nome + funcao.tipo).toUpperCase();
-          //monta lista de funções duplicadas
-          if (listaFuncoes.indexOf(functionName) === -1) {
-            listaFuncoes.push(functionName);
-          } else {
-            funcao.duplicada = true;
-          }
-
-          let fileName = fonte.fonte
-            .substring(fonte.fonte.lastIndexOf('/') + 1)
-            .toUpperCase();
-          //monta lista de qrquivos duplicados
-          if (listaArquivos.indexOf(fileName) === -1) {
-            listaFuncoes.push(fileName);
-          } else {
-            fonte.duplicado = true;
+          // não aponta como duplicadas as static Functions ou metodos
+          if (funcao.tipo !== Tipos["Static Function"] && funcao.tipo !== Tipos.Method) {
+            let functionName: string = (funcao.nome + funcao.tipo).toUpperCase();
+            //monta lista de funções duplicadas
+            if (listaFuncoes.indexOf(functionName) === -1) {
+              listaFuncoes.push(functionName);
+            } else {
+              funcoesDuplicadas.push(functionName);
+            }
           }
         });
+
+        let fileName = fonte.fonte
+          .replace(/\\/g, '/')
+          .substring(fonte.fonte.replace(/\\/g, '/').lastIndexOf('/') + 1)
+          .toUpperCase();
+        //monta lista de qrquivos duplicados
+        if (listaArquivos.indexOf(fileName) === -1) {
+          listaArquivos.push(fileName);
+        } else {
+          arquivosDuplicados.push(fileName);
+        }
       });
+      // marca duplicados
+      this.projeto.forEach((item: ItemModel) => {
+        let fonte: Fonte = item.fonte;
+
+        fonte.funcoes.forEach((funcao: Funcao) => {
+          let functionName: string = (funcao.nome + funcao.tipo).toUpperCase();
+          //monta lista de funções duplicadas
+          funcao.duplicada = funcoesDuplicadas.indexOf(functionName) > -1;
+        });
+
+        let fileName = fonte.fonte
+          .replace(/\\/g, '/')
+          .substring(fonte.fonte.replace(/\\/g, '/').lastIndexOf('/') + 1)
+          .toUpperCase();
+        //monta lista de arquivos duplicados
+        fonte.duplicado = arquivosDuplicados.indexOf(fileName) > -1;
+      });
+      resolve()
     });
   }
 }

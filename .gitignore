@@ -4,3 +4,4 @@ out
 *.vsix
 *.tgz
 package-lock.json
+.tmp
