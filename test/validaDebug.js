@@ -1,6 +1,6 @@
-
 let validaProjeto = require('../lib/validaProjeto');
-let objeto = new validaProjeto.validaProjeto([]);
+const fileSystem = require("fs");
+let objeto = new validaProjeto.ValidaProjeto([]);
 
 let comentario = [
     "/*//#########################################################################################",
@@ -11,9 +11,13 @@ let comentario = [
 ]
 
 //seta variáveis
-objeto.ownerDb = ['PROTHEUS'];
-objeto.empresas = ['01'];
+objeto.ownerDb = ['PROTHEUS', 'PROTHEUS12'];
+objeto.empresas = ['01', '02'];
 objeto.comentFontPad = comentario;
 
-objeto.validaProjeto('D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus')
-//objeto.validaProjeto('C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus')
+// objeto.validaProjeto('D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus')
+objeto.validaProjeto('C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL').then((validaPrj) => {
+    fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
+        mode: 0o755
+    });
+})

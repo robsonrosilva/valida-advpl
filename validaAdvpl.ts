@@ -163,7 +163,7 @@ export class ValidaAdvpl {
             //verifica se é função e adiciona no array
             if (
               linhaClean.search(/(STATIC|USER|)+(\ |\t)+FUNCTION+(\ |\t)/) !==
-                -1 &&
+              -1 &&
               linhaClean
                 .trim()
                 .split(' ')[0]
@@ -416,8 +416,8 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.noSchema', objeto.local) +
-                      banco +
-                      traduz('validaAdvpl.inQuery', objeto.local),
+                    banco +
+                    traduz('validaAdvpl.inQuery', objeto.local),
                     Severity.Error
                   )
                 );
@@ -537,7 +537,7 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.bestAnalitc', objeto.local) +
-                      ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
+                    ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
                     Severity.Information
                   )
                 );
@@ -629,12 +629,9 @@ export class ValidaAdvpl {
         });
         if (
           objeto.error + objeto.hint + objeto.warning + objeto.information >
-            0 &&
+          0 &&
           this.log
         ) {
-          console.log(
-            `\t${traduz('validaAdvpl.foundFile', objeto.local)} ${path}:`
-          );
           if (objeto.error > 0) {
             console.log(`\t\t${objeto.error} Errors .`);
           }
