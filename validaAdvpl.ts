@@ -163,7 +163,7 @@ export class ValidaAdvpl {
             //verifica se é função e adiciona no array
             if (
               linhaClean.search(/(STATIC|USER|)+(\ |\t)+FUNCTION+(\ |\t)/) !==
-              -1 &&
+                -1 &&
               linhaClean
                 .trim()
                 .split(' ')[0]
@@ -416,8 +416,8 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.noSchema', objeto.local) +
-                    banco +
-                    traduz('validaAdvpl.inQuery', objeto.local),
+                      banco +
+                      traduz('validaAdvpl.inQuery', objeto.local),
                     Severity.Error
                   )
                 );
@@ -481,7 +481,7 @@ export class ValidaAdvpl {
             // Uso de Dicionários Fora do BeginSql
             if (
               !cBeginSql &&
-              linhaClean.search(
+              (' ' + linhaClean).search(
                 /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
               ) !== -1
             ) {
@@ -537,7 +537,7 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.bestAnalitc', objeto.local) +
-                    ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
+                      ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
                     Severity.Information
                   )
                 );
@@ -629,7 +629,7 @@ export class ValidaAdvpl {
         });
         if (
           objeto.error + objeto.hint + objeto.warning + objeto.information >
-          0 &&
+            0 &&
           this.log
         ) {
           if (objeto.error > 0) {
