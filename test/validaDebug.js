@@ -19,7 +19,7 @@ objeto.empresas = ['01', '02'];
 objeto.comentFontPad = comentario;
 
 conteudo = fileSystem.readFileSync(
-    'D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAGPE\\MISCELANEAS\\PXGPEM19.prw',
+    'C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\NPM\\analise-advpl\\test\\files\\ALEATORIO',
     'latin1'
 );
 objetoFonte.ownerDb = ['PROTHEUS', 'PROTHEUS12'];
