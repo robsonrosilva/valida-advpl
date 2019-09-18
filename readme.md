@@ -48,5 +48,7 @@ objeto.ownerDb = ['PROTHEUS'];
 objeto.empresas = ['01'];
 objeto.comentFontPad = comentario;
 
-objeto.validaProjeto('D:\\Protheus');
+objeto.validaProjeto([
+  'D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\protheus'
+]);
 ```

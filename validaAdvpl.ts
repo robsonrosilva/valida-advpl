@@ -163,7 +163,7 @@ export class ValidaAdvpl {
             //verifica se é função e adiciona no array
             if (
               linhaClean.search(/(STATIC|USER|)+(\ |\t)+FUNCTION+(\ |\t)/) !==
-              -1 &&
+                -1 &&
               linhaClean
                 .trim()
                 .split(' ')[0]
@@ -211,7 +211,7 @@ export class ValidaAdvpl {
               linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
               firstWord === 'CLASS' ||
               linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
-              linhaClean.search('WSSERVICE\\ ') !== -1
+              firstWord === 'WSSERVICE\\ '
             ) {
               //reseta todas as ariáveis de controle pois está fora de qualquer função
               cBeginSql = false;
@@ -219,13 +219,19 @@ export class ValidaAdvpl {
               JoinQuery = false;
               cSelect = false;
               //verifica se é um função e adiciona no array
-              funcoes.push([
-                linhaClean
-                  .trim()
-                  .split(' ')[1]
-                  .split('(')[0],
-                key
-              ]);
+              try {
+                funcoes.push([
+                  linhaClean
+                    .trim()
+                    .split(' ')[1]
+                    .split('(')[0],
+                  key
+                ]);
+              } catch {
+                console.log('Erro na captura de função da linha ');
+                console.log(linhaClean);
+              }
+
               if (firstWord === 'CLASS') {
                 objeto.fonte.addFunction(
                   Tipos.Class,
@@ -409,27 +415,29 @@ export class ValidaAdvpl {
               cSelect = false;
             }
             //Implementação para aceitar vários bancos de dados
-            objeto.ownerDb.forEach(banco => {
+            for (var idb = 0; idb < objeto.ownerDb.length; idb++) {
+              let banco: string = objeto.ownerDb[idb];
               if (cSelect && FromQuery && linha.search(banco) !== -1) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.noSchema', objeto.local) +
-                    banco +
-                    traduz('validaAdvpl.inQuery', objeto.local),
+                      banco +
+                      traduz('validaAdvpl.inQuery', objeto.local),
                     Severity.Error
                   )
                 );
               }
-            });
+            }
             if (
               cSelect &&
               (FromQuery || JoinQuery || linha.search('SET') !== -1) &&
               linha.search('exp:cTable') === -1
             ) {
               //procura códigos de empresas nas queryes
-              objeto.empresas.forEach(empresa => {
+              for (var idb = 0; idb < objeto.empresas.length; idb++) {
+                let empresa: string = objeto.empresas[idb];
                 //para melhorar a análise vou quebrar a string por espaços
                 //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
                 //e o código da empresa chumbado
@@ -437,7 +445,8 @@ export class ValidaAdvpl {
                   .replace(/\r/g, '')
                   .replace(/\t/g, '')
                   .split(' ');
-                palavras.forEach(palavra => {
+                for (var idb2 = 0; idb2 < palavras.length; idb2++) {
+                  let palavra: string = palavras[idb2];
                   if (
                     palavra.search(empresa + '0') !== -1 &&
                     palavra.length === 6
@@ -451,8 +460,8 @@ export class ValidaAdvpl {
                       )
                     );
                   }
-                });
-              });
+                }
+              }
             }
             if (cSelect && JoinQuery && linha.search('ON') !== -1) {
               JoinQuery = false;
@@ -485,7 +494,11 @@ export class ValidaAdvpl {
             if (
               !cBeginSql &&
               posicaoDic !== -1 &&
-              (' ' + linhaClean).substring(posicaoDic + 1).split(" ")[0].split("\t")[0].search(/\(/) === -1
+              (' ' + linhaClean)
+                .substring(posicaoDic + 1)
+                .split(' ')[0]
+                .split('\t')[0]
+                .search(/\(/) === -1
             ) {
               objeto.aErros.push(
                 new Erro(
@@ -527,11 +540,13 @@ export class ValidaAdvpl {
               //verifica o caracter anterior tem que ser ou ESPACO ou ' ou " ou nada
               let itens1: string[] = ['FROM', 'ON', 'WHERE'];
               let addErro: boolean = false;
-              itens1.forEach(item => {
+              for (var idx3 = 0; idx3 < itens1.length; idx3++) {
+                let item: string = itens1[idx3];
+
                 addErro = addErro || linha.search("\\'" + item) !== -1;
                 addErro = addErro || linha.search('\\"' + item) !== -1;
                 addErro = addErro || linha.search('\\ ' + item) !== -1;
-              });
+              }
 
               if (addErro) {
                 objeto.aErros.push(
@@ -539,7 +554,7 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.bestAnalitc', objeto.local) +
-                    ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
+                      ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
                     Severity.Information
                   )
                 );
@@ -571,11 +586,13 @@ export class ValidaAdvpl {
         }
 
         //Validação funções sem comentários
-        funcoes.forEach(funcao => {
+        for (var idx = 0; idx < funcoes.length; idx++) {
+          let funcao: string = funcoes[idx];
           let achou: boolean = false;
-          comentFuncoes.forEach(comentario => {
+          for (var idx4 = 0; idx4 < comentFuncoes.length; idx4++) {
+            let comentario: string = comentFuncoes[idx4];
             achou = achou || comentario[0] === funcao[0];
-          });
+          }
 
           if (!achou) {
             objeto.aErros.push(
@@ -587,13 +604,15 @@ export class ValidaAdvpl {
               )
             );
           }
-        });
+        }
         //Validação comentários sem funções
-        comentFuncoes.forEach(comentario => {
+        for (var idx = 0; idx < comentFuncoes.length; idx++) {
+          let comentario: string = comentFuncoes[idx];
           let achou: boolean = false;
-          funcoes.forEach(funcao => {
+          for (var idx4 = 0; idx4 < funcoes.length; idx4++) {
+            let funcao: string = funcoes[idx4];
             achou = achou || comentario[0] === funcao[0];
-          });
+          }
 
           if (!achou) {
             objeto.aErros.push(
@@ -605,7 +624,7 @@ export class ValidaAdvpl {
               )
             );
           }
-        });
+        }
 
         //Validador de includes
         let oInclude: Include = new Include(objeto.local);
@@ -615,7 +634,8 @@ export class ValidaAdvpl {
         objeto.information = 0;
         objeto.warning = 0;
         objeto.error = 0;
-        objeto.aErros.forEach((erro: any) => {
+        for (var idx = 0; idx < objeto.aErros.length; idx++) {
+          let erro: any = objeto.aErros[idx];
           if (erro.severity === Severity.Hint) {
             objeto.hint++;
           }
@@ -628,10 +648,10 @@ export class ValidaAdvpl {
           if (erro.severity === Severity.Error) {
             objeto.error++;
           }
-        });
+        }
         if (
           objeto.error + objeto.hint + objeto.warning + objeto.information >
-          0 &&
+            0 &&
           this.log
         ) {
           if (objeto.error > 0) {

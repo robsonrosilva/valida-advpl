@@ -1,5 +1,6 @@
 import { Duplicados } from './models/Duplicados';
 import { ItemModel } from './models/ItemProject';
+import { ValidaAdvpl } from './validaAdvpl';
 export declare class ValidaProjeto {
     private log;
     projeto: ItemModel[];
@@ -14,7 +15,8 @@ export declare class ValidaProjeto {
         functions: any[];
     };
     constructor(comentFontePad: string[], local: string, log?: boolean);
-    validaProjeto(pathProject: string): Promise<ValidaProjeto>;
+    validaProjeto(pathsProject: string[]): Promise<ValidaProjeto>;
+    criaPromises(pathsProject: string[]): Promise<Promise<ValidaAdvpl>[]>;
     verificaDuplicados(): Promise<Duplicados>;
     contaErros(): any;
 }

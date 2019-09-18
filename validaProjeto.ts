@@ -27,60 +27,30 @@ export class ValidaProjeto {
     this.ownerDb = [];
     this.empresas = [];
   }
-  public async validaProjeto(pathProject: string): Promise<ValidaProjeto> {
+  public async validaProjeto(pathsProject: string[]): Promise<ValidaProjeto> {
     return new Promise(async (resolve: Function) => {
       this.projeto = [];
-      // monta expressão para buscar arquivos
-      let globexp: any[] = [];
-      for (var i = 0; i < this.advplExtensions.length; i++) {
-        globexp.push(`**/*.${this.advplExtensions[i]}`);
-      }
-      // busca arquivos na pasta
-      let files: string[] = await globby.sync(globexp, {
-        cwd: pathProject,
-        caseSensitiveMatch: false
-      });
-
-      // valida arquivos
-      let promisses: Promise<ValidaAdvpl>[] = [];
-
       let startTime: any = new Date();
       if (this.log) {
         console.log(startTime);
-        console.log('Analise de Projeto: ' + pathProject);
+        console.log('Analise de Projeto');
       }
 
-      files.forEach((fileName: string) => {
-        let valida: ValidaAdvpl = new ValidaAdvpl(
-          this.comentFontPad,
-          this.local,
-          this.log
-        );
-        valida.ownerDb = this.ownerDb;
-        valida.empresas = this.empresas;
+      // valida arquivos
+      let promisses: Promise<ValidaAdvpl>[];
 
-        if (this.log) {
-          console.log('Arquivo: ' + fileName);
-        }
-        let conteudo = fileSystem.readFileSync(
-          pathProject + '\\' + fileName,
-          'latin1'
-        );
-
-        promisses.push(
-          valida.validacao(conteudo, pathProject + '\\' + fileName)
-        );
-      });
+      promisses = await this.criaPromises(pathsProject);
 
       Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
-        validacoes.forEach((validacao: ValidaAdvpl) => {
+        for (var idx = 0; idx < validacoes.length; idx++) {
+          let validacao: ValidaAdvpl = validacoes[idx];
           let itemProjeto = new ItemModel();
           itemProjeto.content = validacao.conteudoFonte;
           itemProjeto.errors = validacao.aErros;
           itemProjeto.fonte = validacao.fonte;
 
           this.projeto.push(itemProjeto);
-        });
+        }
 
         // verifica duplicados
         this.verificaDuplicados().then(() => {
@@ -101,20 +71,68 @@ export class ValidaProjeto {
     });
   }
 
+  async criaPromises(pathsProject: string[]) {
+    let promisses: Promise<ValidaAdvpl>[] = [];
+
+    // monta expressão para buscar arquivos
+    let globexp: any[] = [];
+    for (var i = 0; i < this.advplExtensions.length; i++) {
+      globexp.push(`**/*.${this.advplExtensions[i]}`);
+    }
+
+    for (var i = 0; i < pathsProject.length; i++) {
+      let pathProject: string = pathsProject[i];
+      // busca arquivos na pasta
+      let files: string[] = await globby.sync(globexp, {
+        cwd: pathProject,
+        caseSensitiveMatch: false
+      });
+
+      for (var j = 0; j < files.length; j++) {
+        let fileName: string = files[j];
+        let valida: ValidaAdvpl = new ValidaAdvpl(
+          this.comentFontPad,
+          this.local,
+          this.log
+        );
+        valida.ownerDb = this.ownerDb;
+        valida.empresas = this.empresas;
+
+        if (this.log) {
+          console.log('Arquivo: ' + fileName);
+        }
+        let conteudo = fileSystem.readFileSync(
+          pathsProject + '\\' + fileName,
+          'latin1'
+        );
+
+        promisses.push(
+          valida.validacao(conteudo, pathsProject + '\\' + fileName)
+        );
+      }
+    }
+
+    return promisses;
+  }
+
   public verificaDuplicados(): Promise<Duplicados> {
     return new Promise((resolve: Function) => {
+      let startTime: any = new Date();
+      console.log('Start Duplicados');
       let listaFuncoes: string[] = [];
       let funcoesDuplicadas: string[] = [];
       let listaArquivos: string[] = [];
       let arquivosDuplicados: string[] = [];
 
-      this.projeto.forEach((item: ItemModel) => {
+      for (var idx = 0; idx < this.projeto.length; idx++) {
+        let item: ItemModel = this.projeto[idx];
         let fonte: Fonte = item.fonte;
         //verifica se o fonte ainda existe
         try {
           fileSystem.statSync(fonte.fonte);
 
-          fonte.funcoes.forEach((funcao: Funcao) => {
+          for (var idx2 = 0; idx2 < fonte.funcoes.length; idx2++) {
+            let funcao: Funcao = fonte.funcoes[idx2];
             // não aponta como duplicadas as static Functions ou metodos
             if (
               funcao.tipo !== Tipos['Static Function'] &&
@@ -130,7 +148,7 @@ export class ValidaProjeto {
                 funcoesDuplicadas.push(functionName);
               }
             }
-          });
+          }
 
           let fileName = fonte.fonte
             .replace(/\\/g, '/')
@@ -152,7 +170,7 @@ export class ValidaProjeto {
             console.log(e);
           }
         }
-      });
+      }
 
       // guarda lista de duplicados
       let duplicadosOld = JSON.parse(JSON.stringify(this.listaDuplicados));
@@ -179,10 +197,12 @@ export class ValidaProjeto {
       );
 
       // marca duplicados
-      this.projeto.forEach((item: ItemModel) => {
+      for (var idx = 0; idx < this.projeto.length; idx++) {
+        let item: ItemModel = this.projeto[idx];
         let fonte: Fonte = item.fonte;
 
-        fonte.funcoes.forEach((funcao: Funcao) => {
+        for (var idx2 = 0; idx2 < fonte.funcoes.length; idx2++) {
+          let funcao: Funcao = fonte.funcoes[idx2];
           let functionName: string = (funcao.nome + funcao.tipo).toUpperCase();
           //adiciona o erro
           if (functionsIncluidos.indexOf(functionName) > -1) {
@@ -204,7 +224,7 @@ export class ValidaProjeto {
               );
             });
           }
-        });
+        }
 
         let fileName = fonte.fonte
           .replace(/\\/g, '/')
@@ -227,7 +247,7 @@ export class ValidaProjeto {
             );
           });
         }
-      });
+      }
       if (this.log) {
         let errosContagem: any = this.contaErros();
 
@@ -236,14 +256,27 @@ export class ValidaProjeto {
         console.log(`\t${errosContagem.information} Informations`);
         console.log(`\t${errosContagem.hint} Hints`);
       }
+      if (this.log) {
+        // calcula tempo gasto
+        let endTime: any = new Date();
+        let timeDiff = endTime - startTime; //in ms
+        // strip the ms
+        timeDiff /= 1000;
+
+        // get seconds
+        let seconds = Math.round(timeDiff);
+        console.log('Terminou! (' + seconds + ' segundos) Duplicados');
+      }
       resolve();
     });
   }
   public contaErros(): any {
     let erros: any = { errors: 0, warnings: 0, information: 0, hint: 0 };
 
-    this.projeto.forEach((item: ItemModel) => {
-      item.errors.forEach((erro: Erro) => {
+    for (var idx = 0; idx < this.projeto.length; idx++) {
+      let item: ItemModel = this.projeto[idx];
+      for (var idx2 = 0; idx2 < item.errors.length; idx2++) {
+        let erro: Erro = item.errors[idx2];
         if (erro.severity === Severity.Error) {
           erros.errors++;
         } else if (erro.severity === Severity.Warning) {
@@ -253,8 +286,8 @@ export class ValidaProjeto {
         } else if (erro.severity === Severity.Hint) {
           erros.hint++;
         }
-      });
-    });
+      }
+    }
     return erros;
   }
 }
