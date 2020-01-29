@@ -36,42 +36,13 @@ export class ValidaProjeto {
         console.log('Analise de Projeto');
       }
 
-      // valida arquivos
-      let promisses: Promise<ValidaAdvpl>[];
-
-      promisses = await this.criaPromises(pathsProject);
-
-      Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
-        for (var idx = 0; idx < validacoes.length; idx++) {
-          let validacao: ValidaAdvpl = validacoes[idx];
-          let itemProjeto = new ItemModel();
-          itemProjeto.content = validacao.conteudoFonte;
-          itemProjeto.errors = validacao.aErros;
-          itemProjeto.fonte = validacao.fonte;
-
-          this.projeto.push(itemProjeto);
-        }
-
-        // verifica duplicados
-        this.verificaDuplicados().then(() => {
-          if (this.log) {
-            // calcula tempo gasto
-            let endTime: any = new Date();
-            let timeDiff = endTime - startTime; //in ms
-            // strip the ms
-            timeDiff /= 1000;
-
-            // get seconds
-            let seconds = Math.round(timeDiff);
-            console.log('Terminou! (' + seconds + ' segundos)');
-          }
-          resolve(this);
-        });
-      });
+      console.log('criando');
+      this.criaPromises(pathsProject, startTime);
+      console.log('esperando');
     });
   }
 
-  async criaPromises(pathsProject: string[]) {
+  async criaPromises(pathsProject: string[], startTime?: any) {
     let promisses: Promise<ValidaAdvpl>[] = [];
 
     // monta expressão para buscar arquivos
@@ -111,8 +82,31 @@ export class ValidaProjeto {
         );
       }
     }
+    Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
+      for (var idx = 0; idx < validacoes.length; idx++) {
+        let validacao: ValidaAdvpl = validacoes[idx];
+        let itemProjeto = new ItemModel();
+        itemProjeto.content = validacao.conteudoFonte;
+        itemProjeto.errors = validacao.aErros;
+        itemProjeto.fonte = validacao.fonte;
 
-    return promisses;
+        this.projeto.push(itemProjeto);
+      }
+      // verifica duplicados
+      this.verificaDuplicados().then(() => {
+        if (this.log && startTime) {
+          // calcula tempo gasto
+          let endTime: any = new Date();
+          let timeDiff = endTime - startTime; //in ms
+          // strip the ms
+          timeDiff /= 1000;
+
+          // get seconds
+          let seconds = Math.round(timeDiff);
+          console.log('Terminou! (' + seconds + ' segundos)');
+        }
+      });
+    });
   }
 
   public verificaDuplicados(): Promise<Duplicados> {
