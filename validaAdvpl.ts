@@ -63,11 +63,11 @@ export class ValidaAdvpl {
           let linha: String = linhas[key].toLocaleUpperCase();
           let linhaClean: String = '';
           //se estiver no PotheusDoc vê se está fechando
-          if (ProtheusDoc && linha.search('\\/\\*\\/') !== -1) {
+          if (ProtheusDoc && linha.match(/(\*\/)/i)) {
             ProtheusDoc = false;
           }
           //verifica se é protheusDoc
-          if (linha.search(/\/\*\/+( |)+\{PROTHEUS\.DOC\}/) !== -1) {
+          if (linha.match(/^(\s*)(\/\*\/(.*)?\{Protheus.doc\}(.*)?)/i)) {
             ProtheusDoc = true;
             //reseta todas as ariáveis de controle pois se entrou em ProtheusDoc está fora de qualquer função
             cBeginSql = false;
@@ -78,7 +78,7 @@ export class ValidaAdvpl {
             comentFuncoes.push([
               linha
                 .trim()
-                .replace(/\/\*\/+( |)+\{PROTHEUS\.DOC\}/, '')
+                .replace(/^(\s*)(\/\*\/(.*)?\{Protheus.doc\}( |\t)*)/i, '')
                 .trim()
                 .toLocaleUpperCase(),
               key
@@ -97,9 +97,9 @@ export class ValidaAdvpl {
           //Verifica se está em comentário de bloco
           //trata comentários dentro da linha
           linha = linha.replace(/\/\*+.+\*\//, '');
-          if (linha.search(/\*\//) !== -1 && emComentario) {
+          if (linha.match(/(\*\/)/i) && emComentario) {
             emComentario = false;
-            linha = linha.split(/\*\//)[1];
+            linha = linha.split('*/')[1];
           }
 
           //se não estiver dentro do Protheus DOC valida linha
@@ -125,10 +125,10 @@ export class ValidaAdvpl {
             //não remove aspas quando for include
             linha = linha.split('//')[0];
             linhaClean = linha;
-            if (linha.search(/#INCLUDE/) === -1) {
+            if (linha.match(/^(\s*)#INCLUDE/)) {
               while (
-                linhaClean.search(/\"+.+\"/) !== -1 ||
-                linhaClean.search(/\'+.+\'/) !== -1
+                linhaClean.match(/\"+.+\"/) ||
+                linhaClean.match(/\'+.+\'/)
               ) {
                 let colunaDupla: number = linhaClean.search(/\"+.+\"/);
                 let colunaSimples: number = linhaClean.search(/\'+.+\'/);
@@ -160,404 +160,405 @@ export class ValidaAdvpl {
             conteudoSComentario = conteudoSComentario + linhaClean + '\n';
             let firstWord: string = linhaClean.split(' ')[0].split('\t')[0];
 
-            //verifica se é função e adiciona no array
-            if (
-              linhaClean.search(/(STATIC|USER|)+(\ |\t)+FUNCTION+(\ |\t)/) !==
-                -1 &&
-              linhaClean
-                .trim()
-                .split(' ')[0]
-                .match(/STATIC|USER|FUNCTION/)
-            ) {
-              //reseta todas as ariáveis de controle pois está fora de qualquer função
-              cBeginSql = false;
-              FromQuery = false;
-              JoinQuery = false;
-              cSelect = false;
-              let nomeFuncao: string = linhaClean
-                .replace('\t', ' ')
-                .trim()
-                .split(' ')[2]
-                .split('(')[0];
-              //verifica se é um função e adiciona no array
-              funcoes.push([nomeFuncao, key]);
-              //verifica o TIPO
-              if (linhaClean.search(/(USER)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1) {
-                objeto.fonte.addFunction(
-                  Tipos['User Function'],
-                  nomeFuncao,
-                  parseInt(key)
-                );
-              } else if (
-                linhaClean.search(/(STATIC)+(\ |\t)+FUNCTION+(\ |\t)/) !== -1
+            // só analisa se tiver conteúdo
+            if (conteudoSComentario.trim()) {
+              //verifica se é função e adiciona no array
+              if (
+                linhaClean.match(
+                  /^(\s*)((user|static)(\ |\t)*)?(function)(\s+)(\w+)/i
+                )
               ) {
-                //verifica se a primeira palavra é FUNCTION
-                objeto.fonte.addFunction(
-                  Tipos['Static Function'],
-                  nomeFuncao,
-                  parseInt(key)
-                );
-              } else if (firstWord === 'FUNCTION') {
-                //verifica se a primeira palavra é FUNCTION
-                objeto.fonte.addFunction(
-                  Tipos.Function,
-                  nomeFuncao,
-                  parseInt(key)
-                );
-              }
-            }
-            //Verifica se é CLASSE ou WEBSERVICE
-            if (
-              linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
-              firstWord === 'CLASS' ||
-              linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
-              firstWord === 'WSSERVICE\\ '
-            ) {
-              //reseta todas as ariáveis de controle pois está fora de qualquer função
-              cBeginSql = false;
-              FromQuery = false;
-              JoinQuery = false;
-              cSelect = false;
-              //verifica se é um função e adiciona no array
-              try {
-                funcoes.push([
-                  linhaClean
-                    .trim()
-                    .split(' ')[1]
-                    .split('(')[0],
-                  key
-                ]);
-              } catch {
-                console.log('Erro na captura de função da linha ');
-                console.log(linhaClean);
-              }
-
-              if (firstWord === 'CLASS') {
-                objeto.fonte.addFunction(
-                  Tipos.Class,
-                  linhaClean
-                    .trim()
-                    .split(' ')[1]
-                    .split('(')[0],
-                  parseInt(key)
-                );
-              }
-              if (firstWord.match(/METHOD/)) {
-                let palavras: string[] = linhaClean.split(/,| |\t|\(/);
-                let metodo: string = palavras[1];
-                let classe: string;
-                for (var i = 0; i < palavras.length; i++) {
-                  let key2 = palavras[i];
-                  if (key2 === 'WSSERVICE' || key2 === 'CLASS') {
-                    classe = palavras[i + 1];
-                    break;
-                  }
-                }
-
-                objeto.fonte.addFunction(
-                  Tipos.Method,
-                  classe + '|' + metodo,
-                  parseInt(key)
-                );
-              }
-            }
-            //Adiciona no objeto as variáveis locais
-            if (firstWord === 'LOCAL') {
-              //remove o LOCAL
-              let variaveis: string[] = linhaClean.split(/,| |\t|\r/);
-              for (var key2 of variaveis) {
-                if (key2 !== 'LOCAL' && key2 !== '') {
-                  // se terminar as variáveis
-                  if (key2.match(/\:\=/)) {
-                    break;
-                  }
-                  //objeto.fonte.addVariavel(key2);
-                }
-              }
-            }
-
-            //Verifica se adicionou o include TOTVS.CH
-            if (linha.search(/#INCLUDE/) !== -1) {
-              //REMOVE as aspas a palavra #include e os espacos e tabulações
-              objeto.includes.push({
-                include: linha
-                  .replace(/#INCLUDE/g, '')
-                  .replace(/\t/g, '')
-                  .replace(/\'/g, '')
-                  .replace(/\"/g, '')
-                  .trim(),
-                linha: parseInt(key)
-              });
-            }
-            if (linhaClean.search(/BEGINSQL+(\ |\t)+ALIAS/) !== -1) {
-              cBeginSql = true;
-            }
-            if (
-              linha.match(/(\ |\t|\'|\"|)+SELECT+(\ |\t)/) ||
-              linha.match(/(\ |\t|\'|\"|)+DELETE+(\ |\t)/) ||
-              linha.match(/(\ |\t|\'|\"|)+UPDATE+(\ |\t)/)
-            ) {
-              cSelect = true;
-            }
-            if (
-              !cBeginSql &&
-              (linha.search(
-                /(\ |\t|\'|\"|)+DBUSEAREA+(\ |\t|)+\(+.+TOPCONN+.+TCGENQRY/
-              ) !== -1 ||
-                linhaClean.search(/TCQUERY+(\ |\t)/) !== -1)
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.queryNoEmbedded', objeto.local),
-                  Severity.Warning
-                )
-              );
-              FromQuery = false;
-              cSelect = false;
-            }
-            if (
-              linha.search(/(\ |\t|\'|\")+DELETE+(\ |\t)+FROM+(\ |\t)/) !== -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.deleteFrom', objeto.local),
-                  Severity.Warning
-                )
-              );
-            }
-            if (linhaClean.search(/MSGBOX\(/) !== -1) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.msgBox', objeto.local),
-                  Severity.Information
-                )
-              );
-            }
-            if (
-              linha.search(
-                /GETMV\(+(\ |\t|)+(\"|\')+MV_FOLMES+(\"|\')+(\ |\t|)\)/
-              ) !== -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.folMes', objeto.local),
-                  Severity.Information
-                )
-              );
-            }
-            if (linha.search('\\<\\<\\<\\<\\<\\<\\<\\ HEAD') !== -1) {
-              //Verifica linha onde terminou o conflito
-              let nFim: string = key;
-              for (var key2 in linhas) {
+                //reseta todas as ariáveis de controle pois está fora de qualquer função
+                cBeginSql = false;
+                FromQuery = false;
+                JoinQuery = false;
+                cSelect = false;
+                let nomeFuncao: string = linhaClean
+                  .replace(
+                    /^(\s*)((user|static)(\ |\t)*)?(function)(\ |\t)+/gi,
+                    ''
+                  )
+                  .split('(')[0];
+                //verifica se é um função e adiciona no array
+                funcoes.push([nomeFuncao, key]);
+                //verifica o TIPO
                 if (
-                  linhas[key2].search('\\>\\>\\>\\>\\>\\>\\>') !== -1 &&
-                  nFim === key &&
-                  key2 > key
+                  linhaClean.match(
+                    /^(\s*)((user)(\ |\t)*)?(function)(\s+)(\w+)/i
+                  )
                 ) {
-                  nFim = key2;
+                  objeto.fonte.addFunction(
+                    Tipos['User Function'],
+                    nomeFuncao,
+                    parseInt(key)
+                  );
+                } else if (
+                  linhaClean.match(
+                    /^(\s*)((static)(\ |\t)*)?(function)(\s+)(\w+)/i
+                  )
+                ) {
+                  //verifica se a primeira palavra é FUNCTION
+                  objeto.fonte.addFunction(
+                    Tipos['Static Function'],
+                    nomeFuncao,
+                    parseInt(key)
+                  );
+                } else if (firstWord === 'FUNCTION') {
+                  //verifica se a primeira palavra é FUNCTION
+                  objeto.fonte.addFunction(
+                    Tipos.Function,
+                    nomeFuncao,
+                    parseInt(key)
+                  );
                 }
               }
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(nFim),
-                  traduz('validaAdvpl.conflictMerge', objeto.local),
-                  Severity.Error
-                )
-              );
-            }
-            if (
-              linha.search(/(\ |\t|\'|\"|)+SELECT+(\ |\t)/) !== -1 &&
-              linha.search('\\ \\*\\ ') !== -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.selectAll', objeto.local),
-                  Severity.Warning
-                )
-              );
-            }
-            if (
-              linha.search('CHR\\(13\\)') !== -1 &&
-              linha.search('CHR\\(10\\)') !== -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.crlf', objeto.local),
-                  Severity.Warning
-                )
-              );
-            }
-            if (cSelect && linha.search('FROM') !== -1) {
-              FromQuery = true;
-            }
-            if (cSelect && FromQuery && linha.search('JOIN') !== -1) {
-              JoinQuery = true;
-            }
-            if (
-              linha.search('ENDSQL') !== -1 ||
-              linha.search('WHERE') !== -1 ||
-              linha.search('TCQUERY') !== -1
-            ) {
-              FromQuery = false;
-              cSelect = false;
-            }
-            //Implementação para aceitar vários bancos de dados
-            for (var idb = 0; idb < objeto.ownerDb.length; idb++) {
-              let banco: string = objeto.ownerDb[idb];
-              if (cSelect && FromQuery && linha.search(banco) !== -1) {
+              //Verifica se é CLASSE ou WEBSERVICE
+              if (
+                linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
+                firstWord === 'CLASS' ||
+                linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
+                firstWord === 'WSSERVICE\\ '
+              ) {
+                //reseta todas as ariáveis de controle pois está fora de qualquer função
+                cBeginSql = false;
+                FromQuery = false;
+                JoinQuery = false;
+                cSelect = false;
+                //verifica se é um função e adiciona no array
+                try {
+                  funcoes.push([
+                    linhaClean
+                      .trim()
+                      .split(' ')[1]
+                      .split('(')[0],
+                    key
+                  ]);
+                } catch {
+                  console.log('Erro na captura de função da linha ');
+                  console.log(linhaClean);
+                }
+
+                if (firstWord === 'CLASS') {
+                  objeto.fonte.addFunction(
+                    Tipos.Class,
+                    linhaClean
+                      .trim()
+                      .split(' ')[1]
+                      .split('(')[0],
+                    parseInt(key)
+                  );
+                }
+                if (firstWord.match(/METHOD/)) {
+                  let palavras: string[] = linhaClean.split(/,| |\t|\(/);
+                  let metodo: string = palavras[1];
+                  let classe: string;
+                  for (var i = 0; i < palavras.length; i++) {
+                    let key2 = palavras[i];
+                    if (key2 === 'WSSERVICE' || key2 === 'CLASS') {
+                      classe = palavras[i + 1];
+                      break;
+                    }
+                  }
+
+                  objeto.fonte.addFunction(
+                    Tipos.Method,
+                    classe + '|' + metodo,
+                    parseInt(key)
+                  );
+                }
+              }
+              //Adiciona no objeto as variáveis locais
+              if (firstWord === 'LOCAL') {
+                //remove o LOCAL
+                let variaveis: string[] = linhaClean.split(/,| |\t|\r/);
+                for (var key2 of variaveis) {
+                  if (key2 !== 'LOCAL' && key2 !== '') {
+                    // se terminar as variáveis
+                    if (key2.match(/\:\=/)) {
+                      break;
+                    }
+                    //objeto.fonte.addVariavel(key2);
+                  }
+                }
+              }
+
+              //Verifica se adicionou o include TOTVS.CH
+              if (linha.search(/^(\s*)#INCLUDE/i) !== -1) {
+                //REMOVE as aspas a palavra #include e os espacos e tabulações
+                objeto.includes.push({
+                  include: linha
+                    .replace(/^(\s*)#INCLUDE/gi, '')
+                    .replace(/\t/g, '')
+                    .replace(/\'/g, '')
+                    .replace(/\"/g, '')
+                    .trim(),
+                  linha: parseInt(key)
+                });
+              }
+              if (linhaClean.search(/^(\s*)BEGIN(\s*)ALIAS/) !== -1) {
+                cBeginSql = true;
+              }
+              if (
+                linha.match(/(\ |\t|\'|\"|)+(SELECT|DELETE|UPDATE)(\ |\t)+/)
+              ) {
+                cSelect = true;
+              }
+              if (
+                !cBeginSql &&
+                (linha.search(
+                  /(\ |\t|\'|\"|)+DBUSEAREA+(\ |\t|)+\(+.+TOPCONN+.+TCGENQRY/
+                ) !== -1 ||
+                  linhaClean.search(/TCQUERY+(\ |\t)/) !== -1)
+              ) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    traduz('validaAdvpl.noSchema', objeto.local) +
-                      banco +
-                      traduz('validaAdvpl.inQuery', objeto.local),
+                    traduz('validaAdvpl.queryNoEmbedded', objeto.local),
+                    Severity.Warning
+                  )
+                );
+                FromQuery = false;
+                cSelect = false;
+              }
+              if (
+                linha.search(/(\ |\t|\'|\")+DELETE+(\ |\t)+FROM+(\ |\t)/) !== -1
+              ) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.deleteFrom', objeto.local),
+                    Severity.Warning
+                  )
+                );
+              }
+              if (linhaClean.search(/MSGBOX\(/) !== -1) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.msgBox', objeto.local),
+                    Severity.Information
+                  )
+                );
+              }
+              if (linha.match(/GETMV(\ |\t|\()+(\"|\')+MV_FOLMES+(\"|\')/gi)) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.folMes', objeto.local),
+                    Severity.Information
+                  )
+                );
+              }
+              if (linha.search('\\<\\<\\<\\<\\<\\<\\<\\ HEAD') !== -1) {
+                //Verifica linha onde terminou o conflito
+                let nFim: string = key;
+                for (var key2 in linhas) {
+                  if (
+                    linhas[key2].search('\\>\\>\\>\\>\\>\\>\\>') !== -1 &&
+                    nFim === key &&
+                    key2 > key
+                  ) {
+                    nFim = key2;
+                  }
+                }
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(nFim),
+                    traduz('validaAdvpl.conflictMerge', objeto.local),
                     Severity.Error
                   )
                 );
               }
-            }
-            if (
-              cSelect &&
-              (FromQuery || JoinQuery || linha.search('SET') !== -1) &&
-              linha.search('exp:cTable') === -1
-            ) {
-              //procura códigos de empresas nas queryes
-              for (var idb = 0; idb < objeto.empresas.length; idb++) {
-                let empresa: string = objeto.empresas[idb];
-                //para melhorar a análise vou quebrar a string por espaços
-                //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
-                //e o código da empresa chumbado
-                let palavras: string[] = linha
-                  .replace(/\r/g, '')
-                  .replace(/\t/g, '')
-                  .split(' ');
-                for (var idb2 = 0; idb2 < palavras.length; idb2++) {
-                  let palavra: string = palavras[idb2];
-                  if (
-                    palavra.search(empresa + '0') !== -1 &&
-                    palavra.length === 6
-                  ) {
-                    objeto.aErros.push(
-                      new Erro(
-                        parseInt(key),
-                        parseInt(key),
-                        traduz('validaAdvpl.tableFixed', objeto.local),
-                        Severity.Error
-                      )
-                    );
-                  }
-                }
-              }
-            }
-            if (cSelect && JoinQuery && linha.search('ON') !== -1) {
-              JoinQuery = false;
-            }
-            if (linhaClean.search(/CONOUT\(/) !== -1) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.conout', objeto.local),
-                  Severity.Warning
-                )
-              );
-            }
-            //  PUTSX1
-            if (linhaClean.search(/PUTSX1\(/) !== -1) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.PutSX1', objeto.local),
-                  Severity.Error
-                )
-              );
-            }
-            // Uso de Dicionários Fora do BeginSql
-            let posicaoDic: number = (' ' + linhaClean).search(
-              /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
-            );
-            if (
-              !cBeginSql &&
-              posicaoDic !== -1 &&
-              (' ' + linhaClean)
-                .substring(posicaoDic + 1)
-                .split(' ')[0]
-                .split('\t')[0]
-                .search(/\(/) === -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.Dictionary', objeto.local),
-                  Severity.Error
-                )
-              );
-            }
-            if (
-              linhaClean.search(
-                /(,| |\t||\()+(MSFILE|MSFILE|DBCREATE|DBUSEAREA|CRIATRAB)+( \(|\t\(|\()/gim
-              ) !== -1 ||
-              linhaClean.search(
-                /( |)+(MSCOPYFILE|MSERASE|COPY TO)+( |\t)/gim
-              ) !== -1
-            ) {
-              objeto.aErros.push(
-                new Erro(
-                  parseInt(key),
-                  parseInt(key),
-                  traduz('validaAdvpl.Isam', objeto.local),
-                  Severity.Error
-                )
-              );
-            }
-            //recomendação para melhorar identificação de problemas em queryes
-            if (
-              (linha.match(/(\ |\t|)+SELECT+(\ |\t)/) ||
-                linha.match(/(\ |\t|)+DELETE+(\ |\t)/) ||
-                linha.match(/(\ |\t|)+UPDATE+(\ |\t)/) ||
-                linha.match(/(\ |\t|)+JOIN+(\ |\t)/)) &&
-              (linha.match(/(\ |\t|)+FROM+(\ |\t)/) ||
-                linha.match(/(\ |\t|)+ON+(\ |\t)/) ||
-                linha.match(/(\ |\t|)+WHERE+(\ |\t)/)) &&
-              linha.search(/(\ |\t)+TCSQLEXEC+\(/) === -1
-            ) {
-              //verifica o caracter anterior tem que ser ou ESPACO ou ' ou " ou nada
-              let itens1: string[] = ['FROM', 'ON', 'WHERE'];
-              let addErro: boolean = false;
-              for (var idx3 = 0; idx3 < itens1.length; idx3++) {
-                let item: string = itens1[idx3];
-
-                addErro = addErro || linha.search("\\'" + item) !== -1;
-                addErro = addErro || linha.search('\\"' + item) !== -1;
-                addErro = addErro || linha.search('\\ ' + item) !== -1;
-              }
-
-              if (addErro) {
+              if (
+                linha.search(/(\ |\t|\'|\"|)+SELECT+(\ |\t)/) !== -1 &&
+                linha.search('\\ \\*\\ ') !== -1
+              ) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
-                    traduz('validaAdvpl.bestAnalitc', objeto.local) +
-                      ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
-                    Severity.Information
+                    traduz('validaAdvpl.selectAll', objeto.local),
+                    Severity.Warning
                   )
                 );
+              }
+              if (
+                linha.search('CHR\\(13\\)') !== -1 &&
+                linha.search('CHR\\(10\\)') !== -1
+              ) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.crlf', objeto.local),
+                    Severity.Warning
+                  )
+                );
+              }
+              if (cSelect && linha.search('FROM') !== -1) {
+                FromQuery = true;
+              }
+              if (cSelect && FromQuery && linha.search('JOIN') !== -1) {
+                JoinQuery = true;
+              }
+              if (
+                linha.search('ENDSQL') !== -1 ||
+                linha.search('WHERE') !== -1 ||
+                linha.search('TCQUERY') !== -1
+              ) {
+                FromQuery = false;
+                cSelect = false;
+              }
+              //Implementação para aceitar vários bancos de dados
+              for (var idb = 0; idb < objeto.ownerDb.length; idb++) {
+                let banco: string = objeto.ownerDb[idb];
+                if (cSelect && FromQuery && linha.search(banco) !== -1) {
+                  objeto.aErros.push(
+                    new Erro(
+                      parseInt(key),
+                      parseInt(key),
+                      traduz('validaAdvpl.noSchema', objeto.local) +
+                        banco +
+                        traduz('validaAdvpl.inQuery', objeto.local),
+                      Severity.Error
+                    )
+                  );
+                }
+              }
+              if (
+                cSelect &&
+                (FromQuery || JoinQuery || linha.search('SET') !== -1) &&
+                linha.search('exp:cTable') === -1
+              ) {
+                //procura códigos de empresas nas queryes
+                for (var idb = 0; idb < objeto.empresas.length; idb++) {
+                  let empresa: string = objeto.empresas[idb];
+                  //para melhorar a análise vou quebrar a string por espaços
+                  //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
+                  //e o código da empresa chumbado
+                  let palavras: string[] = linha
+                    .replace(/\r/g, '')
+                    .replace(/\t/g, '')
+                    .split(' ');
+                  for (var idb2 = 0; idb2 < palavras.length; idb2++) {
+                    let palavra: string = palavras[idb2];
+                    if (
+                      palavra.search(empresa + '0') !== -1 &&
+                      palavra.length === 6
+                    ) {
+                      objeto.aErros.push(
+                        new Erro(
+                          parseInt(key),
+                          parseInt(key),
+                          traduz('validaAdvpl.tableFixed', objeto.local),
+                          Severity.Error
+                        )
+                      );
+                    }
+                  }
+                }
+              }
+              if (cSelect && JoinQuery && linha.search('ON') !== -1) {
+                JoinQuery = false;
+              }
+              if (linhaClean.search(/CONOUT(\ |\t)*\(/) !== -1) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.conout', objeto.local),
+                    Severity.Warning
+                  )
+                );
+              }
+              //  PUTSX1
+              if (linhaClean.search(/PUTSX1(\ |\t)*\(/) !== -1) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.PutSX1', objeto.local),
+                    Severity.Error
+                  )
+                );
+              }
+              // Uso de Dicionários Fora do BeginSql
+              let posicaoDic: number = (' ' + linhaClean).search(
+                /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
+              );
+              if (
+                !cBeginSql &&
+                posicaoDic !== -1 &&
+                (' ' + linhaClean)
+                  .substring(posicaoDic + 1)
+                  .split(' ')[0]
+                  .split('\t')[0]
+                  .search(/\(/) === -1
+              ) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.Dictionary', objeto.local),
+                    Severity.Error
+                  )
+                );
+              }
+              if (
+                linhaClean.search(
+                  /(,| |\t||\()*(MSFILE|MSFILE|DBCREATE|DBUSEAREA|CRIATRAB)+( \(|\t\(|\()+/gim
+                ) !== -1 ||
+                linhaClean.search(
+                  /( |)*(MSCOPYFILE|MSERASE|COPY TO)+( |\t)+/gim
+                ) !== -1
+              ) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.Isam', objeto.local),
+                    Severity.Error
+                  )
+                );
+              }
+              //recomendação para melhorar identificação de problemas em queryes
+              if (
+                (linha.match(/(\ |\t|)+SELECT+(\ |\t)/) ||
+                  linha.match(/(\ |\t|)+DELETE+(\ |\t)/) ||
+                  linha.match(/(\ |\t|)+UPDATE+(\ |\t)/) ||
+                  linha.match(/(\ |\t|)+JOIN+(\ |\t)/)) &&
+                (linha.match(/(\ |\t|)+FROM+(\ |\t)/) ||
+                  linha.match(/(\ |\t|)+ON+(\ |\t)/) ||
+                  linha.match(/(\ |\t|)+WHERE+(\ |\t)/)) &&
+                linha.search(/(\ |\t)+TCSQLEXEC+\(/) === -1
+              ) {
+                //verifica o caracter anterior tem que ser ou ESPACO ou ' ou " ou nada
+                let itens1: string[] = ['FROM', 'ON', 'WHERE'];
+                let addErro: boolean = false;
+                for (var idx3 = 0; idx3 < itens1.length; idx3++) {
+                  let item: string = itens1[idx3];
+
+                  addErro = addErro || linha.search("\\'" + item) !== -1;
+                  addErro = addErro || linha.search('\\"' + item) !== -1;
+                  addErro = addErro || linha.search('\\ ' + item) !== -1;
+                }
+
+                if (addErro) {
+                  objeto.aErros.push(
+                    new Erro(
+                      parseInt(key),
+                      parseInt(key),
+                      traduz('validaAdvpl.bestAnalitc', objeto.local) +
+                        ' SELECT, DELETE, UPDATE, JOIN, FROM, ON, WHERE.',
+                      Severity.Information
+                    )
+                  );
+                }
               }
             }
           } else {

@@ -29,7 +29,7 @@ objetoFonte.validacao(conteudo, 'PXGPEM19.prw');
 console.log(objetoFonte);
 */
 
-objeto.validaProjeto(['D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\protheus']).then((validaPrj) => {
+objeto.validaProjeto(['D:\\rogerio\\protheus']).then((validaPrj) => {
     //objeto.validaProjeto('D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus').then((validaPrj) => {
     //objeto.validaProjeto('C:\\Users\\Robson\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF').then((validaPrj) => {
     fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
