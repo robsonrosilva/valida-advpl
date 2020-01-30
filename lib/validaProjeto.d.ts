@@ -15,7 +15,7 @@ export declare class ValidaProjeto {
     };
     constructor(comentFontePad: string[], local: string, log?: boolean);
     validaProjeto(pathsProject: string[]): Promise<ValidaProjeto>;
-    criaPromises(pathsProject: string[], startTime?: any): Promise<void>;
+    criaPromises(pathsProject: string[], startTime?: any): Promise<unknown>;
     verificaDuplicados(): Promise<Duplicados>;
     contaErros(): any;
 }

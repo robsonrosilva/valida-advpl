@@ -37,83 +37,88 @@ export class ValidaProjeto {
       }
 
       console.log('criando');
-      this.criaPromises(pathsProject, startTime);
+      this.criaPromises(pathsProject, startTime).finally(() => {
+        resolve();
+      });
       console.log('esperando');
     });
   }
 
-  async criaPromises(pathsProject: string[], startTime?: any) {
-    let promisses: Promise<ValidaAdvpl>[] = [];
+  criaPromises(pathsProject: string[], startTime?: any) {
+    return new Promise((resolve: Function) => {
+      let promisses: Promise<ValidaAdvpl>[] = [];
 
-    // monta expressão para buscar arquivos
-    let globexp: any[] = [];
-    for (var i = 0; i < this.advplExtensions.length; i++) {
-      globexp.push(`**/*.${this.advplExtensions[i]}`);
-    }
-
-    let promissesGlobby = [];
-    for (var i = 0; i < pathsProject.length; i++) {
-      let pathProject: string = pathsProject[i];
-      // busca arquivos na pasta
-      // let files: string[] = await
-      promissesGlobby.push(
-        globby.default(globexp, {
-          cwd: pathProject,
-          caseSensitiveMatch: false
-        })
-      );
-    }
-
-    Promise.all(promissesGlobby).then((folder: any[]) => {
-      for (var x = 0; x < folder.length; x++) {
-        let files = folder[x];
-        for (var j = 0; j < files.length; j++) {
-          let fileName: string = files[j];
-          let valida: ValidaAdvpl = new ValidaAdvpl(
-            this.comentFontPad,
-            this.local,
-            this.log
-          );
-          valida.ownerDb = this.ownerDb;
-          valida.empresas = this.empresas;
-
-          if (this.log) {
-            console.log('Arquivo: ' + fileName);
-          }
-          let conteudo = fileSystem.readFileSync(
-            pathsProject + '\\' + fileName,
-            'latin1'
-          );
-
-          promisses.push(
-            valida.validacao(conteudo, pathsProject + '\\' + fileName)
-          );
-        }
+      // monta expressão para buscar arquivos
+      let globexp: any[] = [];
+      for (var i = 0; i < this.advplExtensions.length; i++) {
+        globexp.push(`**/*.${this.advplExtensions[i]}`);
       }
 
-      Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
-        for (var idx = 0; idx < validacoes.length; idx++) {
-          let validacao: ValidaAdvpl = validacoes[idx];
-          let itemProjeto = new ItemModel();
-          itemProjeto.content = validacao.conteudoFonte;
-          itemProjeto.errors = validacao.aErros;
-          itemProjeto.fonte = validacao.fonte;
+      let promissesGlobby = [];
+      for (var i = 0; i < pathsProject.length; i++) {
+        let pathProject: string = pathsProject[i];
+        // busca arquivos na pasta
+        // let files: string[] = await
+        promissesGlobby.push(
+          globby.default(globexp, {
+            cwd: pathProject,
+            caseSensitiveMatch: false
+          })
+        );
+      }
 
-          this.projeto.push(itemProjeto);
-        }
-        // verifica duplicados
-        this.verificaDuplicados().then(() => {
-          if (this.log && startTime) {
-            // calcula tempo gasto
-            let endTime: any = new Date();
-            let timeDiff = endTime - startTime; //in ms
-            // strip the ms
-            timeDiff /= 1000;
+      Promise.all(promissesGlobby).then((folder: any[]) => {
+        for (var x = 0; x < folder.length; x++) {
+          let files = folder[x];
+          for (var j = 0; j < files.length; j++) {
+            let fileName: string = files[j];
+            let valida: ValidaAdvpl = new ValidaAdvpl(
+              this.comentFontPad,
+              this.local,
+              this.log
+            );
+            valida.ownerDb = this.ownerDb;
+            valida.empresas = this.empresas;
 
-            // get seconds
-            let seconds = Math.round(timeDiff);
-            console.log('Terminou! (' + seconds + ' segundos)');
+            if (this.log) {
+              console.log('Arquivo: ' + fileName);
+            }
+            let conteudo = fileSystem.readFileSync(
+              pathsProject + '\\' + fileName,
+              'latin1'
+            );
+
+            promisses.push(
+              valida.validacao(conteudo, pathsProject + '\\' + fileName)
+            );
           }
+        }
+
+        Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
+          for (var idx = 0; idx < validacoes.length; idx++) {
+            let validacao: ValidaAdvpl = validacoes[idx];
+            let itemProjeto = new ItemModel();
+            itemProjeto.content = validacao.conteudoFonte;
+            itemProjeto.errors = validacao.aErros;
+            itemProjeto.fonte = validacao.fonte;
+
+            this.projeto.push(itemProjeto);
+          }
+          // verifica duplicados
+          this.verificaDuplicados().then(() => {
+            if (this.log && startTime) {
+              // calcula tempo gasto
+              let endTime: any = new Date();
+              let timeDiff = endTime - startTime; //in ms
+              // strip the ms
+              timeDiff /= 1000;
+
+              // get seconds
+              let seconds = Math.round(timeDiff);
+              console.log('Terminou! (' + seconds + ' segundos)');
+              resolve();
+            }
+          });
         });
       });
     });
