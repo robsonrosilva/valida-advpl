@@ -218,7 +218,9 @@ export class ValidaAdvpl {
                 linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
                 firstWord === 'CLASS' ||
                 linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
-                firstWord === 'WSSERVICE'
+                firstWord === 'WSSERVICE' ||
+                firstWord === 'WSRESTFUL' ||
+                firstWord === 'WSSTRUCT'
               ) {
                 //reseta todas as ariáveis de controle pois está fora de qualquer função
                 cBeginSql = false;
