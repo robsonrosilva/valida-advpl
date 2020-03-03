@@ -149,6 +149,7 @@ export class ValidaAdvpl {
             //Remove espaços ou tabulações seguidas
             linhaClean = linhaClean.replace(/\t/g, ' ');
             linhaClean = linhaClean.replace(/\:\=/g, ' :=');
+            linhaClean = linhaClean.replace(/\r/g, '');
             let conteudos: string[] = linhaClean.split(' ');
             linhaClean = '';
             for (const key in conteudos) {
@@ -180,7 +181,7 @@ export class ValidaAdvpl {
                   )
                   .split('(')[0];
                 //verifica se é um função e adiciona no array
-                funcoes.push([nomeFuncao, key]);
+                funcoes.push([nomeFuncao.trim(), key]);
                 //verifica o TIPO
                 if (
                   linhaClean.match(
@@ -217,7 +218,7 @@ export class ValidaAdvpl {
                 linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
                 firstWord === 'CLASS' ||
                 linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
-                firstWord === 'WSSERVICE\\ '
+                firstWord === 'WSSERVICE'
               ) {
                 //reseta todas as ariáveis de controle pois está fora de qualquer função
                 cBeginSql = false;
