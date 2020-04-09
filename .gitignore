@@ -5,3 +5,4 @@ out
 *.tgz
 package-lock.json
 .tmp
+lib/*

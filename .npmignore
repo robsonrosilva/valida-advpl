@@ -1,0 +1,12 @@
+node_modules
+.vscode
+src
+test
+.vscode-test/
+*.vsix
+*.tgz
+package-lock.json
+.tmp
+/test/out/**/*.html
+.gitlab-ci.yml
+tsconfig.json
