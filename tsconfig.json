@@ -6,10 +6,11 @@
     "declaration": true,
     "lib": ["es6"],
     "sourceMap": true,
-    "rootDir": "./src",
+    "rootDir": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
   "exclude": ["node_modules", "lib"],
+  "include": ["package.json", "src/*"],
   "compileOnSave": true
 }

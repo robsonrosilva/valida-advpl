@@ -1,7 +1,7 @@
 const fileSystem = require('file-system');
 let mocha = require('mocha');
 var describe = mocha.describe;
-let validaAdvpl = require('../lib/validaAdvpl');
+let validaAdvpl = require('../lib/src/validaAdvpl');
 let directoryPath = __dirname + '\\files';
 let assert = require('assert');
 let objeto = new validaAdvpl.ValidaAdvpl([]);
@@ -11,11 +11,11 @@ let conteudo;
 objeto.ownerDb = ['PROTHEUS'];
 objeto.empresas = ['01'];
 
-describe('Valida arquivo com erros', function() {
+describe('Valida arquivo com erros', function () {
   this.timeout(2000000);
-  describe('Confere erros encontrados', function() {
+  describe('Confere erros encontrados', function () {
     this.timeout(2000000);
-    it('Número de erros de código', async function() {
+    it('Número de erros de código', async function () {
       this.timeout(2000000);
       this.enableTimeouts(false);
 
@@ -52,11 +52,11 @@ describe('Valida arquivo com erros', function() {
   });
 });
 
-describe('Valida arquivo sem erros', function() {
+describe('Valida arquivo sem erros', function () {
   this.timeout(2000000);
-  describe('Confere erros encontrados', function() {
+  describe('Confere erros encontrados', function () {
     this.timeout(2000000);
-    it('Número de erros de código', async function() {
+    it('Número de erros de código', async function () {
       this.timeout(2000000);
       this.enableTimeouts(false);
 
@@ -93,11 +93,11 @@ describe('Valida arquivo sem erros', function() {
   });
 });
 
-describe('Valida arquivo REST', function() {
+describe('Valida arquivo REST', function () {
   this.timeout(2000000);
-  describe('Confere erros encontrados', function() {
+  describe('Confere erros encontrados', function () {
     this.timeout(2000000);
-    it('Número de erros de código', async function() {
+    it('Número de erros de código', async function () {
       this.timeout(2000000);
       this.enableTimeouts(false);
 
@@ -131,11 +131,11 @@ describe('Valida arquivo REST', function() {
   });
 });
 
-describe('Valida arquivo WEBSRV', function() {
+describe('Valida arquivo WEBSRV', function () {
   this.timeout(2000000);
-  describe('Confere erros encontrados', function() {
+  describe('Confere erros encontrados', function () {
     this.timeout(2000000);
-    it('Número de erros de código', async function() {
+    it('Número de erros de código', async function () {
       this.timeout(2000000);
       this.enableTimeouts(false);
 
