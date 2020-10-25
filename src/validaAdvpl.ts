@@ -471,7 +471,7 @@ export class ValidaAdvpl {
                 );
               }
               //  FreeObj(self) validação 12.1.27 10/2020
-              if (linhaClean.match(/FreeObj(\s)*\((\s)*self(\s)*/)) {
+              if (linhaClean.match(/FREEOBJ(\s)*\((\s)*SELF(\s)*/)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
