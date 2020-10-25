@@ -108,7 +108,7 @@ export class ValidaAdvpl {
               linha
                 .replace(/\"+.+\"/, '')
                 .replace(/\'+.+\'/, '')
-                .search(/\/\*/) !== -1
+                .match(/\/\*/)
             ) {
               emComentario = true;
               linha = linha.split(/\/\*/)[0];
@@ -125,24 +125,19 @@ export class ValidaAdvpl {
             //não remove aspas quando for include
             linha = linha.split('//')[0];
             linhaClean = linha;
-            if (linha.match(/^(\s*)#INCLUDE/)) {
-              while (
-                linhaClean.match(/\"+.+\"/) ||
-                linhaClean.match(/\'+.+\'/)
+            while (linhaClean.match(/\"+.+\"/) || linhaClean.match(/\'+.+\'/)) {
+              let colunaDupla: number = linhaClean.search(/\"+.+\"/);
+              let colunaSimples: number = linhaClean.search(/\'+.+\'/);
+              //se a primeira for a dupla
+              if (
+                colunaDupla !== -1 &&
+                (colunaDupla < colunaSimples || colunaSimples === -1)
               ) {
-                let colunaDupla: number = linhaClean.search(/\"+.+\"/);
-                let colunaSimples: number = linhaClean.search(/\'+.+\'/);
-                //se a primeira for a dupla
-                if (
-                  colunaDupla !== -1 &&
-                  (colunaDupla < colunaSimples || colunaSimples === -1)
-                ) {
-                  let quebra: string[] = linhaClean.split('"');
-                  linhaClean = linhaClean.replace('"' + quebra[1] + '"', '');
-                } else {
-                  let quebra: string[] = linhaClean.split("'");
-                  linhaClean = linhaClean.replace("'" + quebra[1] + "'", '');
-                }
+                let quebra: string[] = linhaClean.split('"');
+                linhaClean = linhaClean.replace('"' + quebra[1] + '"', '');
+              } else {
+                let quebra: string[] = linhaClean.split("'");
+                linhaClean = linhaClean.replace("'" + quebra[1] + "'", '');
               }
             }
 
@@ -166,7 +161,7 @@ export class ValidaAdvpl {
               //verifica se é função e adiciona no array
               if (
                 linhaClean.match(
-                  /^(\s*)((user|static)(\ |\t)*)?(function)(\s+)(\w+)/i
+                  /^(\s*)((user|static)(\s)*)?(function)(\s+)(\w+)/i
                 )
               ) {
                 //reseta todas as ariáveis de controle pois está fora de qualquer função
@@ -175,18 +170,13 @@ export class ValidaAdvpl {
                 JoinQuery = false;
                 cSelect = false;
                 let nomeFuncao: string = linhaClean
-                  .replace(
-                    /^(\s*)((user|static)(\ |\t)*)?(function)(\ |\t)+/gi,
-                    ''
-                  )
+                  .replace(/^(\s*)((user|static)(\s)*)?(function)(\s)+/gi, '')
                   .split('(')[0];
                 //verifica se é um função e adiciona no array
                 funcoes.push([nomeFuncao.trim(), key]);
                 //verifica o TIPO
                 if (
-                  linhaClean.match(
-                    /^(\s*)((user)(\ |\t)*)?(function)(\s+)(\w+)/i
-                  )
+                  linhaClean.match(/^(\s*)((user)(\s)*)?(function)(\s+)(\w+)/i)
                 ) {
                   objeto.fonte.addFunction(
                     Tipos['User Function'],
@@ -195,7 +185,7 @@ export class ValidaAdvpl {
                   );
                 } else if (
                   linhaClean.match(
-                    /^(\s*)((static)(\ |\t)*)?(function)(\s+)(\w+)/i
+                    /^(\s*)((static)(\s)*)?(function)(\s+)(\w+)/i
                   )
                 ) {
                   //verifica se a primeira palavra é FUNCTION
@@ -215,9 +205,9 @@ export class ValidaAdvpl {
               }
               //Verifica se é CLASSE ou WEBSERVICE
               if (
-                linhaClean.search('METHOD\\ .*?CLASS') !== -1 ||
+                linhaClean.match('METHOD\\ .*?CLASS') ||
                 firstWord === 'CLASS' ||
-                linhaClean.search('WSMETHOD.*?WSSERVICE') !== -1 ||
+                linhaClean.match('WSMETHOD.*?WSSERVICE') ||
                 firstWord === 'WSSERVICE' ||
                 firstWord === 'WSRESTFUL' ||
                 firstWord === 'WSSTRUCT'
@@ -280,7 +270,7 @@ export class ValidaAdvpl {
               }
 
               //Verifica se adicionou o include TOTVS.CH
-              if (linha.search(/^(\s*)#INCLUDE/i) !== -1) {
+              if (linha.match(/^(\s*)#INCLUDE/i)) {
                 //REMOVE as aspas a palavra #include e os espacos e tabulações
                 objeto.includes.push({
                   include: linha
@@ -292,20 +282,24 @@ export class ValidaAdvpl {
                   linha: parseInt(key),
                 });
               }
-              if (linhaClean.search(/^(\s*)BEGIN(\s*)ALIAS/) !== -1) {
+              if (linhaClean.match(/^(\s*)BEGIN(\s*)ALIAS/)) {
                 cBeginSql = true;
               }
-              if (
-                linha.match(/(\ |\t|\'|\"|)+(SELECT|DELETE|UPDATE)(\ |\t)+/)
-              ) {
+              if (linha.match(/(\s|\'|\"|)+(SELECT|DELETE|UPDATE)(\s)+/)) {
                 cSelect = true;
               }
               if (
                 !cBeginSql &&
-                (linha.search(
-                  /(\ |\t|\'|\"|)+DBUSEAREA+(\ |\t|)+\(+.+TOPCONN+.+TCGENQRY/
-                ) !== -1 ||
-                  linhaClean.search(/TCQUERY+(\ |\t)/) !== -1)
+                ((linha.match(
+                  /(\s|\'|\"|)+DBUSEAREA+(\s)*\(+.+TOPCONN+.+TCGENQRY/
+                ) &&
+                  !linha
+                    .replace(
+                      /(\s|\'|\"|)DBUSEAREA(\s)*\(.*,(\s|\'|\")*(.*)(\s|\'|\")/,
+                      '$4'
+                    )
+                    .match(/TOPCONN/)) ||
+                  linhaClean.match(/TCQUERY+(\s)/))
               ) {
                 objeto.aErros.push(
                   new Erro(
@@ -318,9 +312,7 @@ export class ValidaAdvpl {
                 FromQuery = false;
                 cSelect = false;
               }
-              if (
-                linha.search(/(\ |\t|\'|\")+DELETE+(\ |\t)+FROM+(\ |\t)/) !== -1
-              ) {
+              if (linha.match(/(\s|\'|\")+DELETE+(\s)+FROM+(\s)/)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
@@ -330,7 +322,7 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (linhaClean.search(/MSGBOX\(/) !== -1) {
+              if (linhaClean.match(/MSGBOX\(/)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
@@ -340,7 +332,7 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (linha.match(/GETMV(\ |\t|\()+(\"|\')+MV_FOLMES+(\"|\')/gi)) {
+              if (linha.match(/GETMV(\s|\()+(\"|\')+MV_FOLMES+(\"|\')/gi)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
@@ -350,12 +342,12 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (linha.search('\\<\\<\\<\\<\\<\\<\\<\\ HEAD') !== -1) {
+              if (linha.match('\\<\\<\\<\\<\\<\\<\\<\\ HEAD')) {
                 //Verifica linha onde terminou o conflito
                 let nFim: string = key;
                 for (var key2 in linhas) {
                   if (
-                    linhas[key2].search('\\>\\>\\>\\>\\>\\>\\>') !== -1 &&
+                    linhas[key2].match('\\>\\>\\>\\>\\>\\>\\>') &&
                     nFim === key &&
                     key2 > key
                   ) {
@@ -372,8 +364,8 @@ export class ValidaAdvpl {
                 );
               }
               if (
-                linha.search(/(\ |\t|\'|\"|)+SELECT+(\ |\t)/) !== -1 &&
-                linha.search('\\ \\*\\ ') !== -1
+                linha.match(/(\s|\'|\"|)+SELECT+(\s)/) &&
+                linha.match('\\ \\*\\ ')
               ) {
                 objeto.aErros.push(
                   new Erro(
@@ -384,10 +376,7 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (
-                linha.search('CHR\\(13\\)') !== -1 &&
-                linha.search('CHR\\(10\\)') !== -1
-              ) {
+              if (linha.match('CHR\\(13\\)') && linha.match('CHR\\(10\\)')) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
@@ -397,16 +386,16 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (cSelect && linha.search('FROM') !== -1) {
+              if (cSelect && linha.match('FROM')) {
                 FromQuery = true;
               }
-              if (cSelect && FromQuery && linha.search('JOIN') !== -1) {
+              if (cSelect && FromQuery && linha.match('JOIN')) {
                 JoinQuery = true;
               }
               if (
-                linha.search('ENDSQL') !== -1 ||
-                linha.search('WHERE') !== -1 ||
-                linha.search('TCQUERY') !== -1
+                linha.match('ENDSQL') ||
+                linha.match('WHERE') ||
+                linha.match('TCQUERY')
               ) {
                 FromQuery = false;
                 cSelect = false;
@@ -414,7 +403,7 @@ export class ValidaAdvpl {
               //Implementação para aceitar vários bancos de dados
               for (var idb = 0; idb < objeto.ownerDb.length; idb++) {
                 let banco: string = objeto.ownerDb[idb];
-                if (cSelect && FromQuery && linha.search(banco) !== -1) {
+                if (cSelect && FromQuery && linha.match(banco)) {
                   objeto.aErros.push(
                     new Erro(
                       parseInt(key),
@@ -429,8 +418,8 @@ export class ValidaAdvpl {
               }
               if (
                 cSelect &&
-                (FromQuery || JoinQuery || linha.search('SET') !== -1) &&
-                linha.search('exp:cTable') === -1
+                (FromQuery || JoinQuery || linha.match('SET')) &&
+                linha.match('exp:cTable')
               ) {
                 //procura códigos de empresas nas queryes
                 for (var idb = 0; idb < objeto.empresas.length; idb++) {
@@ -444,10 +433,7 @@ export class ValidaAdvpl {
                     .split(' ');
                   for (var idb2 = 0; idb2 < palavras.length; idb2++) {
                     let palavra: string = palavras[idb2];
-                    if (
-                      palavra.search(empresa + '0') !== -1 &&
-                      palavra.length === 6
-                    ) {
+                    if (palavra.match(empresa + '0') && palavra.length === 6) {
                       objeto.aErros.push(
                         new Erro(
                           parseInt(key),
@@ -460,10 +446,10 @@ export class ValidaAdvpl {
                   }
                 }
               }
-              if (cSelect && JoinQuery && linha.search('ON') !== -1) {
+              if (cSelect && JoinQuery && linha.match('ON')) {
                 JoinQuery = false;
               }
-              if (linhaClean.search(/CONOUT(\ |\t)*\(/) !== -1) {
+              if (linhaClean.match(/CONOUT(\s)*\(/)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
@@ -474,12 +460,23 @@ export class ValidaAdvpl {
                 );
               }
               //  PUTSX1
-              if (linhaClean.search(/PUTSX1(\ |\t)*\(/) !== -1) {
+              if (linhaClean.match(/PUTSX1(\s)*\(/)) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.PutSX1', objeto.local),
+                    Severity.Error
+                  )
+                );
+              }
+              //  FreeObj(self) validação 12.1.27 10/2020
+              if (linhaClean.match(/FreeObj(\s)*\((\s)*self(\s)*/)) {
+                objeto.aErros.push(
+                  new Erro(
+                    parseInt(key),
+                    parseInt(key),
+                    traduz('validaAdvpl.freeObjSelf', objeto.local),
                     Severity.Error
                   )
                 );
@@ -495,7 +492,7 @@ export class ValidaAdvpl {
                   .substring(posicaoDic + 1)
                   .split(' ')[0]
                   .split('\t')[0]
-                  .search(/\(/) === -1
+                  .match(/\(/)
               ) {
                 objeto.aErros.push(
                   new Erro(
@@ -507,12 +504,16 @@ export class ValidaAdvpl {
                 );
               }
               if (
-                linhaClean.search(
-                  /(,| |\t||\()*(MSFILE|MSFILE|DBCREATE|DBUSEAREA|CRIATRAB)+( \(|\t\(|\()+/gim
-                ) !== -1 ||
-                linhaClean.search(
+                linhaClean.match(
+                  /(,| |\t||\()*(MSFILE|MSFILE|DBCREATE|CRIATRAB)+( \(|\t\(|\()+/gim
+                ) ||
+                linhaClean.match(
                   /( |)*(MSCOPYFILE|MSERASE|COPY TO)+( |\t)+/gim
-                ) !== -1
+                ) ||
+                (linhaClean.match(
+                  /(,| |\t||\()*(DBUSEAREA)+( \(|\t\(|\()+/gim
+                ) &&
+                  !linha.match(/TOPCONN/))
               ) {
                 objeto.aErros.push(
                   new Erro(
@@ -525,14 +526,14 @@ export class ValidaAdvpl {
               }
               //recomendação para melhorar identificação de problemas em queryes
               if (
-                (linha.match(/(\ |\t|)+SELECT+(\ |\t)/) ||
-                  linha.match(/(\ |\t|)+DELETE+(\ |\t)/) ||
-                  linha.match(/(\ |\t|)+UPDATE+(\ |\t)/) ||
-                  linha.match(/(\ |\t|)+JOIN+(\ |\t)/)) &&
-                (linha.match(/(\ |\t|)+FROM+(\ |\t)/) ||
-                  linha.match(/(\ |\t|)+ON+(\ |\t)/) ||
-                  linha.match(/(\ |\t|)+WHERE+(\ |\t)/)) &&
-                linha.search(/(\ |\t)+TCSQLEXEC+\(/) === -1
+                (linha.match(/(\s|)+SELECT+(\s)/) ||
+                  linha.match(/(\s|)+DELETE+(\s)/) ||
+                  linha.match(/(\s|)+UPDATE+(\s)/) ||
+                  linha.match(/(\s|)+JOIN+(\s)/)) &&
+                (linha.match(/(\s|)+FROM+(\s)/) ||
+                  linha.match(/(\s|)+ON+(\s)/) ||
+                  linha.match(/(\s|)+WHERE+(\s)/)) &&
+                linha.match(/(\s)+TCSQLEXEC+\(/)
               ) {
                 //verifica o caracter anterior tem que ser ou ESPACO ou ' ou " ou nada
                 let itens1: string[] = ['FROM', 'ON', 'WHERE'];

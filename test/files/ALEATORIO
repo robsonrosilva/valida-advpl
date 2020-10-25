@@ -73,6 +73,7 @@ WSMETHOD GetPeriodos WSRECEIVE AnoInicio, AnoFinal, Matricula, Limite WSSEND aPe
     Local cMat      := ::Matricula
     Local cAliasSRH := getNextAlias()
 	Local cRandom 	:= cValToChar(Randomize( 0, 9999999 ))
+    Local cAliasSRH := "COPY TO "
 
 	U_WsLog("PXGPEW06.prw","Iniciando GetPeriodos... SUCESSO", cRandom)
 
