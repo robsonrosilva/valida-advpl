@@ -83,14 +83,17 @@ export class ValidaProjeto {
             if (this.log) {
               console.log('Arquivo: ' + fileName);
             }
-            let conteudo = fileSystem.readFileSync(
-              pathsProject + '\\' + fileName,
-              'latin1'
-            );
-
-            promisses.push(
-              valida.validacao(conteudo, pathsProject + '\\' + fileName)
-            );
+            try {
+              let conteudo = fileSystem.readFileSync(
+                pathsProject + '\\' + fileName,
+                'latin1'
+              );
+              promisses.push(
+                valida.validacao(conteudo, pathsProject + '\\' + fileName)
+              );
+            } catch (error) {
+              console.log(`Erro na abertura do arquivo ${fileName}!\n${error}`);
+            }
           }
         }
 
