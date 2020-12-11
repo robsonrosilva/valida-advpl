@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "5.2.3",
+  "version": "5.2.4",
   "description": "Extension of ADVPL code analysis.",
   "types": "lib/src/index.d.ts",
   "main": "lib/src/index.js",

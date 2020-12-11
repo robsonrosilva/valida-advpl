@@ -40,7 +40,7 @@ let comentario = [
   'Projeto\\ \\:',
   'Modulo\\ \\ \\:',
   'Fonte\\ \\ \\ \\:',
-  'Objetivo\\:'
+  'Objetivo\\:',
 ];
 
 //seta variáveis
@@ -49,6 +49,6 @@ objeto.empresas = ['01'];
 objeto.comentFontPad = comentario;
 
 objeto.validaProjeto([
-  'D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\protheus'
+  'D:\\rogerio\\Dropbox\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\protheus',
 ]);
 ```

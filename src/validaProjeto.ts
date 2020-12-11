@@ -2,10 +2,23 @@ import { Erro, Severity } from './models/Erro';
 import { Duplicados } from './models/Duplicados';
 import { Fonte, Funcao, Tipos } from './fonte';
 import { ItemModel } from './models/ItemProject';
+import { ProjectStatus } from './models/projectStatus';
 import * as globby from 'globby';
 import * as fileSystem from 'fs';
 import { ValidaAdvpl } from './validaAdvpl';
 import { version } from './../package.json';
+
+function PrintTempo(startTime): number {
+  // calcula tempo gasto
+  let endTime: any = new Date();
+  let timeDiff = endTime - startTime; //in ms
+  // strip the ms
+  timeDiff /= 1000;
+
+  // get seconds
+  let seconds = Math.round(timeDiff);
+  return seconds;
+}
 
 export class ValidaProjeto {
   public projeto: ItemModel[];
@@ -27,7 +40,10 @@ export class ValidaProjeto {
     this.ownerDb = [];
     this.empresas = [];
   }
-  public validaProjeto(pathsProject: string[]): Promise<ValidaProjeto> {
+  public validaProjeto(
+    pathsProject: string[],
+    status: ProjectStatus = new ProjectStatus()
+  ): Promise<ValidaProjeto> {
     return new Promise((resolve: Function) => {
       this.projeto = [];
       let startTime: any = new Date();
@@ -37,14 +53,18 @@ export class ValidaProjeto {
       }
 
       console.log('criando');
-      this.criaPromises(pathsProject, startTime).finally(() => {
+      this.criaPromises(pathsProject, startTime, status).finally(() => {
         resolve();
       });
       console.log('esperando');
     });
   }
 
-  criaPromises(pathsProject: string[], startTime?: any) {
+  criaPromises(
+    pathsProject: string[],
+    startTime?: any,
+    status: ProjectStatus = new ProjectStatus()
+  ) {
     return new Promise((resolve: Function) => {
       let promisses: Promise<ValidaAdvpl>[] = [];
 
@@ -54,6 +74,9 @@ export class ValidaProjeto {
         globexp.push(`**/*.${this.advplExtensions[i]}`);
       }
 
+      console.log(
+        'procurando arquivos nas pastas(' + PrintTempo(startTime) + ')'
+      );
       let promissesGlobby = [];
       for (var i = 0; i < pathsProject.length; i++) {
         let pathProject: string = pathsProject[i];
@@ -68,9 +91,12 @@ export class ValidaProjeto {
       }
 
       Promise.all(promissesGlobby).then((folder: any[]) => {
+        console.log('começando a validação(' + PrintTempo(startTime) + ')');
         for (var x = 0; x < folder.length; x++) {
           let files = folder[x];
+          status._total = files.length;
           for (var j = 0; j < files.length; j++) {
+            status._atual = j;
             let fileName: string = files[j];
             let valida: ValidaAdvpl = new ValidaAdvpl(
               this.comentFontPad,
@@ -88,9 +114,11 @@ export class ValidaProjeto {
                 pathsProject + '\\' + fileName,
                 'latin1'
               );
-              promisses.push(
-                valida.validacao(conteudo, pathsProject + '\\' + fileName)
+              const filePromisse = valida.validacao(
+                conteudo,
+                pathsProject + '\\' + fileName
               );
+              promisses.push(filePromisse);
             } catch (error) {
               console.log(`Erro na abertura do arquivo ${fileName}!\n${error}`);
             }
@@ -98,6 +126,7 @@ export class ValidaProjeto {
         }
 
         Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
+          console.log('verificando duplicados (' + PrintTempo(startTime) + ')');
           for (var idx = 0; idx < validacoes.length; idx++) {
             let validacao: ValidaAdvpl = validacoes[idx];
             let itemProjeto = new ItemModel();
@@ -110,15 +139,7 @@ export class ValidaProjeto {
           // verifica duplicados
           this.verificaDuplicados().then(() => {
             if (this.log && startTime) {
-              // calcula tempo gasto
-              let endTime: any = new Date();
-              let timeDiff = endTime - startTime; //in ms
-              // strip the ms
-              timeDiff /= 1000;
-
-              // get seconds
-              let seconds = Math.round(timeDiff);
-              console.log('Terminou! (' + seconds + ' segundos)');
+              console.log('Terminou! (' + PrintTempo(startTime) + ' segundos)');
               resolve();
             }
           });
