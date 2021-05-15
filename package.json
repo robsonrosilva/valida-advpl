@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "5.2.4",
+  "version": "5.2.6",
   "description": "Extension of ADVPL code analysis.",
   "types": "lib/src/index.d.ts",
   "main": "lib/src/index.js",
@@ -23,7 +23,7 @@
     "asserts": "^4.0.2",
     "chai": "^4.2.0",
     "cpy-cli": "^3.1.1",
-    "mocha": "^5.2.0",
+    "mocha": "^8.3.1",
     "typescript": "^3.9.7"
   }
 }

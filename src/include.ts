@@ -26,42 +26,42 @@ export class Include {
     //AP5MAIL.CH
     this.includeExpressoes.push({
       expressoes: [
-        /CONNECT+(\ |\t)+SMTP+(\ |\t)+SERVER/gim,
-        /CONNECT+(\ |\t)+POP+(\ |\t)+SERVER/gim,
-        /DISCONNECT+(\ |\t)+SMTP+(\ |\t)+SERVER/gim,
-        /DISCONNECT+(\ |\t)+POP+(\ |\t)+SERVER/gim,
-        /POP+(\ |\t)+MESSAGE+(\ |\t)+COUNT/gim,
-        /SEND+(\ |\t)+MAIL+(\ |\t)+FROM/gim,
-        /GET+(\ |\t)+MAIL+(\ |\t)+ERROR/gim,
-        /RECEIVE+(\ |\t)+MAIL+(\ |\t)+MESSAGE/gim
+        /CONNECT(\ |\t)+SMTP(\ |\t)+SERVER/gim,
+        /CONNECT(\ |\t)+POP(\ |\t)+SERVER/gim,
+        /DISCONNECT(\ |\t)+SMTP(\ |\t)+SERVER/gim,
+        /DISCONNECT(\ |\t)+POP(\ |\t)+SERVER/gim,
+        /POP(\ |\t)+MESSAGE(\ |\t)+COUNT/gim,
+        /SEND(\ |\t)+MAIL(\ |\t)+FROM/gim,
+        /GET(\ |\t)+MAIL(\ |\t)+ERROR/gim,
+        /RECEIVE(\ |\t)+MAIL(\ |\t)+MESSAGE/gim,
       ],
       include: 'AP5MAIL.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //APVISIO.CH
 
     //APWEB.CH
     this.includeExpressoes.push({
       expressoes: [
-        /APWEB+(\ |\t)+INIT+(\ |\t)+.+(\ |\t)+USING/gim,
-        /APWEB+(\ |\t)+END/gim
+        /APWEB+(\ |\t)+INIT(\ |\t)+.+(\ |\t)+USING/gim,
+        /APWEB+(\ |\t)+END/gim,
       ],
       include: 'APWEB.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //APWEBEX.CH
     this.includeExpressoes.push({
       expressoes: [
-        /OPEN+(\ |\t)+QUERY+(\ |\t)+ALIAS/gim,
+        /OPEN+(\ |\t)+QUERY(\ |\t)+ALIAS/gim,
         /CLOSE+(\ |\t)+QUERY/gim,
-        /WEB+(\ |\t)+EXTENDED+(\ |\t)+INIT/gim,
-        /WEB+(\ |\t)+EXTENDED+(\ |\t)+END/gim
+        /WEB+(\ |\t)+EXTENDED(\ |\t)+INIT/gim,
+        /WEB+(\ |\t)+EXTENDED(\ |\t)+END/gim,
       ],
       include: 'APWEBEX.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //APWEBSRV.CH
     this.includeExpressoes.push({
@@ -75,22 +75,22 @@ export class Include {
         /(\ |\t|\(|\,)+BYREF/gim,
         /(^|\t|\ )+WSSTRUCT/gim,
         /(^|\t|\ )+WSSERVICE/gim,
-        /(^|\t|\ )+WSCLIENT/gim
+        /(^|\t|\ )+WSCLIENT/gim,
       ],
       include: 'APWEBSRV.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //APWIZARD.CH
     this.includeExpressoes.push({
       expressoes: [
         /DEFINE+(\ |\t)+WIZARD/gim,
         /ACTIVATE+(\ |\t)+WIZARD/gim,
-        /CREATE+(\ |\t)+PANEL/gim
+        /CREATE+(\ |\t)+PANEL/gim,
       ],
       include: 'APWIZARD.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //AVPRINT.CH
 
@@ -110,52 +110,52 @@ export class Include {
       expressoes: [/TCQUERY+(\ |\t)/gim],
       include: 'TOPCONN.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //TBICONN.CH
     this.includeExpressoes.push({
       expressoes: [
-        /CREATE+(\ |\t)+RPCCONN+(\ |\t)/gim,
-        /CLOSE+(\ |\t)+RPCCONN+(\ |\t)/gim,
-        /PREPARE+(\ |\t)+ENVIRONMENT+(\ |\t)/gim,
-        /RESET+(\ |\t)+ENVIRONMENT+(\ |\t)/gim,
-        /OPEN+(\ |\t)+REMOTE+(\ |\t)+TRANSACTION+(\ |\t)/gim,
-        /CLOSE+(\ |\t)+REMOTE+(\ |\t)+TRANSACTION+(\ |\t)/gim,
-        /CALLPROC+(\ |\t)+IN+(\ |\t)/gim,
-        /OPEN+(\ |\t)+REMOTE+(\ |\t)+TABLES+(\ |\t)/gim
+        /CREATE(\ |\t)+RPCCONN(\ |\t)/gim,
+        /CLOSE(\ |\t)+RPCCONN(\ |\t)/gim,
+        /PREPARE(\ |\t)+ENVIRONMENT(\ |\t)/gim,
+        /RESET(\ |\t)+ENVIRONMENT(\ |\t)/gim,
+        /OPEN(\ |\t)+REMOTE(\ |\t)+TRANSACTION+(\ |\t)/gim,
+        /CLOSE(\ |\t)+REMOTE(\ |\t)+TRANSACTION+(\ |\t)/gim,
+        /CALLPROC(\ |\t)+IN(\ |\t)/gim,
+        /OPEN(\ |\t)+REMOTE(\ |\t)+TABLES(\ |\t)/gim,
       ],
       include: 'TBICONN.CH',
       precisa: false,
-      includes: ['AP5MAIL.CH']
+      includes: ['AP5MAIL.CH'],
     });
     //REPORT.CH
     this.includeExpressoes.push({
       expressoes: [
-        /DEFINE+(\ |\t)+REPORT+(\ |\t)+.+(\ |\t)+NAME+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+SECTION+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+CELL+(\ |\t)+NAME+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+BREAK+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+FUNCTION+(\ |\t)+FROM+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+COLLECTION+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF+(\ |\t)+/gim,
-        /DEFINE+(\ |\t)+HEADER+(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+CELL+(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim,
-        /DEFINE+(\ |\t)+CELL+(\ |\t)+HEADER+(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF+(\ |\t)/gim
+        /DEFINE+(\ |\t)+REPORT(\ |\t)+.+(\ |\t)+NAME(\ |\t)/gim,
+        /DEFINE+(\ |\t)+SECTION(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+CELL(\ |\t)+NAME(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+BREAK(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+FUNCTION(\ |\t)+FROM(\ |\t)/gim,
+        /DEFINE+(\ |\t)+COLLECTION(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+BORDER(\ |\t)+.+(\ |\t)+OF(\ |\t)+/gim,
+        /DEFINE+(\ |\t)+HEADER(\ |\t)+BORDER+(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+CELL(\ |\t)+BORDER(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
+        /DEFINE+(\ |\t)+CELL(\ |\t)+HEADER(\ |\t)+BORDER(\ |\t)+.+(\ |\t)+OF(\ |\t)/gim,
       ],
       include: 'REPORT.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //RESTFUL.CH
     this.includeExpressoes.push({
       expressoes: [
         /(^|\t|\ )+WSRESTFUL/gim,
         /(^|\t|\ )+WADL/gim,
-        /(^|\t|\ )+WADLMETHOD/gim
+        /(^|\t|\ )+WADLMETHOD/gim,
       ],
       include: 'RESTFUL.CH',
       precisa: false,
-      includes: ['APWEBSRV.CH']
+      includes: ['APWEBSRV.CH'],
     });
     //FILEIO.CH
     this.includeExpressoes.push({
@@ -181,11 +181,11 @@ export class Include {
         /(\ |\t|\(|\,)+FD_BINARY/gim,
         /(\ |\t|\(|\,)+FD_COOKED/gim,
         /(\ |\t|\(|\,)+FD_TEXT/gim,
-        /(\ |\t|\(|\,)+FD_ASCII/gim
+        /(\ |\t|\(|\,)+FD_ASCII/gim,
       ],
       include: 'FILEIO.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //TBICODE.CH
     this.includeExpressoes.push({
@@ -197,11 +197,11 @@ export class Include {
         /(\ |\t|\(|\,)+RPC_READ_COTACAO/gim,
         /(\ |\t|\(|\,)+RPC_SEND_ORCAMENTO/gim,
         /(\ |\t|\(|\,)+RPC_ESTORNA_ORCAMENTO/gim,
-        /(\ |\t|\(|\,)+RPC_READ_ORCAMENTO/gim
+        /(\ |\t|\(|\,)+RPC_READ_ORCAMENTO/gim,
       ],
       include: 'TBICODE.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //PARMTYPE.CH
     this.includeExpressoes.push({
@@ -210,11 +210,11 @@ export class Include {
         /(\ |\t|\(|\,)+CLASSEXCEPTION/gim,
         /(\ |\t|\(|\,)+CLASSPARAMEXCEPTION/gim,
         /(\ |\t|\(|\,)+BLOCKPARAMEXCEPTION/gim,
-        /(\ |\t|\(|\,)+PARAMTYPE/gim
+        /(\ |\t|\(|\,)+PARAMTYPE/gim,
       ],
       include: 'PARMTYPE.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //FWMVCDEF.CH
     this.includeExpressoes.push({
@@ -254,21 +254,21 @@ export class Include {
         /(\ |\t|\(|\,)+OP_EXCLUIR/gim,
         /(\ |\t|\(|\,)+OP_IMPRIMIR/gim,
         /(\ |\t|\(|\,)+OP_COPIA/gim,
-        /(^|\t|\ )+ADD+(\ |\t)+FWTOOLBUTTON/gim,
-        /(^|\t|\ )+NEW+(\ |\t)+MODEL/gim,
-        /(^|\t|\ )+PUBLISH+(\ |\t)+MODEL+(\ |\t)+REST+(\ |\t)+NAME/gim,
-        /(^|\t|\ )+ADD+(\ |\t)+OPTION+(\ |\t)+(.|)+(\ |\t|)+TITLE+(\ |\t|)+(.|)+(\ |\t|)+ACTION+(\ |\t)+(.|)+(\ |\t|)+OPERATION+(\ |\t)+(.|)+(\ |\t)+ACCESS/gim
+        /(^|\t|\ )+ADD(\ |\t)+FWTOOLBUTTON/gim,
+        /(^|\t|\ )+NEW(\ |\t)+MODEL/gim,
+        /(^|\t|\ )+PUBLISH(\ |\t)+(USER(\ |\t)+)*MODEL(\ |\t)+REST(\ |\t)+NAME/gim,
+        /(^|\t|\ )+ADD(\ |\t)+OPTION(\ |\t)+(.|)+(\ |\t|)+TITLE(\ |\t|)+(.|)+(\ |\t|)+ACTION(\ |\t)+(.|)+(\ |\t|)+OPERATION(\ |\t)+(.|)+(\ |\t)+ACCESS/gim,
       ],
       include: 'FWMVCDEF.CH',
       precisa: false,
-      includes: ['PARMTYPE.CH', 'FWMBROWSE.CH']
+      includes: ['PARMTYPE.CH', 'FWMBROWSE.CH'],
     });
     //AARRAY.CH
     this.includeExpressoes.push({
       expressoes: [/\[+(\ |\t|)+\#+(.|)+\]/gim],
       include: 'AARRAY.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //RPTDEF.CH
     this.includeExpressoes.push({
@@ -355,11 +355,11 @@ export class Include {
         /(\ |\t|\(|\,)+PPERG4/gim,
         /(\ |\t|\(|\,)+PPERG5/gim,
         /(\ |\t|\(|\,)+PPYME/gim,
-        /(\ |\t|\(|\,)+PPICTURE/gim
+        /(\ |\t|\(|\,)+PPICTURE/gim,
       ],
       include: 'RPTDEF.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //FWPRINTSETUP.CH
     this.includeExpressoes.push({
@@ -388,11 +388,11 @@ export class Include {
         /(\ |\t|\(|\,)+PD_MARGIN_RIGHT/gim,
         /(\ |\t|\(|\,)+PD_MARGIN_BOTTOM/gim,
         /(\ |\t|\(|\,)+PD_OK/gim,
-        /(\ |\t|\(|\,)+PD_CANCEL/gim
+        /(\ |\t|\(|\,)+PD_CANCEL/gim,
       ],
       include: 'FWPRINTSETUP.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //MSOLE.CH
     this.includeExpressoes.push({
@@ -417,21 +417,21 @@ export class Include {
         /(\ |\t|\(|\,)+OLEWDFORMATUNICODETEXT/gim,
         /(\ |\t|\(|\,)+WDFORMATHTML/gim,
         /(\ |\t|\(|\,)+WDFORMATDOCUMENTDEFAULT/gim,
-        /(\ |\t|\(|\,)+OLEWDFORMATHTML/gim
+        /(\ |\t|\(|\,)+OLEWDFORMATHTML/gim,
       ],
       include: 'MSOLE.CH',
       precisa: false,
-      includes: []
+      includes: [],
     });
     //RWMAKE.CH
     this.includeExpressoes.push({
       expressoes: [
-        /@+(\ |\t)+.+\,+.+(\ |\t)+TO+(\ |\t)+.+\,+.+(\ |\t)+DIALOG/gim,
-        /@+(\ |\t)+.+\,+.+(\ |\t)+BMPBUTTON/gim
+        /@+(\ |\t)+.+\,+.+(\ |\t)+TO(\ |\t)+.+\,+.+(\ |\t)+DIALOG/gim,
+        /@+(\ |\t)+.+\,+.+(\ |\t)+BMPBUTTON/gim,
       ],
       include: 'RWMAKE.CH',
       precisa: false,
-      includes: ['STDWIN.CH']
+      includes: ['STDWIN.CH'],
     });
   }
   public valida(objetoValidacao: ValidaAdvpl, conteudoFile: String) {
@@ -475,7 +475,7 @@ export class Include {
 
       //Verifica se há o mesmo include em uma linha diferente do mesmo fonte
       if (
-        objetoValidacao.includes.findIndex(function(x: any) {
+        objetoValidacao.includes.findIndex(function (x: any) {
           return x.include === include.include && x.linha !== include.linha;
         }) !== -1
       ) {
@@ -511,9 +511,10 @@ export class Include {
     // monta lista de includes com os contidos
     let includesFonteAll: string[] = includesFonte;
     for (let i2 = 0, il2 = objetoValidacao.includes.length; i2 < il2; i2++) {
-      let element = this.includeExpressoes[
-        includesAnalise.indexOf(objetoValidacao.includes[i2].include)
-      ];
+      let element =
+        this.includeExpressoes[
+          includesAnalise.indexOf(objetoValidacao.includes[i2].include)
+        ];
       if (element) {
         includesFonteAll = includesFonteAll.concat(element.includes);
       }
@@ -558,9 +559,8 @@ export class Include {
     for (let i2 = 0, il2 = objetoValidacao.includes.length; i2 < il2; i2++) {
       let include: any = objetoValidacao.includes[i2];
       //se o include é analisado
-      let includeAnalise = this.includeExpressoes[
-        includesAnalise.indexOf(include.include)
-      ];
+      let includeAnalise =
+        this.includeExpressoes[includesAnalise.indexOf(include.include)];
       if (includeAnalise) {
         //Verifica se há algum include que está contido nesse INCLUDE
         for (let i = 0, il = includeAnalise.includes.length; i < il; i++) {
@@ -605,7 +605,7 @@ function traduz(key, local) {
   let i18n = require('i18n');
   i18n.configure({
     locales: locales,
-    directory: __dirname + '/locales'
+    directory: __dirname + '/locales',
   });
   i18n.setLocale(locales.indexOf(local) + 1 ? local : 'en');
   return i18n.__(key);
