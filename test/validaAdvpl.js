@@ -9,7 +9,7 @@ let conteudo;
 
 //seta variáveis
 objeto.ownerDb = ['PROTHEUS'];
-objeto.empresas = ['01'];
+objeto.empresas = ['01', '02', '03', '04', '05', '06'];
 
 describe('Valida arquivo com erros', function () {
   this.timeout(2000000);
@@ -164,6 +164,45 @@ describe('Valida arquivo WEBSRV', function () {
         fonte4.hint,
         0,
         `Existem ${fonte4.hint} hint no commmit.`
+      );
+    });
+  });
+});
+
+
+describe('Valida arquivo', function () {
+  this.timeout(2000000);
+  describe('Confere erros encontrados', function () {
+    this.timeout(2000000);
+    it('Número de erros de código', async function () {
+      this.timeout(2000000);
+      this.enableTimeouts(false);
+
+      //cópia de objeto
+      let fonte5 = Object.assign(new validaAdvpl.ValidaAdvpl([]), objeto);
+
+      conteudo = fileSystem.readFileSync(directoryPath + '\\ALEATORIO', 'latin1');
+      fonte5.validacao(conteudo, 'ALEATORIO');
+
+      assert.strictEqual(
+        fonte5.error,
+        0,
+        `Existem ${fonte5.error} error no commmit.`
+      );
+      assert.strictEqual(
+        fonte5.warning,
+        1,
+        `Existem ${fonte5.warning} warning no commmit.`
+      );
+      assert.strictEqual(
+        fonte5.information,
+        0,
+        `Existem ${fonte5.information} information no commmit.`
+      );
+      assert.strictEqual(
+        fonte5.hint,
+        0,
+        `Existem ${fonte5.hint} hint no commmit.`
       );
     });
   });

@@ -15,27 +15,19 @@ let comentario = [
 
 //seta variáveis
 objeto.ownerDb = ['PROTHEUS', 'PROTHEUS12'];
-objeto.empresas = ['01', '02'];
+objeto.empresas = ['01', '02', '03', '04', '05', '06'];
 objeto.comentFontPad = comentario;
 
-conteudo = fileSystem.readFileSync(
-    'D:\\GDRIVE\\Trabalho\\WORKSPACE\\NPM\\analise-advpl\\test\\files\\ALEATORIO',
+/*conteudo = fileSystem.readFileSync(
+    'D:\\GDRIVE\\Trabalho\\WORKSPACE\\NPM\\analise-advpl\\test\\files\\COM ERRO',
     'latin1'
 );
-objetoFonte.ownerDb = ['PROTHEUS', 'PROTHEUS12'];
-objetoFonte.empresas = ['01', '02'];
-objetoFonte.comentFontPad = comentario;
-objetoFonte.validacao(conteudo, 'PXGPEM19.prw');
-console.log(objetoFonte);
-/*
+let fonte2 = Object.assign(new validaAdvpl.ValidaAdvpl([]), objeto);
+fonte2.validacao(conteudo, 'SEM ERRO');*/
 
-objeto.validaProjeto(['D:\\rogerio\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus']).then((validaPrj) => {
+objeto.validaProjeto(['D:\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus']).then((validaPrj) => {
     //objeto.validaProjeto(['C:\\Users\\Robson\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF']).then((validaPrj) => {
-    fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
-        mode: 0o755
-    });
-    console.log(objeto)
-    console.log('kkk')
+    console.log(validaPrj)
 })
 //objeto.validaProjeto('D:\\rogerio\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus').then((validaPrj) => {
 //    //objeto.validaProjeto('C:\\Users\\Robson\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF').then((validaPrj) => {
@@ -43,4 +35,3 @@ objeto.validaProjeto(['D:\\rogerio\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\
 //        mode: 0o755
 //    });
 //})
-*/

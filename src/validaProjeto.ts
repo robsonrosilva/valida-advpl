@@ -3,10 +3,12 @@ import { Duplicados } from './models/Duplicados';
 import { Fonte, Funcao, Tipos } from './fonte';
 import { ItemModel } from './models/ItemProject';
 import { ProjectStatus } from './models/projectStatus';
+import { Fila, ItensValidacao } from './models/fila';
 import * as globby from 'globby';
 import * as fileSystem from 'fs';
 import { ValidaAdvpl } from './validaAdvpl';
 import { version } from './../package.json';
+import { Cache } from './cache';
 
 function PrintTempo(startTime): number {
   // calcula tempo gasto
@@ -27,6 +29,7 @@ export class ValidaProjeto {
   public empresas: string[];
   public local;
   public version: string = version;
+  public fila: Fila;
   private advplExtensions = ['prw', 'prx', 'prg', 'apw', 'apl', 'tlpp'];
   protected listaDuplicados = { files: [], functions: [] };
 
@@ -92,15 +95,21 @@ export class ValidaProjeto {
 
       Promise.all(promissesGlobby).then((folder: any[]) => {
         console.log('começando a validação(' + PrintTempo(startTime) + ')');
+        // monta fila
+        this.fila = new Fila();
+
         for (var x = 0; x < folder.length; x++) {
           let files = folder[x];
           status._total = files.length;
+
+          let cache: Cache = new Cache(pathsProject[x] + this.version);
+
           for (var j = 0; j < files.length; j++) {
-            status._atual = j;
             let fileName: string = files[j];
             let valida: ValidaAdvpl = new ValidaAdvpl(
               this.comentFontPad,
               this.local,
+              cache,
               this.log
             );
             valida.ownerDb = this.ownerDb;
@@ -111,39 +120,52 @@ export class ValidaProjeto {
             }
             try {
               let conteudo = fileSystem.readFileSync(
-                pathsProject + '\\' + fileName,
+                pathsProject[x] + '\\' + fileName,
                 'latin1'
               );
-              const filePromisse = valida.validacao(
-                conteudo,
-                pathsProject + '\\' + fileName
+
+              this.fila.list.push(
+                new ItensValidacao(
+                  pathsProject[x] + '\\' + fileName,
+                  pathsProject[x],
+                  conteudo,
+                  valida
+                )
               );
-              promisses.push(filePromisse);
             } catch (error) {
               console.log(`Erro na abertura do arquivo ${fileName}!\n${error}`);
             }
           }
         }
 
-        Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
-          console.log('verificando duplicados (' + PrintTempo(startTime) + ')');
-          for (var idx = 0; idx < validacoes.length; idx++) {
-            let validacao: ValidaAdvpl = validacoes[idx];
-            let itemProjeto = new ItemModel();
-            itemProjeto.content = validacao.conteudoFonte;
-            itemProjeto.errors = validacao.aErros;
-            itemProjeto.fonte = validacao.fonte;
+        this.fila
+          .run()
+          .then((validacoes: ValidaAdvpl[]) => {
+            console.log(
+              'verificando duplicados (' + PrintTempo(startTime) + ')'
+            );
+            for (var idx = 0; idx < validacoes.length; idx++) {
+              let validacao: ValidaAdvpl = validacoes[idx];
+              let itemProjeto = new ItemModel();
+              itemProjeto.content = validacao.conteudoFonte;
+              itemProjeto.errors = validacao.aErros;
+              itemProjeto.fonte = validacao.fonte;
 
-            this.projeto.push(itemProjeto);
-          }
-          // verifica duplicados
-          this.verificaDuplicados().then(() => {
-            if (this.log && startTime) {
-              console.log('Terminou! (' + PrintTempo(startTime) + ' segundos)');
-              resolve();
+              this.projeto.push(itemProjeto);
             }
+            // verifica duplicados
+            this.verificaDuplicados().then(() => {
+              if (this.log && startTime) {
+                console.log(
+                  'Terminou! (' + PrintTempo(startTime) + ' segundos)'
+                );
+                resolve();
+              }
+            });
+          })
+          .catch((e) => {
+            console.log(e);
           });
-        });
       });
     });
   }

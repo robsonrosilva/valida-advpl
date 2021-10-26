@@ -2,6 +2,8 @@ import { Include } from './include';
 import { Erro, Severity } from './models/Erro';
 import { Fonte, Tipos } from './fonte';
 import { version } from './../package.json';
+import { FileCache } from './models/FileCache';
+import { Cache } from './cache';
 
 export class ValidaAdvpl {
   public comentFontPad: string[];
@@ -17,9 +19,12 @@ export class ValidaAdvpl {
   public version: string;
   public conteudoFonte: string;
   private local;
+  cache: Cache;
+
   constructor(
     comentFontePad: string[],
     local: string,
+    cache: Cache,
     private log: boolean = true
   ) {
     this.local = local;
@@ -34,12 +39,48 @@ export class ValidaAdvpl {
     this.ownerDb = [];
     this.empresas = [];
     this.version = version;
+    this.cache = cache;
   }
 
   public validacao(texto: string, path: string): Promise<ValidaAdvpl> {
     return new Promise((resolve: Function, reject: Function) => {
       try {
         let objeto: ValidaAdvpl = this;
+        if (false && this.cache) {
+          // Desabilitar o cache
+          const file = this.cache.filesInCache.find((_file: FileCache) => {
+            return _file.file === path && _file.content === texto;
+          });
+          if (file) {
+            console.log('usando cache do ' + path + '!');
+            objeto = file.validaAdvpl;
+            if (
+              objeto.error + objeto.hint + objeto.warning + objeto.information >
+                0 &&
+              this.log
+            ) {
+              if (objeto.error > 0) {
+                console.log(`\t\t${objeto.error} Errors .`);
+              }
+              if (objeto.warning > 0) {
+                console.log(`\t\t${objeto.warning} Warnings .`);
+              }
+              if (objeto.information > 0) {
+                console.log(`\t\t${objeto.information} Informations .`);
+              }
+              if (objeto.hint > 0) {
+                console.log(`\t\t${objeto.hint} Hints .`);
+              }
+            }
+            resolve(objeto);
+            return;
+          }
+        }
+
+        // pepara objeto para o cache
+        let fileForCache: FileCache = new FileCache();
+        fileForCache.file = path;
+        fileForCache.content = texto;
 
         objeto.conteudoFonte = texto;
         objeto.aErros = [];
@@ -49,6 +90,7 @@ export class ValidaAdvpl {
         let linhas: String[] = texto.split('\n');
         //Pega as linhas do documento ativo e separa o array por linha
 
+        let restrictedFunctions: string[] = ['STATICCALL', 'PTINTERNAL'];
         let comentFuncoes: any[] = new Array();
         let funcoes: any[] = new Array();
         let cBeginSql: boolean = false;
@@ -158,6 +200,19 @@ export class ValidaAdvpl {
 
             // só analisa se tiver conteúdo
             if (conteudoSComentario.trim()) {
+              // verifica se tem alguma chamada das funções restritas
+              restrictedFunctions.forEach((functionName) => {
+                if (linhaClean.indexOf(functionName + '(') > -1) {
+                  objeto.aErros.push(
+                    new Erro(
+                      parseInt(key),
+                      parseInt(key),
+                      traduz('validaAdvpl.restrictUse', objeto.local),
+                      Severity.Error
+                    )
+                  );
+                }
+              });
               //verifica se é função e adiciona no array
               if (
                 linhaClean.match(
@@ -666,6 +721,15 @@ export class ValidaAdvpl {
             console.log(`\t\t${objeto.hint} Hints .`);
           }
         }
+
+        // se tem cache guarda
+        if (false && this.cache) {
+          // Desabilitar o cache
+          console.log('gravando cache!');
+          fileForCache.validaAdvpl = objeto;
+          this.cache.addFile(fileForCache);
+        }
+
         resolve(objeto);
       } catch (e) {
         reject(e);

@@ -20,7 +20,6 @@
     "validaAdvpl.functionNoCommented": "Função, Classe, Método ou WebService não comentado!",
     "validaAdvpl.CommentNoFunction": "Comentário de função sem função!",
     "validaAdvpl.foundFile": "Erros encontrados no arquivo",
-    "validaAdvpl.restrictUse": "Esta função tem um uso restrito para compilar!",
     "includes.faltaTOTVS": "Falta o include TOTVS.CH !",
     "includes.oInclude": "O Include",
     "includes.SubstTOTVS": " é obsoleto, o mesmo foi substituído pelo TOTVS.CH!",

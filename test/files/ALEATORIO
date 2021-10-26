@@ -1,229 +1,79 @@
-#INCLUDE 'APWEBSRV.CH'
-#INCLUDE "TOTVS.CH"
-
-/*/{Protheus.doc} PXGPEW06
-Web Service para o protheus
-
-@type	   WebService
-@author    Igor Guimarães
-@version   1.00
-@since     25/10/2017
-/*/
-
-WSSERVICE PXGPEW06 DESCRIPTION 'WebService para emissao de Recibo de ferias' NameSpace "http://www.totvs.com/protheus/integracoes/pex_crecibo"
-	//Entradas referente método GetPeriodos  
-    WSData 		Filial 		    AS STRING
-	WSData 		Matricula       AS STRING
-	WSData 		DataInicio      AS DATE
-	WSData 		DataFim         AS DATE
-
-    //Entradas referente método GetRecibo
-    WSData 		AnoInicio  		AS FLOAT OPTIONAL
-    WSData 		AnoFinal  		AS FLOAT OPTIONAL   
-    WSData 		Limite  		AS FLOAT OPTIONAL   
-
-    //Retorno GetPeriodos
-    WSData 		aPeriodos	    AS ARRAY OF W06PERIODOS //Obrigatório criar WsStruct
-    //Retorno GetRecibo
-	WSData 		Url  		    AS STRING
-    
-    WSMethod GetPeriodos		DESCRIPTION 'Método que retorna os periodos de férias'
-    WSMethod GetRecibo		    DESCRIPTION 'Método que emite recibo de férias'
-ENDWSSERVICE
-
-//------------------------------------------------------------------------------------------
-/*/ {Protheus.doc} W06PERIODOS
-Estrutura de dados para array.
-@type 	   Estrutura
-/*/
-//------------------------------------------------------------------------------------------
-
-WSStruct W06PERIODOS
-
-    WSData 		InicioPeriodo  		AS DATE
-    WSData 		FimPeriodo  		AS DATE 
-    WsData      Limferias           AS DATE
-    WSData 		FilialPeriodo  		AS STRING   
-    WSData 		AbonoPecuniario 	AS FLOAT
-    WSData 		AbonoAssiduidade	AS FLOAT
-    WSData 		AntecipacaoVenc		AS STRING
-    WSData 		Adiantamento13 		AS FLOAT
-	WSData		InicioReferencia	AS DATE
-	WSData		FimReferencia		AS DATE
-
-ENDWsStruct
-
-
-/*/{Protheus.doc} GetPeriodos
-
-   Descricao
-
-   @author  Igor Guimarães
-   @example Exemplos
-   @param   [Nome_do_Parametro],Tipo_do_Parametro,Descricao_do_Parametro
-   @return  Especifica_o_retorno
-   @table   Tabelas
-   @since   Data
-/*/
-
-WSMETHOD GetPeriodos WSRECEIVE AnoInicio, AnoFinal, Matricula, Limite WSSEND aPeriodos WSSERVICE PXGPEW06
-
-    Local nAnoIni   := cValToChar(::AnoInicio)
-    Local nAnoFim   := cValToChar(::AnoFinal)
-    Local cMat      := ::Matricula
-    Local cAliasSRH := getNextAlias()
-	Local cRandom 	:= cValToChar(Randomize( 0, 9999999 ))
-    Local cAliasSRH := "COPY TO "
-
-	U_WsLog("PXGPEW06.prw","Iniciando GetPeriodos... SUCESSO", cRandom)
-
-	If Empty(nAnoIni)
-		nAnoIni := "1900"
-	EndIf
-
-	iF empty(nAnoFim)
-		nAnoFim := REPLICATE("Z",4)
-	EndIf
-
-	If ::Limite == Nil	
-		nLimite := 10
-	Else
-		nLimite := ::Limite
-	EndIf
-    
-    BeginSql ALIAS cAliasSRH
-		SELECT * 
-		FROM (
-		  SELECT row_number() OVER (ORDER BY RH_DATAINI DESC) INDICE, 
-  				RH_FILIAL, 
-                RH_DATAINI, 
-                RH_DATAFIM, 
-                RH_DABONPE, 
-                RH_XABASSI, 
-                RH_XANTVEN, 
-                RH_PERC13S, 
-                RH_DBASEAT, 
-                RH_DATABAS  
-		  FROM %TABLE:SRH%
-		  WHERE RH_MAT = %Exp:cMat% 
-		  AND SUBSTR(RH_DATAINI,1,4) >= %Exp:nAnoIni%
-          AND SUBSTR(RH_DATAINI,1,4) <= %Exp:nAnoFim%
-		  AND %notDel%) WHERE INDICE <= %Exp:nLimite% 
-    EndSql
-    
-    ::aPeriodos := {} 
-
-    (cAliasSRH)->(DbGotop())
-    While (cAliasSRH)->(!Eof())
-
-        oPeriodo := WsClassNew('W06PERIODOS')
-        oPeriodo:InicioPeriodo    := StoD((cAliasSRH)->(RH_DATAINI))
-        oPeriodo:FimPeriodo       := StoD((cAliasSRH)->(RH_DATAFIM))
-        oPeriodo:FilialPeriodo    := (cAliasSRH)->(RH_FILIAL)
-        oPeriodo:AbonoPecuniario  := (cAliasSRH)->(RH_DABONPE)
-        oPeriodo:AbonoAssiduidade := (cAliasSRH)->(RH_XABASSI)
-        oPeriodo:AntecipacaoVenc  := (cAliasSRH)->(RH_XANTVEN)
-        oPeriodo:Adiantamento13   := (cAliasSRH)->(RH_PERC13S)
-        oPeriodo:InicioReferencia := StoD((cAliasSRH)->(RH_DATABAS))
-        oPeriodo:FimReferencia    := StoD((cAliasSRH)->(RH_DBASEAT))
-        oPeriodo:Limferias        := YearSum(oPeriodo:InicioReferencia,2) - 30 //dois anos após o inicio menos 30 dias
-
-        AAdd(::aPeriodos,oPeriodo)
-
-        (cAliasSRH)->(DbSkip())
-    EndDo
-
-	U_WsLog("PXGPEW06.prw","Finalizando GetPeriodos... SUCESSO", cRandom)
-
-Return .T.//O retorno indica se foi feito o processamento com sucesso ou não
-
-
-/*/{Protheus.doc} GetRecibo
-
-   Descricao
-
-   @author  Igor Guimarães
-   @example Exemplos
-   @param   [Matricula],C,matrícula do funcionário
-            [Mes],C,Mês de referência
-            [Ano],C,Ano de referência  
-   @return  Especifica_o_retorno
-   @table   Tabelas
-   @since   26/10/2017
-/*/
-
-WSMETHOD GetRecibo WSRECEIVE Filial, Matricula, DataInicio, DataFim WSSEND Url WSSERVICE PXGPEW06
-
-	Local cFilePrinte 	:= "cRecibo_" +  cValToChar(::Matricula) + "_" + StrZero(Randomize( 0, 999999 ),6) + StrTran(Time(),":") 
-	Local _cPerg 		:= PadR('PXGPER15',10)
-    Local cCodFil       := ::Filial
-    Local cMatFun       := ::Matricula
-    Local dDtIni        := ::DataInicio
-    Local dDtFim        := ::DataFim
-	Local cRandom 	    := cValToChar(Randomize( 0, 9999999 ))   
-	Private cPath		:= "/Web/WS/"
-
-	U_WsLog("PXGPEW06.prw","Iniciando GetRecibo... SUCESSO", cRandom)
-	//Cria pasta do dia e limp dos demais Dias
-	U_PXUTIL06(@cPath)
-
-	//Chamada das perguntas
-	Pergunte(_cPerg,.F.)
-
-    //Variaveis Utilizadas para Parametros
-	mv_par01 := dDtIni                                //  Periodo de Ferias De
-	mv_par02 := dDtFim                                //  Periodo de Ferias Ate
-	mv_par03 := cCodFil                               //  FiLial De
-	mv_par04 := cCodFil                               //  FiLial Ate
-	mv_par05 := cMatFun                               //  Matricula De
-	mv_par06 := cMatFun                               //  Matricula Ate
-	mv_par07 := 1                                     //  No. de Vias
-	mv_par08 := 2                                     //  Imprime Demitidos
-	
-    If Right(cPath,1) <> "/"
-        cPath := cPath + "/"
-    EndIf
-
-	If ! U_PXGPER15(cPath,cFilePrinte)	
-		Return .F.
-	EndIf
-
-	lEspera := ChecaFile(cPath + cFilePrinte + ".pdf")
-	i 		:= 0
-	While lEspera 
-		
-		//Espera meio segundo
-		Sleep( 500 )
-		lEspera := ChecaFile(cPath + cFilePrinte + ".pdf")
-
-		i++
-		If i > 10 .AND. ! lEspera
-			SetSoapFault("ERRO","Erro na geracao do Arquivo!")
-			Return .F.
-		EndIf
-	EndDo
-
-    ::Url := "/" + dTos(Date()) + "/" + cFilePrinte + ".pdf"
-
-	U_WsLog("PXGPEW06.prw","Finalizando GetRecibo... SUCESSO", cRandom)
-Return .T.
-
-/*/{Protheus.doc} ChecaFile
-
-   Descricao
-
-   @author  Robson Rogerio
-   @example Exemplos
-   @param   [Nome_do_Parametro],Tipo_do_Parametro,Descricao_do_Parametro
-   @return  Especifica_o_retorno
-   @table   Tabelas
-   @since   Data
-/*/
-
-Static Function ChecaFile (cFile)
-	nHandle := FOPEN(cFile)     // Abre o arquivo binário
-	nBloco 	:= 128
-	cBuffer := SPACE(512)
-	nBytes 	:= FREAD(nHandle, @cBuffer, nBloco)
-	FCLOSE(nHandle)
-Return nBytes == 0 .OR. nHandle == -1
+	BeginSql Alias ccAlias
+		SELECT
+			ZZ2_TIPO,
+			ZZ2_VALOR,
+			ZZ5_FILIAL,
+			A1_NOME,
+			ZZ5_PROTOR,
+			ZZ5_NMPROD,
+			SUM(ZZ5_QTDVID) ZZ5_QTDVID,
+			SUM(ZZ5_VALORM) ZZ5_VALORM
+		FROM
+			ZZ5010 ZZ5
+		INNER JOIN SA1010 A1
+		ON A1.R_E_C_N_O_ = (
+				SELECT
+					TOP 1 R_E_C_N_O_
+				FROM
+					SA1010
+				WHERE
+					D_E_L_E_T_ = ' '
+					AND A1_CGC = ZZ5_CGCCLI
+			)
+		INNER JOIN ZZH010 ZZH
+		ON ZZH.D_E_L_E_T_ = ' '
+			AND ZZH_CLIENT = A1_COD
+			AND ZZH_LOJA = A1_LOJA
+			AND ZZ5_DTVIGE BETWEEN ZZH_DATAIN AND ZZH_DATAFI
+			AND (
+				ZZH_TPPROD = ZZ5_PRODUT
+				OR ZZH_TPPROD = 'T'
+			)
+		INNER JOIN ZZ2010 ZZ2
+		ON ZZ2.D_E_L_E_T_ = ' '
+			AND ZZ2_CLIENT = ZZH_CLIENT
+			AND ZZ2_LOJA = ZZH_LOJA
+			AND ZZ2_CAMPAN = ZZH_CODIGO
+		WHERE
+			ZZ5.D_E_L_E_T_ = ' '
+			AND ZZ5_DTVIGE BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%
+			AND ZZ5_CODIGO IN(
+				SELECT
+					C6_XNUMCTR
+				FROM
+					SC6010 C6
+				INNER JOIN SD2010 D2
+				ON D2.D_E_L_E_T_ = ''
+					AND D2_PEDIDO = C6_NUM
+					AND D2_ITEMPV = C6_ITEM
+					AND D2_FILIAL = C6_FILIAL
+					AND C6.D_E_L_E_T_ = ' '
+			)
+		GROUP BY
+			ZZ2_TIPO,
+			ZZ2_VALOR,
+			ZZ5_FILIAL,
+			A1_NOME,
+			ZZ5_PROTOR,
+			ZZ5_NMPROD,
+			ZZ2_VIDAIN,
+			ZZ2_VIDAFI,
+			ZZ2_METAIN,
+			ZZ2_METAFI,
+			ZZ2_TIPO
+		HAVING
+			(
+				//-- Campanha de Quantidade de Vidas
+				(
+					ZZ2_TIPO = 'Q'
+					AND SUM(ZZ5_QTDVID) BETWEEN ZZ2_VIDAIN AND ZZ2_VIDAFI
+				)
+				OR //-- Campanha de Percentual de Vidas
+				//--(ZZ2_TIPO = 'P' AND ZZ5_QTDVID BETWEEN ZZ2_VIDAIN AND ZZ2_VIDAFI) OR
+				//-- Campanha de Valor
+				(
+					ZZ2_TIPO = 'V'
+					AND SUM(ZZ5_VALORM) BETWEEN ZZ2_METAIN AND ZZ2_METAFI
+				)
+			)
+	EndSql

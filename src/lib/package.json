@@ -1,0 +1,29 @@
+{
+    "name": "analise-advpl",
+    "version": "6.0.0",
+    "description": "Extension of ADVPL code analysis.",
+    "types": "lib/src/index.d.ts",
+    "main": "lib/src/index.js",
+    "scripts": {
+        "compile": "tsc -p ./",
+        "prepare": "npm run compile && cpy 'locales/**' '../lib/' --cwd=src --parents",
+        "test": "npm run compile && mocha \"./test/validaadvpl.js\""
+    },
+    "keywords": [],
+    "author": "Robson Rogério Silva",
+    "license": "ISC",
+    "dependencies": {
+        "file-system": "^2.2.2",
+        "globby": "^10.0.2",
+        "i18n": "^0.8.6"
+    },
+    "devDependencies": {
+        "@types/node": "^10.17.38",
+        "@types/vscode": "^1.49.0",
+        "asserts": "^4.0.2",
+        "chai": "^4.2.0",
+        "cpy-cli": "^3.1.1",
+        "mocha": "^8.3.1",
+        "typescript": "^3.9.7"
+    }
+}
