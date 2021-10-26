@@ -6,8 +6,6 @@ export class Fila {
   status: ProjectStatus = new ProjectStatus();
   list: ItensValidacao[] = [];
   returnList: ValidaAdvpl[] = [];
-  numberItem: number = 0;
-  numberTotal: number = 0;
 
   run(): Promise<ValidaAdvpl[]> {
     return new Promise((resolve: Function) => {
@@ -24,8 +22,8 @@ export class Fila {
       }
 
       // seta variáveis de controle
-      this.numberTotal = this.list.length;
-      this.numberItem = 0;
+      this.status._total = this.list.length;
+      this.status._atual = 0;
 
       // Processa de 10 em 10
       const runGroup = (item: number) => {
@@ -50,9 +48,9 @@ export class Fila {
           }
 
           // Incrementa os Processados
-          this.numberItem += validacoes.length;
+          this.status._atual += validacoes.length;
 
-          //console.log('' + this.numberItem + '/' + this.numberTotal);
+          //console.log('' + this.status._atual + '/' + this.status._total);
 
           runGroup(item + 1);
         });

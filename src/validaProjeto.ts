@@ -97,11 +97,10 @@ export class ValidaProjeto {
         console.log('começando a validação(' + PrintTempo(startTime) + ')');
         // monta fila
         this.fila = new Fila();
+        this.fila.status = status;
 
         for (var x = 0; x < folder.length; x++) {
           let files = folder[x];
-          status._total = files.length;
-
           let cache: Cache = new Cache(pathsProject[x] + this.version);
 
           for (var j = 0; j < files.length; j++) {
