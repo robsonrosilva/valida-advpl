@@ -471,33 +471,24 @@ export class ValidaAdvpl {
                   );
                 }
               }
-              if (
-                cSelect &&
-                (FromQuery || JoinQuery || linha.match('SET')) &&
-                linha.match('exp:cTable')
-              ) {
+              if (cSelect && (FromQuery || JoinQuery || linha.match('SET'))) {
                 //procura códigos de empresas nas queryes
                 for (var idb = 0; idb < objeto.empresas.length; idb++) {
-                  let empresa: string = objeto.empresas[idb];
-                  //para melhorar a análise vou quebrar a string por espaços
-                  //e removendo as quebras de linhas, vou varrer os itens do array e verificar o tamanho
-                  //e o código da empresa chumbado
-                  let palavras: string[] = linha
-                    .replace(/\r/g, '')
-                    .replace(/\t/g, '')
-                    .split(' ');
-                  for (var idb2 = 0; idb2 < palavras.length; idb2++) {
-                    let palavra: string = palavras[idb2];
-                    if (palavra.match(empresa + '0') && palavra.length === 6) {
-                      objeto.aErros.push(
-                        new Erro(
-                          parseInt(key),
-                          parseInt(key),
-                          traduz('validaAdvpl.tableFixed', objeto.local),
-                          Severity.Error
-                        )
-                      );
-                    }
+                  let reg = new RegExp(
+                    '\\s([A-Za-z0-9]){3}' +
+                      objeto.empresas[idb] +
+                      '([A-Za-z0-9]){1}(\\s|$)',
+                    'gmi'
+                  );
+                  if (reg.test(linha.toString())) {
+                    objeto.aErros.push(
+                      new Erro(
+                        parseInt(key),
+                        parseInt(key),
+                        traduz('validaAdvpl.tableFixed', objeto.local),
+                        Severity.Error
+                      )
+                    );
                   }
                 }
               }
