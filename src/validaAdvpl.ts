@@ -90,7 +90,12 @@ export class ValidaAdvpl {
         let linhas: String[] = texto.split('\n');
         //Pega as linhas do documento ativo e separa o array por linha
 
-        let restrictedFunctions: string[] = ['STATICCALL', 'PTINTERNAL'];
+        let restrictedFunctions: string[] = [
+          'STATICCALL',
+          'PTINTERNAL',
+          'BEGINTRAN',
+          'ENDTRAN',
+        ];
         let comentFuncoes: any[] = new Array();
         let funcoes: any[] = new Array();
         let cBeginSql: boolean = false;
