@@ -4,6 +4,7 @@ import { Fonte, Tipos } from './fonte';
 import { version } from './../package.json';
 import { FileCache } from './models/FileCache';
 import { Cache } from './cache';
+import { FuncoesRestritasDesontinuadas } from './models/Restritos';
 
 export class ValidaAdvpl {
   public comentFontPad: string[];
@@ -90,12 +91,7 @@ export class ValidaAdvpl {
         let linhas: String[] = texto.split('\n');
         //Pega as linhas do documento ativo e separa o array por linha
 
-        let restrictedFunctions: string[] = [
-          'STATICCALL',
-          'PTINTERNAL',
-          'BEGINTRAN',
-          'ENDTRAN',
-        ];
+        let restrictedFunctions = FuncoesRestritasDesontinuadas();
         let comentFuncoes: any[] = new Array();
         let funcoes: any[] = new Array();
         let cBeginSql: boolean = false;
@@ -206,14 +202,21 @@ export class ValidaAdvpl {
             // só analisa se tiver conteúdo
             if (conteudoSComentario.trim()) {
               // verifica se tem alguma chamada das funções restritas
-              restrictedFunctions.forEach((functionName) => {
-                if (linhaClean.indexOf(functionName + '(') > -1) {
+              restrictedFunctions.forEach((functionRestricted) => {
+                if (linhaClean.indexOf(functionRestricted.name + '(') > -1) {
                   objeto.aErros.push(
                     new Erro(
                       parseInt(key),
                       parseInt(key),
-                      traduz('validaAdvpl.restrictUse', objeto.local),
-                      Severity.Error
+                      functionRestricted.deprecated
+                        ? traduz('validaAdvpl.deprecated', objeto.local) +
+                          (functionRestricted.newFunction
+                            ? traduz('validaAdvpl.newfunction', objeto.local) +
+                              functionRestricted.newFunction +
+                              '!'
+                            : '')
+                        : traduz('validaAdvpl.restrictUse', objeto.local),
+                      functionRestricted.type
                     )
                   );
                 }

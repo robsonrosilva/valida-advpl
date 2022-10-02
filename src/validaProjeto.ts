@@ -4,7 +4,6 @@ import { Fonte, Funcao, Tipos } from './fonte';
 import { ItemModel } from './models/ItemProject';
 import { ProjectStatus } from './models/projectStatus';
 import { Fila, ItensValidacao } from './models/fila';
-import * as globby from 'globby';
 import * as fileSystem from 'fs';
 import { ValidaAdvpl } from './validaAdvpl';
 import { version } from './../package.json';
@@ -69,7 +68,7 @@ export class ValidaProjeto {
     status: ProjectStatus = new ProjectStatus()
   ) {
     return new Promise((resolve: Function) => {
-      let promisses: Promise<ValidaAdvpl>[] = [];
+      const fg = require('fast-glob');
 
       // monta expressão para buscar arquivos
       let globexp: any[] = [];
@@ -86,7 +85,7 @@ export class ValidaProjeto {
         // busca arquivos na pasta
         // let files: string[] = await
         promissesGlobby.push(
-          globby.default(globexp, {
+          fg(globexp, {
             cwd: pathProject,
             caseSensitiveMatch: false,
           })

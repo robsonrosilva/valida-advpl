@@ -28,10 +28,10 @@ fonte2.validacao(conteudo, 'SEM ERRO');
 console.log(fonte2);
 console.log('fim');
 
-//objeto.validaProjeto(['D:\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus']).then((validaPrj) => {
-//    //objeto.validaProjeto(['C:\\Users\\Robson\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF']).then((validaPrj) => {
-//    console.log(validaPrj)
-//})
+objeto.validaProjeto(['D:\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus']).then((validaPrj) => {
+    //objeto.validaProjeto(['C:\\Users\\Robson\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF']).then((validaPrj) => {
+    console.log(validaPrj)
+})
 //objeto.validaProjeto('D:\\rogerio\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus').then((validaPrj) => {
 //    //objeto.validaProjeto('C:\\Users\\Robson\\GDRIVE\\Trabalho\\WORKSPACE\\POUPEX\\ADVPL\\Protheus\\SIGAATF').then((validaPrj) => {
 //    fileSystem.writeFileSync('d:\\valida-advpl.json', JSON.stringify(validaPrj), {
