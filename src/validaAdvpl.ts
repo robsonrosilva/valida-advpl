@@ -91,7 +91,11 @@ export class ValidaAdvpl {
         let linhas: String[] = texto.split('\n');
         //Pega as linhas do documento ativo e separa o array por linha
 
-        let restrictedFunctions = FuncoesRestritasDesontinuadas();
+        let restrictedFunctions = FuncoesRestritasDesontinuadas().filter(
+          (x) => {
+            return texto.indexOf(x.name + '(') > -1;
+          }
+        );
         let comentFuncoes: any[] = new Array();
         let funcoes: any[] = new Array();
         let cBeginSql: boolean = false;
@@ -203,7 +207,8 @@ export class ValidaAdvpl {
             if (conteudoSComentario.trim()) {
               // verifica se tem alguma chamada das funções restritas
               restrictedFunctions.forEach((functionRestricted) => {
-                if (linhaClean.indexOf(functionRestricted.name + '(') > -1) {
+                if (linhaClean.match(functionRestricted.regex)) {
+                  const coluna = linha.indexOf(functionRestricted.name + '(');
                   objeto.aErros.push(
                     new Erro(
                       parseInt(key),
@@ -216,7 +221,9 @@ export class ValidaAdvpl {
                               '!'
                             : '')
                         : traduz('validaAdvpl.restrictUse', objeto.local),
-                      functionRestricted.type
+                      functionRestricted.type,
+                      coluna,
+                      coluna + functionRestricted.name.length
                     )
                   );
                 }

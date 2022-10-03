@@ -157,7 +157,7 @@ export class ValidaProjeto {
                 console.log(
                   'Terminou! (' + PrintTempo(startTime) + ' segundos)'
                 );
-                resolve();
+                resolve(this);
               }
             });
           })

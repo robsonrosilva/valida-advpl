@@ -1,11 +1,6 @@
 import { Severity } from './Erro';
-export function FuncoesRestritasDesontinuadas(): {
-  name: string;
-  type: Severity;
-  deprecated?: boolean;
-  newFunction?: string;
-}[] {
-  return [
+export function FuncoesRestritasDesontinuadas(): ObsoletosDescontinuados[] {
+  const lista = [
     { name: 'STATICCALL', type: Severity.Error },
     { name: 'PTINTERNAL', type: Severity.Error },
     { name: 'BEGINTRAN', type: Severity.Error },
@@ -195,5 +190,19 @@ export function FuncoesRestritasDesontinuadas(): {
       deprecated: true,
       newFunction: 'classe JsonObject',
     },
-  ];
+  ] as ObsoletosDescontinuados[];
+
+  lista.forEach((x) => {
+    x.regex = new RegExp('(,| |\\t|>|\\()' + x.name + '\\(', 'gmi');
+  });
+
+  return lista;
+}
+
+export class ObsoletosDescontinuados {
+  name: string;
+  type: Severity;
+  deprecated?: boolean;
+  newFunction?: string;
+  regex?: RegExp; // preenche só quando precisa na análise
 }
