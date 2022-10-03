@@ -208,7 +208,9 @@ export class ValidaAdvpl {
               // verifica se tem alguma chamada das funções restritas
               restrictedFunctions.forEach((functionRestricted) => {
                 if (linhaClean.match(functionRestricted.regex)) {
-                  const coluna = linha.indexOf(functionRestricted.name + '(');
+                  const coluna = linha
+                    .toUpperCase()
+                    .indexOf(functionRestricted.name.toUpperCase() + '(');
                   objeto.aErros.push(
                     new Erro(
                       parseInt(key),
