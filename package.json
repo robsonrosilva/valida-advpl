@@ -1,6 +1,6 @@
 {
   "name": "analise-advpl",
-  "version": "6.1.9",
+  "version": "6.2.0",
   "description": "Extension of ADVPL code analysis.",
   "types": "lib/src/index.d.ts",
   "main": "lib/src/index.js",
@@ -15,7 +15,8 @@
   "dependencies": {
     "fast-glob": "^3.2.12",
     "file-system": "^2.2.2",
-    "i18n": "^0.15.1"
+    "i18n": "^0.15.1",
+    "sha256": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^18.7.23",

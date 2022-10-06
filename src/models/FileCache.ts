@@ -1,6 +1,6 @@
 import { ValidaAdvpl } from './../validaAdvpl';
 export class FileCache {
   file: string;
-  content: string;
+  hash: string;
   validaAdvpl: ValidaAdvpl;
 }

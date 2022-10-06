@@ -8,9 +8,10 @@ export class Fila {
   returnList: ValidaAdvpl[] = [];
 
   run(): Promise<ValidaAdvpl[]> {
+    let gravacoesCache = 0;
     return new Promise((resolve: Function) => {
       // monta listas de processamento
-      const listaProcessamento = [[]];
+      const listaProcessamento: [ItensValidacao[]] = [[]];
 
       //junta de 10 em 10
       for (var i = 0; i < this.list.length; i++) {
@@ -33,14 +34,19 @@ export class Fila {
         }
 
         let promisses = [];
+        const limite = 30;
         for (var i = 0; i < listaProcessamento[item].length; i++) {
-          promisses.push(
-            listaProcessamento[item][i].validaAdvpl.validacao(
-              listaProcessamento[item][i].content,
-              listaProcessamento[item][i].fileName,
-              listaProcessamento[item][i].project
-            )
+          const obs = listaProcessamento[item][i].validaAdvpl.validacao(
+            listaProcessamento[item][i].content,
+            listaProcessamento[item][i].fileName,
+            gravacoesCache < limite
           );
+          obs.then((validacao: ValidaAdvpl) => {
+            if (validacao.gravouCache) {
+              gravacoesCache++;
+            }
+          });
+          promisses.push(obs);
         }
         Promise.all(promisses).then((validacoes: ValidaAdvpl[]) => {
           for (var i = 0; i < validacoes.length; i++) {

@@ -1,6 +1,7 @@
 import * as os from 'os';
 import * as fileSystem from 'fs';
 import { FileCache } from './models/FileCache';
+import { ValidaAdvpl } from './validaAdvpl';
 
 export class Cache {
   private tmpFolder: string = os.tmpdir();
@@ -34,11 +35,28 @@ export class Cache {
   addFile(file: FileCache) {
     // Faz uma cópia do objeto pois como uso sempre o mesmo evito maiores problemas
     file.validaAdvpl = JSON.parse(JSON.stringify(file.validaAdvpl));
-    this.filesInCache.push(file);
+
+    const vldClean = {
+      aErros: file.validaAdvpl.aErros,
+      includes: file.validaAdvpl.includes,
+      error: file.validaAdvpl.error,
+      warning: file.validaAdvpl.warning,
+      information: file.validaAdvpl.information,
+      hint: file.validaAdvpl.hint,
+      version: file.validaAdvpl.version,
+      hash: file.validaAdvpl.hash,
+      fonte: file.validaAdvpl.fonte,
+    } as ValidaAdvpl;
+
+    this.filesInCache.push({
+      file: file.file,
+      hash: file.hash,
+      validaAdvpl: vldClean,
+    });
     try {
       fileSystem.writeFileSync(
         this.tmpFolder + '\\' + this.fileCache,
-        JSON.stringify(this.filesInCache),
+        JSON.stringify(JSON.parse(JSON.stringify(this.filesInCache))),
         { flag: 'w' }
       );
     } catch (err) {

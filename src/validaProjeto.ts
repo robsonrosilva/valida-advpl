@@ -145,7 +145,7 @@ export class ValidaProjeto {
             for (var idx = 0; idx < validacoes.length; idx++) {
               let validacao: ValidaAdvpl = validacoes[idx];
               let itemProjeto = new ItemModel();
-              itemProjeto.content = validacao.conteudoFonte;
+              itemProjeto.hash = validacao.hash;
               itemProjeto.errors = validacao.aErros;
               itemProjeto.fonte = validacao.fonte;
 
@@ -215,7 +215,7 @@ export class ValidaProjeto {
           }
         } catch (e) {
           if (e.code === 'ENOENT') {
-            item.content = '';
+            item.hash = '';
             item.errors = [];
             item.fonte.funcoes = [];
           } else {

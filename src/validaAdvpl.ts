@@ -6,6 +6,8 @@ import { FileCache } from './models/FileCache';
 import { Cache } from './cache';
 import { FuncoesRestritasDesontinuadas } from './models/Restritos';
 
+const sha256 = require('sha256');
+
 export class ValidaAdvpl {
   public comentFontPad: string[];
   public error: number;
@@ -18,7 +20,8 @@ export class ValidaAdvpl {
   public empresas: string[];
   public fonte: Fonte;
   public version: string;
-  public conteudoFonte: string;
+  public hash: string;
+  public gravouCache: boolean;
   private local;
   cache: Cache;
 
@@ -43,14 +46,17 @@ export class ValidaAdvpl {
     this.cache = cache;
   }
 
-  public validacao(texto: string, path: string): Promise<ValidaAdvpl> {
+  public validacao(
+    texto: string,
+    path: string,
+    writeCache: boolean = true
+  ): Promise<ValidaAdvpl> {
     return new Promise((resolve: Function, reject: Function) => {
       try {
         let objeto: ValidaAdvpl = this;
-        if (false && this.cache) {
-          // Desabilitar o cache
+        if (this.cache) {
           const file = this.cache.filesInCache.find((_file: FileCache) => {
-            return _file.file === path && _file.content === texto;
+            return _file.file === path && _file.hash === sha256(texto);
           });
           if (file) {
             console.log('usando cache do ' + path + '!');
@@ -81,9 +87,9 @@ export class ValidaAdvpl {
         // pepara objeto para o cache
         let fileForCache: FileCache = new FileCache();
         fileForCache.file = path;
-        fileForCache.content = texto;
+        fileForCache.hash = sha256(texto);
 
-        objeto.conteudoFonte = texto;
+        objeto.hash = fileForCache.hash;
         objeto.aErros = [];
         objeto.includes = [];
         objeto.fonte = new Fonte(path);
@@ -730,12 +736,11 @@ export class ValidaAdvpl {
           }
         }
 
-        // se tem cache guarda
-        if (false && this.cache) {
-          // Desabilitar o cache
+        if (this.cache && writeCache) {
           console.log('gravando cache!');
           fileForCache.validaAdvpl = objeto;
           this.cache.addFile(fileForCache);
+          this.gravouCache = true;
         }
 
         resolve(objeto);
