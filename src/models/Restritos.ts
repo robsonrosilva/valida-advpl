@@ -193,7 +193,10 @@ export function FuncoesRestritasDesontinuadas(): ObsoletosDescontinuados[] {
   ] as ObsoletosDescontinuados[];
 
   lista.forEach((x) => {
-    x.regex = new RegExp('(,| |\\t|>|\\()' + x.name + '\\(', 'gmi');
+    x.regex = new RegExp(
+      '(,| |\\t|>|\\()' + x.name.toLocaleUpperCase() + '\\(',
+      'gmi'
+    );
   });
 
   return lista;

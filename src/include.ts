@@ -444,7 +444,9 @@ export class Include {
     );
 
     if (
-      !objetoValidacao.includes.indexOf((x: any) => x.include === 'TOTVS.CH')
+      !objetoValidacao.includes.find((x) => {
+        return x.include === 'TOTVS.CH';
+      })
     ) {
       objetoValidacao.aErros.push(
         new Erro(

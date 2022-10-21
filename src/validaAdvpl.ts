@@ -120,7 +120,7 @@ export class ValidaAdvpl {
             ProtheusDoc = false;
           }
           //verifica se é protheusDoc
-          if (linha.match(/^(\s*)(\/\*\/(.*)?\{Protheus.doc\}(.*)?)/i)) {
+          if (linha.match(/^(\s*)(\/\*(\/)?(.*)?\{Protheus.doc\}(.*)?)/i)) {
             ProtheusDoc = true;
             //reseta todas as ariáveis de controle pois se entrou em ProtheusDoc está fora de qualquer função
             cBeginSql = false;
@@ -131,7 +131,7 @@ export class ValidaAdvpl {
             comentFuncoes.push([
               linha
                 .trim()
-                .replace(/^(\s*)(\/\*\/(.*)?\{Protheus.doc\}( |\t)*)/i, '')
+                .replace(/^(\s*)(\/\*(\/)?(.*)?\{Protheus.doc\}( |\t)*)/i, '')
                 .trim()
                 .toLocaleUpperCase(),
               key,
@@ -213,7 +213,7 @@ export class ValidaAdvpl {
             if (conteudoSComentario.trim()) {
               // verifica se tem alguma chamada das funções restritas
               restrictedFunctions.forEach((functionRestricted) => {
-                if (linhaClean.match(functionRestricted.regex)) {
+                if (linhaClean.toUpperCase().match(functionRestricted.regex)) {
                   const coluna = linha
                     .toUpperCase()
                     .indexOf(functionRestricted.name.toUpperCase() + '(');
