@@ -349,13 +349,15 @@ export class ValidaProjeto {
   }
 }
 
+let locales: string[] = ['en', 'pt-br'];
+let i18n = require('i18n');
+const i18nConfig = {
+  locales: locales,
+  directory: __dirname + '/locales',
+};
+
 function traduz(key, local) {
-  let locales: string[] = ['en', 'pt-br'];
-  let i18n = require('i18n');
-  i18n.configure({
-    locales: locales,
-    directory: __dirname + '/locales',
-  });
+  i18n.configure(i18nConfig);
   i18n.setLocale(locales.indexOf(local) + 1 ? local : 'en');
   return i18n.__(key);
 }
