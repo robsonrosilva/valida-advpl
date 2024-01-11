@@ -35,7 +35,8 @@ export class ValidaProjeto {
   constructor(
     comentFontePad: string[],
     local: string,
-    private log: boolean = true
+    private log: boolean = true,
+    public cache: boolean = false
   ) {
     this.local = local;
     this.comentFontPad = comentFontePad;
@@ -100,7 +101,10 @@ export class ValidaProjeto {
 
         for (var x = 0; x < folder.length; x++) {
           let files = folder[x];
-          let cache: Cache = new Cache(pathsProject[x] + this.version);
+
+          let cache: Cache = this.cache
+            ? new Cache(pathsProject[x] + this.version)
+            : undefined;
 
           for (var j = 0; j < files.length; j++) {
             let fileName: string = files[j];

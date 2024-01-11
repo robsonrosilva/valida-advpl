@@ -7,13 +7,28 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "validaDebug",
       "program": "${workspaceFolder}\\test\\validaDebug.js",
       "preLaunchTask": "npm: compile",
       "sourceMaps": true,
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
-      "outFiles": ["${workspaceFolder}/lib/**/*.js"]
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "convertUserFunction",
+      "program": "${workspaceFolder}\\test\\convertUserFunction.js",
+      "preLaunchTask": "npm: compile",
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js"
+      ]
     }
   ]
 }
