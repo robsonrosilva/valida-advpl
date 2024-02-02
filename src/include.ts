@@ -470,7 +470,9 @@ export class Include {
             traduz('includes.oInclude', this.local) +
               include.include +
               traduz('includes.SubstTOTVS', this.local),
-            Severity.Warning
+            Severity.Warning,
+            0,
+            include.colunaFinal
           )
         );
       }
@@ -488,7 +490,9 @@ export class Include {
             traduz('includes.oInclude', this.local) +
               include.include +
               traduz('includes.emDuplicidade', this.local),
-            Severity.Warning
+            Severity.Warning,
+            0,
+            include.colunaFinal
           )
         );
       }
@@ -547,7 +551,9 @@ export class Include {
                     traduz('includes.faltaInclude', this.local) +
                       element.include +
                       '!',
-                    Severity.Error
+                    Severity.Error,
+                    0,
+                    element.colunaFinal
                   )
                 );
               }
@@ -580,7 +586,9 @@ export class Include {
                   traduz('includes.desnecessarioContido', this.local) +
                   include.include +
                   '!',
-                Severity.Warning
+                Severity.Warning,
+                0,
+                includeAnaliseContido.colunaFinal
               )
             );
           }
@@ -593,7 +601,9 @@ export class Include {
               'Include ' +
                 include.include +
                 traduz('includes.desnecessario', this.local),
-              Severity.Warning
+              Severity.Warning,
+              0,
+              include.colunaFinal
             )
           );
         }

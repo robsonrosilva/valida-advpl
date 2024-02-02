@@ -24,7 +24,7 @@ export class Erro {
     this.endLine = endLine;
     this.message = message;
     this.severity = severity;
-    this.columnStart = columnStart;
-    this.columnEnd = columnEnd;
+    this.columnStart = columnStart ? columnStart : 0;
+    this.columnEnd = columnEnd ? columnEnd : 0;
   }
 }

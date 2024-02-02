@@ -52,6 +52,11 @@ export class ValidaAdvpl {
     writeCache: boolean = true
   ): Promise<ValidaAdvpl> {
     return new Promise((resolve: Function, reject: Function) => {
+      // Set up the timeout
+      const timer = setTimeout(() => {
+        reject(new Error(`Promise timed out after ${1000} ms`));
+      }, 1000);
+
       try {
         let objeto: ValidaAdvpl = this;
         if (this.cache) {
@@ -79,6 +84,7 @@ export class ValidaAdvpl {
                 console.log(`\t\t${objeto.hint} Hints .`);
               }
             }
+            clearTimeout(timer);
             resolve(objeto);
             return;
           }
@@ -112,6 +118,10 @@ export class ValidaAdvpl {
         let emComentario: boolean = false;
         //Percorre todas as linhas
         for (var key in linhas) {
+          console.log('linha ' + key);
+          if (key == '1167') {
+            console.log('');
+          }
           //seta linha atual em caixa alta
           let linha: String = linhas[key].toLocaleUpperCase();
           let linhaClean: String = '';
@@ -314,7 +324,7 @@ export class ValidaAdvpl {
                   );
                 }
                 if (firstWord.match(/METHOD/)) {
-                  let palavras: string[] = linhaClean.split(/,| |\t|\(/);
+                  let palavras: string[] = linhaClean.split(/,|\s|\(/);
                   let metodo: string = palavras[1];
                   let classe: string;
                   for (var i = 0; i < palavras.length; i++) {
@@ -335,7 +345,7 @@ export class ValidaAdvpl {
               //Adiciona no objeto as variáveis locais
               if (firstWord === 'LOCAL') {
                 //remove o LOCAL
-                let variaveis: string[] = linhaClean.split(/,| |\t|\r/);
+                let variaveis: string[] = linhaClean.split(/,|\s|\r/);
                 for (var key2 of variaveis) {
                   if (key2 !== 'LOCAL' && key2 !== '') {
                     // se terminar as variáveis
@@ -358,6 +368,7 @@ export class ValidaAdvpl {
                     .replace(/\"/g, '')
                     .trim(),
                   linha: parseInt(key),
+                  colunaFinal: linha.length,
                 });
               }
               if (linhaClean.match(/^(\s*)BEGIN(\s*)ALIAS/)) {
@@ -366,29 +377,42 @@ export class ValidaAdvpl {
               if (linha.match(/(\s|\'|\"|)+(SELECT|DELETE|UPDATE)(\s)+/)) {
                 cSelect = true;
               }
-              if (
-                !cBeginSql &&
-                ((linha.match(
-                  /(\s|\'|\"|)+DBUSEAREA+(\s)*\(+.+TOPCONN+.+TCGENQRY/
-                ) &&
-                  !linha
-                    .replace(
-                      /(\s|\'|\"|)DBUSEAREA(\s)*\(.*,(\s|\'|\")*(.*)(\s|\'|\")/,
-                      '$4'
+
+              if (!cBeginSql) {
+                if (linhaClean.match(/(\s|,|\(|^)*TCQUERY(\s)/)) {
+                  objeto.aErros.push(
+                    new Erro(
+                      parseInt(key),
+                      parseInt(key),
+                      traduz('validaAdvpl.queryNoEmbedded', objeto.local),
+                      Severity.Warning
                     )
-                    .match(/TOPCONN/)) ||
-                  linhaClean.match(/TCQUERY+(\s)/))
-              ) {
-                objeto.aErros.push(
-                  new Erro(
-                    parseInt(key),
-                    parseInt(key),
-                    traduz('validaAdvpl.queryNoEmbedded', objeto.local),
-                    Severity.Warning
-                  )
+                  );
+                  FromQuery = false;
+                  cSelect = false;
+                }
+                const lnRepl = linha.replace(
+                  /(\s|\'|\"|)DBUSEAREA(\s)*\(.*,(\s|\'|\")*(.*)(\s|\'|\")/,
+                  '$4'
                 );
-                FromQuery = false;
-                cSelect = false;
+                if (
+                  linha.match(
+                    /(\s|\'|\"|)+DBUSEAREA+(\s)*\(+.+TOPCONN+.+TCGENQRY/
+                  ) &&
+                  lnRepl &&
+                  !lnRepl.match(/TOPCONN/)
+                ) {
+                  objeto.aErros.push(
+                    new Erro(
+                      parseInt(key),
+                      parseInt(key),
+                      traduz('validaAdvpl.queryNoEmbedded', objeto.local),
+                      Severity.Warning
+                    )
+                  );
+                  FromQuery = false;
+                  cSelect = false;
+                }
               }
               if (linha.match(/(\s|\'|\")+DELETE+(\s)+FROM+(\s)/)) {
                 objeto.aErros.push(
@@ -400,23 +424,32 @@ export class ValidaAdvpl {
                   )
                 );
               }
-              if (linhaClean.match(/MSGBOX\(/)) {
+              let match = linhaClean.match(/(\s|,|\(|^)*MSGBOX\(/);
+              if (match) {
+                const coluna = linha.toUpperCase().indexOf('MSGBOX');
+
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.msgBox', objeto.local),
-                    Severity.Information
+                    Severity.Information,
+                    coluna,
+                    coluna + 6
                   )
                 );
               }
               if (linha.match(/GETMV(\s|\()+(\"|\')+MV_FOLMES+(\"|\')/gi)) {
+                const coluna = linha.toUpperCase().indexOf('MV_FOLMES');
+
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.folMes', objeto.local),
-                    Severity.Information
+                    Severity.Information,
+                    coluna,
+                    coluna + 9
                   )
                 );
               }
@@ -437,7 +470,9 @@ export class ValidaAdvpl {
                     parseInt(key),
                     parseInt(nFim),
                     traduz('validaAdvpl.conflictMerge', objeto.local),
-                    Severity.Error
+                    Severity.Error,
+                    0,
+                    linhas[nFim].length
                   )
                 );
               }
@@ -518,41 +553,53 @@ export class ValidaAdvpl {
               if (cSelect && JoinQuery && linha.match('ON')) {
                 JoinQuery = false;
               }
-              if (linhaClean.match(/CONOUT(\s)*\(/)) {
+              if (linhaClean.match(/(\s|,|\(|^)*CONOUT(\s)*\(/)) {
+                const coluna = linha.toUpperCase().indexOf('CONOUT(');
+
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.conout', objeto.local),
-                    Severity.Warning
+                    Severity.Warning,
+                    coluna,
+                    coluna + 6
                   )
                 );
               }
               //  PUTSX1
-              if (linhaClean.match(/PUTSX1(\s)*\(/)) {
+              if (linhaClean.match(/(\s|,|\(|^)*PUTSX1(\s)*\(/)) {
+                const coluna = linha.toUpperCase().indexOf('PUTSX1(');
+
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.PutSX1', objeto.local),
-                    Severity.Error
+                    Severity.Error,
+                    coluna,
+                    coluna + 6
                   )
                 );
               }
               //  FreeObj(self) validação 12.1.27 10/2020
-              if (linhaClean.match(/FREEOBJ(\s)*\((\s)*SELF(\s)*/)) {
+              if (
+                linhaClean.match(/(\s|,|\(|^)*FREEOBJ(\s)*\((\s)*SELF(\s)*/)
+              ) {
                 objeto.aErros.push(
                   new Erro(
                     parseInt(key),
                     parseInt(key),
                     traduz('validaAdvpl.freeObjSelf', objeto.local),
-                    Severity.Error
+                    Severity.Error,
+                    0,
+                    linha.length
                   )
                 );
               }
               // Uso de Dicionários Fora do BeginSql
               let posicaoDic: number = (' ' + linhaClean).search(
-                /(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
+                /(,|\s|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim
               );
               if (
                 !cBeginSql &&
@@ -574,13 +621,13 @@ export class ValidaAdvpl {
               }
               if (
                 linhaClean.match(
-                  /(,| |\t||\()*(MSFILE|MSFILE|DBCREATE|CRIATRAB)+( \(|\t\(|\()+/gim
+                  /(\s|,|\(|^)*(MSFILE|MSFILE|DBCREATE|CRIATRAB)+( \(|\t\(|\()+/gim
                 ) ||
                 linhaClean.match(
                   /( |)*(MSCOPYFILE|MSERASE|COPY TO)+( |\t)+/gim
                 ) ||
                 (linhaClean.match(
-                  /(,| |\t||\()*(DBUSEAREA)+( \(|\t\(|\()+/gim
+                  /(\s|,|\(|^)*(DBUSEAREA)+( \(|\t\(|\()+/gim
                 ) &&
                   !linha.match(/TOPCONN/))
               ) {
@@ -663,12 +710,18 @@ export class ValidaAdvpl {
           }
 
           if (!achou) {
+            const coluna = linhas[parseInt(funcao[1])]
+              .toUpperCase()
+              .indexOf(funcao[0]);
+
             objeto.aErros.push(
               new Erro(
                 parseInt(funcao[1]),
                 parseInt(funcao[1]),
                 traduz('validaAdvpl.functionNoCommented', objeto.local),
-                Severity.Warning
+                Severity.Warning,
+                coluna,
+                coluna + funcao[0].length
               )
             );
           }
@@ -683,12 +736,15 @@ export class ValidaAdvpl {
           }
 
           if (!achou) {
+            const coluna = linhas[parseInt(comentario[1])].indexOf('}');
             objeto.aErros.push(
               new Erro(
                 parseInt(comentario[1]),
                 parseInt(comentario[1]),
                 traduz('validaAdvpl.CommentNoFunction', objeto.local),
-                Severity.Warning
+                Severity.Warning,
+                coluna + 1,
+                linhas[parseInt(comentario[1])].length
               )
             );
           }
@@ -743,8 +799,10 @@ export class ValidaAdvpl {
           this.gravouCache = true;
         }
 
+        clearTimeout(timer);
         resolve(objeto);
       } catch (e) {
+        clearTimeout(timer);
         reject(e);
       }
     });

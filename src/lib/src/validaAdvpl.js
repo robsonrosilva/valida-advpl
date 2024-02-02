@@ -222,7 +222,7 @@ class ValidaAdvpl {
                                     objeto.fonte.addFunction(fonte_1.Tipos.Class, linhaClean.trim().split(' ')[1].split('(')[0], parseInt(key));
                                 }
                                 if (firstWord.match(/METHOD/)) {
-                                    let palavras = linhaClean.split(/,| |\t|\(/);
+                                    let palavras = linhaClean.split(/,|\s|\(/);
                                     let metodo = palavras[1];
                                     let classe;
                                     for (var i = 0; i < palavras.length; i++) {
@@ -238,7 +238,7 @@ class ValidaAdvpl {
                             //Adiciona no objeto as variáveis locais
                             if (firstWord === 'LOCAL') {
                                 //remove o LOCAL
-                                let variaveis = linhaClean.split(/,| |\t|\r/);
+                                let variaveis = linhaClean.split(/,|\s|\r/);
                                 for (var key2 of variaveis) {
                                     if (key2 !== 'LOCAL' && key2 !== '') {
                                         // se terminar as variáveis
@@ -363,7 +363,7 @@ class ValidaAdvpl {
                                 objeto.aErros.push(new Erro_1.Erro(parseInt(key), parseInt(key), traduz('validaAdvpl.freeObjSelf', objeto.local), Erro_1.Severity.Error));
                             }
                             // Uso de Dicionários Fora do BeginSql
-                            let posicaoDic = (' ' + linhaClean).search(/(,| |\t|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim);
+                            let posicaoDic = (' ' + linhaClean).search(/(,|\s|\>|\()+X+(1|2|3|5|6|7|9|A|B|D|G)+\_/gim);
                             if (!cBeginSql &&
                                 posicaoDic !== -1 &&
                                 (' ' + linhaClean)
@@ -373,9 +373,9 @@ class ValidaAdvpl {
                                     .match(/\(/)) {
                                 objeto.aErros.push(new Erro_1.Erro(parseInt(key), parseInt(key), traduz('validaAdvpl.Dictionary', objeto.local), Erro_1.Severity.Error));
                             }
-                            if (linhaClean.match(/(,| |\t||\()*(MSFILE|MSFILE|DBCREATE|CRIATRAB)+( \(|\t\(|\()+/gim) ||
+                            if (linhaClean.match(/(,|\s||\()*(MSFILE|MSFILE|DBCREATE|CRIATRAB)+( \(|\t\(|\()+/gim) ||
                                 linhaClean.match(/( |)*(MSCOPYFILE|MSERASE|COPY TO)+( |\t)+/gim) ||
-                                (linhaClean.match(/(,| |\t||\()*(DBUSEAREA)+( \(|\t\(|\()+/gim) &&
+                                (linhaClean.match(/(,|\s||\()*(DBUSEAREA)+( \(|\t\(|\()+/gim) &&
                                     !linha.match(/TOPCONN/))) {
                                 objeto.aErros.push(new Erro_1.Erro(parseInt(key), parseInt(key), traduz('validaAdvpl.Isam', objeto.local), Erro_1.Severity.Error));
                             }

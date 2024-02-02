@@ -19,7 +19,7 @@ objeto.empresas = ['01', '02', '03', '04', '05', '06'];
 objeto.comentFontPad = comentario;
 
 conteudo = fileSystem.readFileSync(
-    'D:\\GDrive\\Trabalho\\Workspace\\POUPEX\\ADVPL\\protheus\\SIGAATF\\PONTOS DE ENTRADA\\AF050CHK.prw',
+    'd:\\Workspace\\MOTOMAN\\MOTOMAN_ADVPL\\fontes\\gper020.prw',
     'latin1'
 );
 let fonte2 = Object.assign(new validaAdvpl.ValidaAdvpl([]), objeto);
