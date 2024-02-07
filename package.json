@@ -1,12 +1,12 @@
 {
   "name": "advpl-lint",
-  "version": "6.2.5",
+  "version": "6.2.6",
   "description": "Extensão de análise de códigos ADVPL e TLPP.",
   "types": "lib/src/index.d.ts",
   "main": "lib/src/index.js",
   "scripts": {
     "compile": "tsc -p ./",
-    "prepare": "npm run compile && cpy 'locales/**' '../lib/' --cwd=src --parents",
+    "prepare": "npm run compile && cpy src/locales lib --parents",
     "test": "npm run compile && mocha \"./test/validaadvpl.js\""
   },
   "keywords": [],
